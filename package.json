@@ -1,0 +1,57 @@
+{
+  "name": "walletconnect-mock-wallet",
+  "version": "1.0.0-beta",
+  "private": true,
+  "keywords": [
+    "walletconnect",
+    "ethereum",
+    "web3",
+    "crypto"
+  ],
+  "author": "WalletConnect <walletconnect.org>",
+  "homepage": "https://walletconnect.org",
+  "license": "LGPL-3.0",
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bignumber.js": "^8.0.1",
+    "qr-image": "^3.2.0",
+    "react": "^16.6.3",
+    "react-blockies": "^1.4.0",
+    "react-dom": "^16.6.3",
+    "react-qr-reader": "^2.1.1",
+    "react-scripts-ts": "^4.0.8",
+    "styled-components": "^4.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walletconnect/walletconnect-monorepo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/walletconnect/walletconnect-monorepo/issues"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.15",
+    "@types/qr-image": "^3.2.1",
+    "@types/react": "^16.7.17",
+    "@types/react-dom": "^16.0.11",
+    "@types/react-qr-reader": "^2.1.2",
+    "@types/styled-components": "^4.1.4",
+    "typescript": "^3.2.2"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
