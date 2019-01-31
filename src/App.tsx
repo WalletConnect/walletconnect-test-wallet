@@ -337,6 +337,14 @@ class App extends React.Component<{}> {
     }
   };
 
+  public onURIPaste = async (data: any) => {
+      const uri = typeof data === "string" ? data : "";
+      if (uri) {
+          await this.setState({ uri });
+          await this.initWalletConnect();
+      }
+  };
+
   public onQRCodeError = (error: Error) => {
     throw error;
   };
@@ -365,7 +373,7 @@ class App extends React.Component<{}> {
           <Card maxWidth={400}>
             <STitle>{`Wallet`}</STitle>
             {!connected ? (
-              peerMeta.name ? (
+                peerMeta && peerMeta.name ? (
                 <SColumn>
                   <PeerMeta peerMeta={peerMeta} />
                   <SActions>
@@ -389,6 +397,9 @@ class App extends React.Component<{}> {
 
                   <SActions>
                     <Button onClick={this.toggleScanner}>{`Scan`}</Button>
+                    <input onChange={async e=>{
+                      await this.onURIPaste(e.target.value)
+                    }} placeholder={"OR paste wc: uri"}/>
                   </SActions>
                 </SColumn>
               )
@@ -406,7 +417,7 @@ class App extends React.Component<{}> {
                   />
                 </div>
 
-                {peerMeta.name && (
+                {peerMeta && peerMeta.name && (
                   <>
                     <h6>{"Connected to"}</h6>
                     <div>{peerMeta.name}</div>
