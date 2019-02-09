@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import WalletConnect from "./lib";
+import WalletConnect from "@walletconnect/browser";
 
 import Button from "./components/Button";
 import Card from "./components/Card";
@@ -338,11 +338,11 @@ class App extends React.Component<{}> {
   };
 
   public onURIPaste = async (data: any) => {
-      const uri = typeof data === "string" ? data : "";
-      if (uri) {
-          await this.setState({ uri });
-          await this.initWalletConnect();
-      }
+    const uri = typeof data === "string" ? data : "";
+    if (uri) {
+      await this.setState({ uri });
+      await this.initWalletConnect();
+    }
   };
 
   public onQRCodeError = (error: Error) => {
@@ -373,7 +373,7 @@ class App extends React.Component<{}> {
           <Card maxWidth={400}>
             <STitle>{`Wallet`}</STitle>
             {!connected ? (
-                peerMeta && peerMeta.name ? (
+              peerMeta && peerMeta.name ? (
                 <SColumn>
                   <PeerMeta peerMeta={peerMeta} />
                   <SActions>
@@ -397,9 +397,12 @@ class App extends React.Component<{}> {
 
                   <SActions>
                     <Button onClick={this.toggleScanner}>{`Scan`}</Button>
-                    <input onChange={async e=>{
-                      await this.onURIPaste(e.target.value)
-                    }} placeholder={"OR paste wc: uri"}/>
+                    <input
+                      onChange={async e => {
+                        await this.onURIPaste(e.target.value);
+                      }}
+                      placeholder={"OR paste wc: uri"}
+                    />
                   </SActions>
                 </SColumn>
               )
