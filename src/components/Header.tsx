@@ -42,6 +42,11 @@ const SActiveChain = styled(SActiveAccount)`
 
 const SAddresss = styled.p`
   font-weight: bold;
+  margin-top: -2px;
+`;
+
+const SBlockie = styled(Blockie)`
+  margin-right: 10px;
 `;
 
 const SDisconnect = styled.div`
@@ -50,7 +55,7 @@ const SDisconnect = styled.div`
   font-family: monospace;
   position: absolute;
   right: 0;
-  top: 30px;
+  top: 20px;
   opacity: 0.7;
   cursor: pointer;
 
@@ -80,7 +85,7 @@ const Header = (props: IHeaderProps) => {
       )}
       {address && (
         <SActiveAccount>
-          <Blockie address={address} />
+          <SBlockie address={address} />
           <SAddresss>{ellipseAddress(address)}</SAddresss>
           {connected && (
             <SDisconnect onClick={killSession}>{"Disconnect"}</SDisconnect>

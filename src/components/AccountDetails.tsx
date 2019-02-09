@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import { responsive } from "../styles";
 
 import Blockie from "./Blockie";
 
@@ -10,8 +11,19 @@ const SAccount = styled.div`
 
 const SAddress = styled.p`
   font-family: monospace;
-  font-size: calc(6px + 1vmin);
+  font-size: 13px;
   font-weight: bold;
+  @media screen and (${responsive.xs.max}) {
+    font-size: 2.6vw;
+    margin: 12px 0;
+  }
+`;
+
+const SBlockie = styled(Blockie)`
+  margin-right: 5px;
+  @media screen and (${responsive.xs.max}) {
+    margin-right: 1vw;
+  }
 `;
 
 interface IAccountDetailsProps {
@@ -23,7 +35,7 @@ const AccountDetails = (props: IAccountDetailsProps) => (
     <h6>{"Accounts"}</h6>
     {props.accounts.map((address: string) => (
       <SAccount key={address}>
-        <Blockie size={20} address={address} />
+        <SBlockie size={25} address={address} />
         <SAddress>{address}</SAddress>
       </SAccount>
     ))}
