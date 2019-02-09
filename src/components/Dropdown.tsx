@@ -7,6 +7,7 @@ interface IDropdownStyle {
   show?: boolean;
   selected?: boolean;
   disabled?: boolean;
+  monospace?: boolean;
 }
 
 const SDropdownStyleProps = styled.div<IDropdownStyle>``;
@@ -20,6 +21,7 @@ const SDropdown = styled(SDropdownStyleProps)`
   align-items: center;
   border-radius: 6px;
   box-shadow: ${shadows.medium};
+  font-family: ${({ monospace }) => (monospace ? "monospace" : "inherit")};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 `;
 
@@ -68,6 +70,7 @@ interface IDropdownProps {
   targetKey: number | string;
   disabled?: boolean;
   onChange?: any;
+  monospace?: boolean;
 }
 
 class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
@@ -105,9 +108,11 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
       }
       options.forEach((option: any) => {
         const optionKey = option[targetKey];
+        console.log("selected", selected); // tslint:disable-line
         if (option[targetKey] !== selected) {
           otherKeys.push(optionKey);
         }
+        console.log("optionKey", optionKey); // tslint:disable-line
         optionsDict[optionKey] = option;
       });
     } else {
@@ -138,27 +143,30 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
   };
 
   public render() {
-    const { displayKey, selected, disabled } = this.props;
+    const { displayKey, selected, disabled, monospace } = this.props;
     const { show, otherKeys, optionsDict } = this.state;
     return !!Object.keys(optionsDict).length ? (
-      <ClickOutside onClickOutside={this.onClickOutside}>
-        <SDropdown disabled={disabled}>
+      <ClickOutside onClickOutside={this.onClickOutside} {...this.props}>
+        <SDropdown
+          monospace={monospace}
+          disabled={disabled || !otherKeys.length}
+        >
           <SRow selected={true} show={show} onClick={this.toggleDropdown}>
             {optionsDict[selected][displayKey]}
           </SRow>
-          <SAbsolute show={show}>
-            {!!otherKeys.length &&
-              otherKeys.map((otherKey, idx) => (
+          {!!otherKeys.length && (
+            <SAbsolute show={show}>
+              {otherKeys.map((otherKey, idx) => (
                 <SRow
                   show={show}
-                  // tslint:disable-next-line jsx-no-lambda
                   onClick={() => this.onChange(otherKey)}
                   key={`${otherKey}-${idx}`}
                 >
                   {optionsDict[otherKey][displayKey]}
                 </SRow>
               ))}
-          </SAbsolute>
+            </SAbsolute>
+          )}
         </SDropdown>
       </ClickOutside>
     ) : null;

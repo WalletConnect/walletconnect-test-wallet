@@ -1,18 +1,15 @@
 import * as React from "react";
 import styled from "styled-components";
-
 import WalletConnect from "@walletconnect/browser";
-
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Header from "./components/Header";
 import PeerMeta from "./components/PeerMeta";
-import Dropdown from "./components/Dropdown";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
-import chains from "./helpers/chains";
+import { colors, shadows } from "./styles";
 
 const SContainer = styled.div`
   display: flex;
@@ -42,7 +39,7 @@ const SContent = styled.div`
 `;
 
 const STitle = styled.h1`
-  margin: 10px auto 20px;
+  margin: 10px auto;
   text-align: center;
   font-size: calc(10px + 2vmin);
 `;
@@ -54,6 +51,30 @@ const SActions = styled.div`
   & > * {
     margin: 0 5px;
   }
+`;
+
+const SActionsColumn = styled(SActions)`
+  flex-direction: column;
+`;
+
+const SInput = styled.input`
+  border: none;
+  background: rgb(${colors.white});
+  border-style: none;
+  padding: 12px;
+  outline: none;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  border-radius: 8px;
+  box-shadow: ${shadows.medium};
+  margin: 10px;
 `;
 
 interface IAppState {
@@ -105,8 +126,8 @@ const INITIAL_STATE = {
   },
   connected: false,
   chainId: defaultChainId,
-  accounts: [],
-  address: "",
+  accounts: testAccounts.map(account => account.address),
+  address: testAccounts[0].address,
   requests: [],
   results: []
 };
@@ -125,8 +146,6 @@ class App extends React.Component<{}> {
   }
 
   public initWallet = async () => {
-    this.generateTestAccounts();
-
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
 
     if (local) {
@@ -182,9 +201,9 @@ class App extends React.Component<{}> {
   };
 
   public approveSession = () => {
-    const { walletConnector, chainId, accounts } = this.state;
+    const { walletConnector, chainId, address } = this.state;
     if (walletConnector) {
-      walletConnector.approveSession({ chainId, accounts });
+      walletConnector.approveSession({ chainId, accounts: [address] });
     }
     this.setState({ walletConnector });
   };
@@ -208,12 +227,6 @@ class App extends React.Component<{}> {
   public resetApp = async () => {
     await this.setState({ ...INITIAL_STATE });
     this.initWallet();
-  };
-
-  public generateTestAccounts = () => {
-    const accounts = testAccounts.map(account => account.address);
-    const address = accounts[0];
-    this.setState({ accounts, address });
   };
 
   public subscribeToEvents = () => {
@@ -249,14 +262,7 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        const { chainId, accounts } = payload.params[0];
-        const address = accounts[0];
-        this.setState({
-          connected: true,
-          chainId,
-          accounts,
-          address
-        });
+        this.setState({ connected: true });
       });
 
       walletConnector.on("disconnect", (error, payload) => {
@@ -271,12 +277,10 @@ class App extends React.Component<{}> {
 
       if (walletConnector.connected) {
         const { chainId, accounts } = walletConnector;
-        const address = accounts[0];
         this.setState({
           connected: true,
-          chainId,
-          accounts,
-          address
+          address: accounts[0],
+          chainId
         });
       }
 
@@ -286,28 +290,32 @@ class App extends React.Component<{}> {
 
   public updateSession = async (sessionParams: {
     chainId?: number;
-    accounts?: string[];
+    address?: string;
   }) => {
-    const { walletConnector, chainId, accounts } = this.state;
+    const { walletConnector, chainId, address } = this.state;
     const _chainId = sessionParams.chainId || chainId;
-    const _accounts = sessionParams.accounts || accounts;
+    const _address = sessionParams.address || address;
     if (walletConnector) {
       walletConnector.updateSession({
         chainId: _chainId,
-        accounts: _accounts
+        accounts: [_address]
       });
     }
 
     await this.setState({
       walletConnector,
       chainId: _chainId,
-      accounts: _accounts
+      address: _address
     });
   };
 
   public updateChain = async (chainId: number | string) => {
     const _chainId = Number(chainId);
     this.updateSession({ chainId: _chainId });
+  };
+
+  public updateAddress = async (address: string) => {
+    this.updateSession({ address });
   };
 
   public toggleScanner = () => {
@@ -383,43 +391,33 @@ class App extends React.Component<{}> {
                 </SColumn>
               ) : (
                 <SColumn>
-                  <AccountDetails accounts={accounts} />
-                  <div>
-                    <h6>{"Network"}</h6>
-                    <Dropdown
-                      selected={chainId}
-                      options={chains}
-                      displayKey={"name"}
-                      targetKey={"chain_id"}
-                      onChange={this.updateChain}
-                    />
-                  </div>
-
-                  <SActions>
+                  <AccountDetails
+                    address={address}
+                    chainId={chainId}
+                    accounts={accounts}
+                    updateAddress={this.updateAddress}
+                    updateChain={this.updateChain}
+                  />
+                  <SActionsColumn>
                     <Button onClick={this.toggleScanner}>{`Scan`}</Button>
-                    <input
+                    <SInput
                       onChange={async e => {
                         await this.onURIPaste(e.target.value);
                       }}
                       placeholder={"OR paste wc: uri"}
                     />
-                  </SActions>
+                  </SActionsColumn>
                 </SColumn>
               )
             ) : (
               <SColumn>
-                <AccountDetails accounts={accounts} />
-                <div>
-                  <h6>{"Network"}</h6>
-                  <Dropdown
-                    selected={chainId}
-                    options={chains}
-                    displayKey={"name"}
-                    targetKey={"chain_id"}
-                    onChange={this.updateChain}
-                  />
-                </div>
-
+                <AccountDetails
+                  address={address}
+                  chainId={chainId}
+                  accounts={accounts}
+                  updateAddress={this.updateAddress}
+                  updateChain={this.updateChain}
+                />
                 {peerMeta && peerMeta.name && (
                   <>
                     <h6>{"Connected to"}</h6>
