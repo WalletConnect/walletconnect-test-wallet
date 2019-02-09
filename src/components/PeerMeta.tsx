@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { IClientMeta } from "src/lib/types";
+import { IClientMeta } from "@walletconnect/types";
 
 const SIcon = styled.img`
   width: 100px;
