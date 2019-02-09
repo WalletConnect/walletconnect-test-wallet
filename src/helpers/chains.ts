@@ -7,7 +7,8 @@ const supportedChains: IChainData[] = [
     chain: "ETH",
     network: "mainnet",
     chain_id: 1,
-    network_id: 1
+    network_id: 1,
+    rpc_url: "https://mainnet.infura.io/"
   },
   {
     name: "Ethereum Ropsten",
@@ -15,7 +16,8 @@ const supportedChains: IChainData[] = [
     chain: "ETH",
     network: "ropsten",
     chain_id: 3,
-    network_id: 3
+    network_id: 3,
+    rpc_url: "https://ropsten.infura.io/"
   },
   {
     name: "Ethereum Rinkeby",
@@ -23,7 +25,8 @@ const supportedChains: IChainData[] = [
     chain: "ETH",
     network: "rinkeby",
     chain_id: 4,
-    network_id: 4
+    network_id: 4,
+    rpc_url: "https://rinkeby.infura.io/"
   },
   {
     name: "Ethereum Görli",
@@ -31,7 +34,8 @@ const supportedChains: IChainData[] = [
     chain: "ETH",
     network: "goerli",
     chain_id: 5,
-    network_id: 5
+    network_id: 5,
+    rpc_url: "https://rpc.goerli.mudit.blog/"
   },
   {
     name: "Ethereum Kovan",
@@ -39,7 +43,8 @@ const supportedChains: IChainData[] = [
     chain: "ETH",
     network: "kovan",
     chain_id: 42,
-    network_id: 42
+    network_id: 42,
+    rpc_url: "https://kovan.infura.io/"
   },
   {
     name: "Ethereum Classic Mainnet",
@@ -47,7 +52,8 @@ const supportedChains: IChainData[] = [
     chain: "ETC",
     network: "mainnet",
     chain_id: 61,
-    network_id: 1
+    network_id: 1,
+    rpc_url: "https://ethereumclassic.network"
   },
   {
     name: "POA Network Sokol",
@@ -55,7 +61,8 @@ const supportedChains: IChainData[] = [
     chain: "POA",
     network: "sokol",
     chain_id: 77,
-    network_id: 1
+    network_id: 1,
+    rpc_url: "https://sokol.poa.network"
   },
   {
     name: "POA Network Core",
@@ -63,7 +70,8 @@ const supportedChains: IChainData[] = [
     chain: "POA",
     network: "core",
     chain_id: 99,
-    network_id: 2
+    network_id: 2,
+    rpc_url: "https://core.poa.network"
   },
   {
     name: "xDAI Chain",
@@ -71,7 +79,8 @@ const supportedChains: IChainData[] = [
     chain: "DAI",
     network: "mainnet",
     chain_id: 100,
-    network_id: 1
+    network_id: 1,
+    rpc_url: "https://dai.poa.network"
   }
 ];
 
