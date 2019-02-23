@@ -3,20 +3,21 @@ import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
 import Button from "./components/Button";
 import Card from "./components/Card";
+import Input from "./components/Input";
 import Header from "./components/Header";
 import PeerMeta from "./components/PeerMeta";
+import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
-import { colors, shadows } from "./styles";
 
 const SContainer = styled.div`
   display: flex;
   flex-direction: column;
 
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   max-width: 600px;
   margin: 0 auto;
   padding: 0;
@@ -45,7 +46,9 @@ const STitle = styled.h1`
 `;
 
 const SActions = styled.div`
-  margin: 20px auto;
+  margin: 0;
+  margin-top: 20px;
+
   display: flex;
   justify-content: space-around;
   & > * {
@@ -54,27 +57,51 @@ const SActions = styled.div`
 `;
 
 const SActionsColumn = styled(SActions)`
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+
+  & > p {
+    font-weight: 600;
+  }
 `;
 
-const SInput = styled.input`
-  border: none;
-  background: rgb(${colors.white});
-  border-style: none;
-  padding: 12px;
-  outline: none;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  text-align: left;
-  border-radius: 8px;
-  box-shadow: ${shadows.medium};
+const SButton = styled(Button)`
+  width: 50%;
+  height: 40px;
+`;
+
+const SInput = styled(Input)`
+  width: 50%;
   margin: 10px;
+  font-size: 14px;
+  height: 40px;
+`;
+
+const SConnectedPeer = styled.div`
+  display: flex;
+  align-items: center;
+  & img {
+    width: 40px;
+    height: 40px;
+  }
+  & > div {
+    margin-left: 10px;
+  }
+`;
+
+const SRequestButton = styled(RequestButton)`
+  margin-bottom: 10px;
+`;
+
+const SRequestValues = styled.div`
+  font-family: monospace;
+  width: 100%;
+  font-size: 12px;
+  background-color: #eee;
+  padding: 8px;
+  word-break: break-word;
+  border-radius: 8px;
+  margin-bottom: 10px;
 `;
 
 interface IAppState {
@@ -95,6 +122,7 @@ interface IAppState {
   address: string;
   requests: any[];
   results: any[];
+  displayRequest: any;
 }
 
 const testAccounts = [
@@ -129,7 +157,8 @@ const INITIAL_STATE = {
   accounts: testAccounts.map(account => account.address),
   address: testAccounts[0].address,
   requests: [],
-  results: []
+  results: [],
+  displayRequest: null
 };
 
 class App extends React.Component<{}> {
@@ -233,8 +262,8 @@ class App extends React.Component<{}> {
     const { walletConnector } = this.state;
 
     if (walletConnector) {
-      walletConnector.on("wc_sessionRequest", (error, payload) => {
-        console.log('walletConnector.on("wc_sessionRequest")'); // tslint:disable-line
+      walletConnector.on("session_request", (error, payload) => {
+        console.log('walletConnector.on("session_request")'); // tslint:disable-line
 
         if (error) {
           throw error;
@@ -345,8 +374,10 @@ class App extends React.Component<{}> {
     }
   };
 
-  public onURIPaste = async (data: any) => {
+  public onURIPaste = async (e: any) => {
+    const data = e.target.value;
     const uri = typeof data === "string" ? data : "";
+    console.log("uri", uri); // tslint:disable-line
     if (uri) {
       await this.setState({ uri });
       await this.initWalletConnect();
@@ -359,6 +390,42 @@ class App extends React.Component<{}> {
 
   public onQRCodeClose = () => this.toggleScanner();
 
+  public openRequest = (request: any) =>
+    this.setState({ displayRequest: request });
+
+  public approveRequest = () => {
+    const { walletConnector, requests, displayRequest } = this.state;
+    if (walletConnector) {
+      walletConnector.approveRequest({
+        id: displayRequest.id,
+        result: ""
+      });
+    }
+    const filteredRequests = requests.filter(
+      request => request.id === displayRequest.id
+    );
+    this.setState({
+      walletConnector,
+      requests: filteredRequests,
+      displayRequest: null
+    });
+  };
+
+  public rejectRequest = () => {
+    const { walletConnector, requests, displayRequest } = this.state;
+    if (walletConnector) {
+      walletConnector.rejectRequest({ id: displayRequest.id });
+    }
+    const filteredRequests = requests.filter(
+      request => request.id === displayRequest.id
+    );
+    this.setState({
+      walletConnector,
+      requests: filteredRequests,
+      displayRequest: null
+    });
+  };
+
   public render() {
     const {
       peerMeta,
@@ -367,7 +434,8 @@ class App extends React.Component<{}> {
       accounts,
       address,
       chainId,
-      requests
+      requests,
+      displayRequest
     } = this.state;
     return (
       <SContainer>
@@ -399,17 +467,16 @@ class App extends React.Component<{}> {
                     updateChain={this.updateChain}
                   />
                   <SActionsColumn>
-                    <Button onClick={this.toggleScanner}>{`Scan`}</Button>
+                    <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
+                    <p>{"OR"}</p>
                     <SInput
-                      onChange={async e => {
-                        await this.onURIPaste(e.target.value);
-                      }}
-                      placeholder={"OR paste wc: uri"}
+                      onChange={this.onURIPaste}
+                      placeholder={"Paste wc: uri"}
                     />
                   </SActionsColumn>
                 </SColumn>
               )
-            ) : (
+            ) : !displayRequest ? (
               <SColumn>
                 <AccountDetails
                   address={address}
@@ -421,21 +488,45 @@ class App extends React.Component<{}> {
                 {peerMeta && peerMeta.name && (
                   <>
                     <h6>{"Connected to"}</h6>
-                    <div>{peerMeta.name}</div>
+                    <SConnectedPeer>
+                      <img src={peerMeta.icons[0]} alt={peerMeta.name} />
+                      <div>{peerMeta.name}</div>
+                    </SConnectedPeer>
                   </>
                 )}
                 <h6>{"Pending Call Requests"}</h6>
                 {!!requests.length ? (
                   requests.map(request => (
-                    <div key={request.id}>
+                    <SRequestButton
+                      key={request.id}
+                      onClick={() => this.openRequest(request)}
+                    >
                       <div>{request.method}</div>
-                    </div>
+                    </SRequestButton>
                   ))
                 ) : (
                   <div>
                     <div>{"No pending requests"}</div>
                   </div>
                 )}
+              </SColumn>
+            ) : (
+              <SColumn>
+                <h6>{"Request From"}</h6>
+                <SConnectedPeer>
+                  <img src={peerMeta.icons[0]} alt={peerMeta.name} />
+                  <div>{peerMeta.name}</div>
+                </SConnectedPeer>
+                <h6>{`Method`}</h6>
+                <SRequestValues>{displayRequest.method}</SRequestValues>
+                <h6>{`Params`}</h6>
+                <SRequestValues>
+                  {JSON.stringify(displayRequest.params, null, "\t")}
+                </SRequestValues>
+                <SActions>
+                  <Button onClick={this.approveRequest}>{`Approve`}</Button>
+                  <Button onClick={this.rejectRequest}>{`Reject`}</Button>
+                </SActions>
               </SColumn>
             )}
           </Card>

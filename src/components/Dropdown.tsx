@@ -20,7 +20,7 @@ const SDropdown = styled(SDropdownStyleProps)`
   justify-content: center;
   align-items: center;
   border-radius: 6px;
-  box-shadow: ${shadows.medium};
+  box-shadow: ${shadows.hard};
   font-family: ${({ monospace }) => (monospace ? "monospace" : "inherit")};
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 `;
@@ -48,10 +48,12 @@ const SAbsolute = styled(SAbsoluteStyleProps)`
   position: absolute;
   top: 100%;
   width: 100%;
-  height: 150px;
-  overflow: scroll;
+  max-height: 150px;
+  overflow-x: hidden;
+  overflow-y: scroll;
   z-index: 1;
   border-radius: 0 0 6px 6px;
+  box-shadow: ${shadows.hard};
   opacity: ${({ show }) => (show ? "1" : "0")};
   pointer-events: ${({ show }) => (show ? "auto" : "non")};
   visibility: ${({ show }) => (show ? "visible" : "hidden")};
@@ -108,11 +110,9 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
       }
       options.forEach((option: any) => {
         const optionKey = option[targetKey];
-        console.log("selected", selected); // tslint:disable-line
         if (option[targetKey] !== selected) {
           otherKeys.push(optionKey);
         }
-        console.log("optionKey", optionKey); // tslint:disable-line
         optionsDict[optionKey] = option;
       });
     } else {
@@ -146,9 +146,9 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     const { displayKey, selected, disabled, monospace } = this.props;
     const { show, otherKeys, optionsDict } = this.state;
     return !!Object.keys(optionsDict).length ? (
-      <ClickOutside onClickOutside={this.onClickOutside} {...this.props}>
+      <ClickOutside onClickOutside={this.onClickOutside}>
         <SDropdown
-          monospace={monospace}
+          monospace={!!monospace}
           disabled={disabled || !otherKeys.length}
         >
           <SRow selected={true} show={show} onClick={this.toggleDropdown}>

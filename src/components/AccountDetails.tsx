@@ -5,6 +5,7 @@ import chains from "../helpers/chains";
 import { ellipseAddress } from "src/helpers/utilities";
 import { responsive } from "../styles";
 import Blockie from "./Blockie";
+import { getViewportDimensions } from "../helpers/utilities";
 
 const SSection = styled.div`
   width: 100%;
@@ -15,10 +16,6 @@ const SBlockie = styled(Blockie)`
   @media screen and (${responsive.xs.max}) {
     margin-right: 1vw;
   }
-`;
-
-const SDropdown = styled(Dropdown)`
-  width: 100%;
 `;
 
 const SAddressDropdownWrapper = styled.div`
@@ -38,19 +35,24 @@ interface IAccountDetailsProps {
 
 const AccountDetails = (props: IAccountDetailsProps) => {
   const { chainId, address, accounts, updateAddress, updateChain } = props;
+  const windowWidth = getViewportDimensions().x;
+  const maxWidth = 468;
+  const maxChar = 12;
+  const ellipseLength =
+    windowWidth > maxWidth
+      ? maxChar
+      : Math.floor(windowWidth * (maxChar / maxWidth));
   const accountsMap = accounts.map((addr: string) => ({
     address: addr,
-    display_address: ellipseAddress(addr, 8)
+    display_address: ellipseAddress(addr, ellipseLength)
   }));
-  console.log("address", address); // tslint:disable-line
-  console.log("accountsMap", accountsMap); // tslint:disable-line
   return (
     <React.Fragment>
       <SSection>
         <h6>{"Account"}</h6>
         <SAddressDropdownWrapper>
           <SBlockie size={40} address={address} />
-          <SDropdown
+          <Dropdown
             monospace
             selected={address}
             options={accountsMap}
@@ -62,7 +64,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
       </SSection>
       <SSection>
         <h6>{"Network"}</h6>
-        <SDropdown
+        <Dropdown
           selected={chainId}
           options={chains}
           displayKey={"name"}
