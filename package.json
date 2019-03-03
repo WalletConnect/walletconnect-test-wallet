@@ -18,9 +18,11 @@
     "eject": "react-scripts-ts eject"
   },
   "dependencies": {
-    "@walletconnect/browser": "^1.0.0-beta.3",
+    "@walletconnect/browser": "^1.0.0-beta.6",
+    "@walletconnect/utils": "^1.0.0-beta.6",
     "axios": "^0.18.0",
     "bignumber.js": "^8.0.1",
+    "ethers": "^4.0.26",
     "qr-image": "^3.2.0",
     "react": "^16.6.3",
     "react-blockies": "^1.4.0",
@@ -37,6 +39,7 @@
     "url": "https://github.com/walletconnect/walletconnect-monorepo/issues"
   },
   "devDependencies": {
+    "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.15",
     "@types/qr-image": "^3.2.1",

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { IAssetData, IGasPrices, IParsedTx } from "./types";
+import { payloadId, getChainData } from "./utilities";
 
 const api: AxiosInstance = axios.create({
   baseURL: "https://ethereum-api.xyz",
@@ -9,6 +10,48 @@ const api: AxiosInstance = axios.create({
     "Content-Type": "application/json"
   }
 });
+
+export const apiSendTransaction = async (
+  txParams: any,
+  chainId: number
+): Promise<number> => {
+  const rpcUrl = getChainData(chainId).rpc_url;
+
+  if (!rpcUrl && typeof rpcUrl !== "string") {
+    throw new Error("Invalid or missing rpc url");
+  }
+
+  const response = await axios.post(rpcUrl, {
+    jsonrpc: "2.0",
+    id: payloadId(),
+    method: "eth_sendTransaction",
+    params: [txParams]
+  });
+
+  const result = response.data.result;
+  return result;
+};
+
+export const apiSendRawTransaction = async (
+  signedTx: string,
+  chainId: number
+): Promise<number> => {
+  const rpcUrl = getChainData(chainId).rpc_url;
+
+  if (!rpcUrl && typeof rpcUrl !== "string") {
+    throw new Error("Invalid or missing rpc url");
+  }
+
+  const response = await axios.post(rpcUrl, {
+    jsonrpc: "2.0",
+    id: payloadId(),
+    method: "eth_sendTransaction",
+    params: [signedTx]
+  });
+
+  const result = response.data.result;
+  return result;
+};
 
 export async function apiGetAccountAssets(
   address: string,

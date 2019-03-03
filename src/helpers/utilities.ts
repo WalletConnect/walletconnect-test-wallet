@@ -102,6 +102,13 @@ export function isMobile(): boolean {
   return mobile;
 }
 
+export function payloadId(): number {
+  const datePart: number = new Date().getTime() * Math.pow(10, 3);
+  const extraPart: number = Math.floor(Math.random() * Math.pow(10, 3));
+  const id: number = datePart + extraPart;
+  return id;
+}
+
 export function getChainData(chainId: number): IChainData {
   const chainData = supportedChains.filter(
     (chain: any) => chain.chain_id === chainId

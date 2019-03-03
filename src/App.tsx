@@ -5,12 +5,20 @@ import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
 import Header from "./components/Header";
+import Column from "./components/Column";
 import PeerMeta from "./components/PeerMeta";
+import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
+import {
+  testAccounts,
+  updateWallet,
+  sendTransaction,
+  signMessage
+} from "./helpers/wallet";
 
 const SContainer = styled.div`
   display: flex;
@@ -21,12 +29,6 @@ const SContainer = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 0;
-`;
-
-const SColumn = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
 `;
 
 const SContent = styled.div`
@@ -93,17 +95,6 @@ const SRequestButton = styled(RequestButton)`
   margin-bottom: 10px;
 `;
 
-const SRequestValues = styled.div`
-  font-family: monospace;
-  width: 100%;
-  font-size: 12px;
-  background-color: #eee;
-  padding: 8px;
-  word-break: break-word;
-  border-radius: 8px;
-  margin-bottom: 10px;
-`;
-
 interface IAppState {
   loading: boolean;
   scanner: boolean;
@@ -124,19 +115,6 @@ interface IAppState {
   results: any[];
   displayRequest: any;
 }
-
-const testAccounts = [
-  {
-    address: "0x6e4d387c925a647844623762aB3C4a5B3acd9540",
-    privateKey:
-      "c13d25f6ad00f532b530d75bf3a5f16b8e11e5619bc9b165a6ac99b150a2f456"
-  },
-  {
-    address: "0xeF8fD2BDC6F6Be83F92054F8Ecd6B010f28CE7F4",
-    privateKey:
-      "67543bed4cc767d6153daf55547c5fa751657dab953d4bc01846c7a6a4fc4782"
-  }
-];
 
 const defaultChainId = 3;
 
@@ -188,11 +166,16 @@ class App extends React.Component<{}> {
 
       const walletConnector = new WalletConnect({ session });
 
-      const { connected, chainId, peerMeta } = walletConnector;
+      const { connected, chainId, accounts, peerMeta } = walletConnector;
+
+      const address = accounts[0];
+
+      updateWallet(address, chainId);
 
       await this.setState({
         connected,
         walletConnector,
+        address,
         chainId,
         peerMeta
       });
@@ -273,6 +256,15 @@ class App extends React.Component<{}> {
         this.setState({ peerMeta });
       });
 
+      walletConnector.on("session_update", (error, payload) => {
+        console.log('walletConnector.on("session_update")'); // tslint:disable-line
+
+        if (error) {
+          throw error;
+        }
+        console.log("payload", payload); // tslint:disable-line
+      });
+
       walletConnector.on("call_request", (error, payload) => {
         console.log('walletConnector.on("call_request")'); // tslint:disable-line
 
@@ -306,9 +298,11 @@ class App extends React.Component<{}> {
 
       if (walletConnector.connected) {
         const { chainId, accounts } = walletConnector;
+        const address = accounts[0];
+        updateWallet(address, chainId);
         this.setState({
           connected: true,
-          address: accounts[0],
+          address,
           chainId
         });
       }
@@ -339,12 +333,16 @@ class App extends React.Component<{}> {
   };
 
   public updateChain = async (chainId: number | string) => {
+    const { address } = this.state;
     const _chainId = Number(chainId);
-    this.updateSession({ chainId: _chainId });
+    await updateWallet(address, _chainId);
+    await this.updateSession({ chainId: _chainId });
   };
 
   public updateAddress = async (address: string) => {
-    this.updateSession({ address });
+    const { chainId } = this.state;
+    await updateWallet(address, chainId);
+    await this.updateSession({ address });
   };
 
   public toggleScanner = () => {
@@ -393,37 +391,65 @@ class App extends React.Component<{}> {
   public openRequest = (request: any) =>
     this.setState({ displayRequest: request });
 
-  public approveRequest = () => {
-    const { walletConnector, requests, displayRequest } = this.state;
-    if (walletConnector) {
-      walletConnector.approveRequest({
-        id: displayRequest.id,
-        result: ""
-      });
-    }
+  public closeRequest = async () => {
+    const { requests, displayRequest } = this.state;
     const filteredRequests = requests.filter(
-      request => request.id === displayRequest.id
+      request => request.id !== displayRequest.id
     );
-    this.setState({
-      walletConnector,
+    await this.setState({
       requests: filteredRequests,
       displayRequest: null
     });
   };
 
-  public rejectRequest = () => {
-    const { walletConnector, requests, displayRequest } = this.state;
+  public approveRequest = async () => {
+    const { walletConnector, displayRequest, address } = this.state;
+
+    try {
+      let result = null;
+
+      if (walletConnector) {
+        switch (displayRequest.method) {
+          case "eth_sendTransaction":
+            result = await sendTransaction(displayRequest.params[0]);
+          case "personal_sign":
+          case "eth_sign":
+            if (address === displayRequest.params[0]) {
+              result = await signMessage(displayRequest.params[1]);
+            }
+          default:
+            break;
+        }
+
+        if (result) {
+          walletConnector.approveRequest({
+            id: displayRequest.id,
+            result
+          });
+        } else {
+          walletConnector.rejectRequest({
+            id: displayRequest.id,
+            error: { message: "JSON RPC method not supported" }
+          });
+        }
+      }
+    } catch (error) {
+      if (walletConnector) {
+        walletConnector.rejectRequest({ id: displayRequest.id });
+      }
+    }
+
+    this.closeRequest();
+    await this.setState({ walletConnector });
+  };
+
+  public rejectRequest = async () => {
+    const { walletConnector, displayRequest } = this.state;
     if (walletConnector) {
       walletConnector.rejectRequest({ id: displayRequest.id });
     }
-    const filteredRequests = requests.filter(
-      request => request.id === displayRequest.id
-    );
-    this.setState({
-      walletConnector,
-      requests: filteredRequests,
-      displayRequest: null
-    });
+    await this.closeRequest();
+    await this.setState({ walletConnector });
   };
 
   public render() {
@@ -450,15 +476,15 @@ class App extends React.Component<{}> {
             <STitle>{`Wallet`}</STitle>
             {!connected ? (
               peerMeta && peerMeta.name ? (
-                <SColumn>
+                <Column>
                   <PeerMeta peerMeta={peerMeta} />
                   <SActions>
                     <Button onClick={this.approveSession}>{`Approve`}</Button>
                     <Button onClick={this.rejectSession}>{`Reject`}</Button>
                   </SActions>
-                </SColumn>
+                </Column>
               ) : (
-                <SColumn>
+                <Column>
                   <AccountDetails
                     address={address}
                     chainId={chainId}
@@ -474,10 +500,10 @@ class App extends React.Component<{}> {
                       placeholder={"Paste wc: uri"}
                     />
                   </SActionsColumn>
-                </SColumn>
+                </Column>
               )
             ) : !displayRequest ? (
-              <SColumn>
+              <Column>
                 <AccountDetails
                   address={address}
                   chainId={chainId}
@@ -509,25 +535,14 @@ class App extends React.Component<{}> {
                     <div>{"No pending requests"}</div>
                   </div>
                 )}
-              </SColumn>
+              </Column>
             ) : (
-              <SColumn>
-                <h6>{"Request From"}</h6>
-                <SConnectedPeer>
-                  <img src={peerMeta.icons[0]} alt={peerMeta.name} />
-                  <div>{peerMeta.name}</div>
-                </SConnectedPeer>
-                <h6>{`Method`}</h6>
-                <SRequestValues>{displayRequest.method}</SRequestValues>
-                <h6>{`Params`}</h6>
-                <SRequestValues>
-                  {JSON.stringify(displayRequest.params, null, "\t")}
-                </SRequestValues>
-                <SActions>
-                  <Button onClick={this.approveRequest}>{`Approve`}</Button>
-                  <Button onClick={this.rejectRequest}>{`Reject`}</Button>
-                </SActions>
-              </SColumn>
+              <DisplayRequest
+                displayRequest={displayRequest}
+                peerMeta={peerMeta}
+                approveRequest={this.approveRequest}
+                rejectRequest={this.rejectRequest}
+              />
             )}
           </Card>
         </SContent>
