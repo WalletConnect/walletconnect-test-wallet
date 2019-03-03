@@ -435,7 +435,10 @@ class App extends React.Component<{}> {
       }
     } catch (error) {
       if (walletConnector) {
-        walletConnector.rejectRequest({ id: displayRequest.id });
+        walletConnector.rejectRequest({
+          id: displayRequest.id,
+          error: { message: "Failed or Rejected Request" }
+        });
       }
     }
 
@@ -446,7 +449,10 @@ class App extends React.Component<{}> {
   public rejectRequest = async () => {
     const { walletConnector, displayRequest } = this.state;
     if (walletConnector) {
-      walletConnector.rejectRequest({ id: displayRequest.id });
+      walletConnector.rejectRequest({
+        id: displayRequest.id,
+        error: { message: "Failed or Rejected Request" }
+      });
     }
     await this.closeRequest();
     await this.setState({ walletConnector });
