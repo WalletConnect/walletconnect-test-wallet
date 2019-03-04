@@ -262,7 +262,6 @@ class App extends React.Component<{}> {
         if (error) {
           throw error;
         }
-        console.log("payload", payload); // tslint:disable-line
       });
 
       walletConnector.on("call_request", (error, payload) => {
@@ -375,7 +374,6 @@ class App extends React.Component<{}> {
   public onURIPaste = async (e: any) => {
     const data = e.target.value;
     const uri = typeof data === "string" ? data : "";
-    console.log("uri", uri); // tslint:disable-line
     if (uri) {
       await this.setState({ uri });
       await this.initWalletConnect();
@@ -434,6 +432,7 @@ class App extends React.Component<{}> {
         }
       }
     } catch (error) {
+      console.error(error); // tslint:disable-line
       if (walletConnector) {
         walletConnector.rejectRequest({
           id: displayRequest.id,

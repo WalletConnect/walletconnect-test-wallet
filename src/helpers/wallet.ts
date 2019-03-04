@@ -21,23 +21,25 @@ export async function updateWallet(address: string, chainId: number) {
   const account = testAccounts.filter(
     account => account.address === address
   )[0];
-  console.log("[updateWallet] address", address); // tslint:disable-line
-  console.log("[updateWallet] account", account); // tslint:disable-line
-  console.log("[updateWallet] chainId", chainId); // tslint:disable-line
   if (account) {
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
     activeAccount = new ethers.Wallet(account.privateKey, provider);
-    console.log("[updateWallet] activeAccount", activeAccount); // tslint:disable-line
   }
   return null;
 }
 
 export async function sendTransaction(transaction: any) {
-  console.log("[sendTransaction] transaction", transaction); // tslint:disable-line
-  console.log("[sendTransaction] activeAccount", activeAccount); // tslint:disable-line
   if (activeAccount) {
-    const { hash } = await activeAccount.sendTransaction(transaction);
-    return hash;
+    if (transaction.from && transaction.from !== activeAccount.address) {
+      console.error("Transaction request From doesn't match active account"); // tslint:disable-line
+    }
+
+    if (transaction.from) {
+      delete transaction.from;
+    }
+
+    const result = await activeAccount.sendTransaction(transaction);
+    return result.hash;
   } else {
     console.error("No Active Account"); // tslint:disable-line
   }
@@ -45,7 +47,6 @@ export async function sendTransaction(transaction: any) {
 }
 
 export async function signMessage(message: any) {
-  console.log("[signMessage] activeAccount", activeAccount); // tslint:disable-line
   if (activeAccount) {
     const result = await activeAccount.signMessage(message);
     return result;
