@@ -54,7 +54,7 @@ export async function sendTransaction(transaction: any) {
 
 export async function signMessage(message: any) {
   if (activeAccount) {
-    const result = await activeAccount.signMessage(message);
+    const result = await activeAccount.signMessage(message.substring(0, 2) === "0x" ? ethers.utils.arrayify(message) : message);
     return result;
   } else {
     console.error("No Active Account"); // tslint:disable-line
