@@ -412,7 +412,7 @@ class App extends React.Component<{}> {
             result = await sendTransaction(displayRequest.params[0]);
           case "personal_sign":
           case "eth_sign":
-            if (address === displayRequest.params[0]) {
+            if (address.toLowerCase() === displayRequest.params[0].toLowerCase()) {
               result = await signMessage(displayRequest.params[1]);
             }
           default:
