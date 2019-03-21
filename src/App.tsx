@@ -19,6 +19,7 @@ import {
   sendTransaction,
   signMessage
 } from "./helpers/wallet";
+import { apiGetBlockNumber } from "./helpers/api";
 
 const SContainer = styled.div`
   display: flex;
@@ -271,6 +272,24 @@ class App extends React.Component<{}> {
           throw error;
         }
 
+        if (payload.method === "eth_blockNumber") {
+          const { chainId } = this.state;
+          apiGetBlockNumber(chainId)
+            .then(result =>
+              walletConnector.approveRequest({
+                id: payload.id,
+                result
+              })
+            )
+            .catch(() =>
+              walletConnector.rejectRequest({
+                id: payload.id,
+                error: { message: "JSON RPC method not supported" }
+              })
+            );
+          return;
+        }
+
         const requests = [...this.state.requests, payload];
         this.setState({ requests });
       });
@@ -413,7 +432,9 @@ class App extends React.Component<{}> {
             break;
           case "personal_sign":
           case "eth_sign":
-            if (address.toLowerCase() === displayRequest.params[0].toLowerCase()) {
+            if (
+              address.toLowerCase() === displayRequest.params[0].toLowerCase()
+            ) {
               result = await signMessage(displayRequest.params[1]);
             }
           default:

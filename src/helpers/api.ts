@@ -70,3 +70,10 @@ export const apiGetGasPrices = async (): Promise<IGasPrices> => {
   const { result } = response.data;
   return result;
 };
+
+export const apiGetBlockNumber = async (chainId: number): Promise<IGasPrices> => {
+  const response = await api.get(`/block-number?chainId=${chainId}`);
+  const { result } = response.data;
+  return result;
+};
+
