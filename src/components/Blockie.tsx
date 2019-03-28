@@ -9,8 +9,7 @@ interface IBlockieProps extends IBlockieStyleProps {
   address: string;
 }
 
-const SBlockieStyleTypes = styled.div<IBlockieStyleProps>``;
-const SBlockieWrapper = styled(SBlockieStyleTypes)`
+const SBlockieWrapper = styled.div<IBlockieStyleProps>`
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
   display: flex;

@@ -17,8 +17,7 @@ const load = keyframes`
   }
 `;
 
-const SLoaderStyleTypes = styled.div<ILoaderStyleProps>``;
-const SLoader = styled(SLoaderStyleTypes)`
+const SLoader = styled.div<ILoaderStyleProps>`
   position: relative;
   font-size: ${fonts.size.tiny};
   margin: 0 auto;

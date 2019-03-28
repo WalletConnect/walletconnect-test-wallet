@@ -11,8 +11,7 @@ interface ICardProps extends ICardStyleProps {
   children: React.ReactNode;
 }
 
-const SCardStyleTypes = styled.div<ICardStyleProps>``;
-const SCard = styled(SCardStyleTypes)`
+const SCard = styled.div<ICardStyleProps>`
   width: 100%;
   max-width: ${({ maxWidth }) => `${maxWidth}px`};
   display: flex;

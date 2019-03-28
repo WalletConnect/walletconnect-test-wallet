@@ -10,8 +10,7 @@ interface IDropdownStyle {
   monospace?: boolean;
 }
 
-const SDropdownStyleProps = styled.div<IDropdownStyle>``;
-const SDropdown = styled(SDropdownStyleProps)`
+const SDropdown = styled.div<IDropdownStyle>`
   transition: ${transitions.base};
   position: relative;
   width: 100%;
@@ -25,8 +24,7 @@ const SDropdown = styled(SDropdownStyleProps)`
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 `;
 
-const SRowStyleProps = styled.div<IDropdownStyle>``;
-const SRow = styled(SRowStyleProps)`
+const SRow = styled.div<IDropdownStyle>`
   transition: ${transitions.base};
   width: 100%;
   padding: 10px 20px;
@@ -42,8 +40,7 @@ const SRow = styled(SRowStyleProps)`
   }
 `;
 
-const SAbsoluteStyleProps = styled.div<IDropdownStyle>``;
-const SAbsolute = styled(SAbsoluteStyleProps)`
+const SAbsolute = styled.div<IDropdownStyle>`
   transition: ${transitions.base};
   position: absolute;
   top: 100%;

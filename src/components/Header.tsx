@@ -44,8 +44,7 @@ interface IHeaderStyle {
   connected: boolean;
 }
 
-const SAddressStyleProps = styled.p<IHeaderStyle>``;
-const SAddress = styled(SAddressStyleProps)`
+const SAddress = styled.p<IHeaderStyle>`
   transition: ${transitions.base};
   font-weight: bold;
   margin: ${({ connected }) => (connected ? "-2px auto 0.7em" : "0")};
@@ -55,8 +54,7 @@ const SBlockie = styled(Blockie)`
   margin-right: 10px;
 `;
 
-const SDisconnectStyleProps = styled.div<IHeaderStyle>``;
-const SDisconnect = styled(SDisconnectStyleProps)`
+const SDisconnect = styled.div<IHeaderStyle>`
   transition: ${transitions.button};
   font-size: 12px;
   font-family: monospace;
