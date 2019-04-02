@@ -19,7 +19,7 @@ import {
   sendTransaction,
   signMessage
 } from "./helpers/wallet";
-import { apiGetBlockNumber } from "./helpers/api";
+import { apiGetCustomRequest } from "./helpers/api";
 
 const SContainer = styled.div`
   display: flex;
@@ -139,6 +139,14 @@ const INITIAL_STATE = {
   results: [],
   displayRequest: null
 };
+
+const signingMethods = [
+  "eth_sendTransaction",
+  "eth_signTransaction",
+  "personal_sign",
+  "eth_sign",
+  "eth_signTypedData"
+];
 
 class App extends React.Component<{}> {
   public state: IAppState;
@@ -272,9 +280,9 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        if (payload.method === "eth_blockNumber") {
+        if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
-          apiGetBlockNumber(chainId)
+          apiGetCustomRequest(chainId, payload)
             .then(result =>
               walletConnector.approveRequest({
                 id: payload.id,
