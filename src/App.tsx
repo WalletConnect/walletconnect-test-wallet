@@ -32,6 +32,15 @@ const SContainer = styled.div`
   padding: 0;
 `;
 
+const SVersionNumber = styled.div`
+  position: absolute;
+  font-size: 12px;
+  bottom: 6%;
+  right: -24px;
+  opacity: 0.3;
+  transform: rotate(-90deg);
+`;
+
 const SContent = styled.div`
   width: 100%;
   flex: 1;
@@ -499,26 +508,46 @@ class App extends React.Component<{}> {
       displayRequest
     } = this.state;
     return (
-      <SContainer>
-        <Header
-          connected={connected}
-          address={address}
-          chainId={chainId}
-          killSession={this.killSession}
-        />
-        <SContent>
-          <Card maxWidth={400}>
-            <STitle>{`Wallet`}</STitle>
-            {!connected ? (
-              peerMeta && peerMeta.name ? (
-                <Column>
-                  <PeerMeta peerMeta={peerMeta} />
-                  <SActions>
-                    <Button onClick={this.approveSession}>{`Approve`}</Button>
-                    <Button onClick={this.rejectSession}>{`Reject`}</Button>
-                  </SActions>
-                </Column>
-              ) : (
+      <React.Fragment>
+        <SContainer>
+          <Header
+            connected={connected}
+            address={address}
+            chainId={chainId}
+            killSession={this.killSession}
+          />
+          <SContent>
+            <Card maxWidth={400}>
+              <STitle>{`Wallet`}</STitle>
+              {!connected ? (
+                peerMeta && peerMeta.name ? (
+                  <Column>
+                    <PeerMeta peerMeta={peerMeta} />
+                    <SActions>
+                      <Button onClick={this.approveSession}>{`Approve`}</Button>
+                      <Button onClick={this.rejectSession}>{`Reject`}</Button>
+                    </SActions>
+                  </Column>
+                ) : (
+                  <Column>
+                    <AccountDetails
+                      address={address}
+                      chainId={chainId}
+                      accounts={accounts}
+                      updateAddress={this.updateAddress}
+                      updateChain={this.updateChain}
+                    />
+                    <SActionsColumn>
+                      <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
+                      <p>{"OR"}</p>
+                      <SInput
+                        onChange={this.onURIPaste}
+                        placeholder={"Paste wc: uri"}
+                      />
+                    </SActionsColumn>
+                  </Column>
+                )
+              ) : !displayRequest ? (
                 <Column>
                   <AccountDetails
                     address={address}
@@ -527,69 +556,52 @@ class App extends React.Component<{}> {
                     updateAddress={this.updateAddress}
                     updateChain={this.updateChain}
                   />
-                  <SActionsColumn>
-                    <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
-                    <p>{"OR"}</p>
-                    <SInput
-                      onChange={this.onURIPaste}
-                      placeholder={"Paste wc: uri"}
-                    />
-                  </SActionsColumn>
+                  {peerMeta && peerMeta.name && (
+                    <>
+                      <h6>{"Connected to"}</h6>
+                      <SConnectedPeer>
+                        <img src={peerMeta.icons[0]} alt={peerMeta.name} />
+                        <div>{peerMeta.name}</div>
+                      </SConnectedPeer>
+                    </>
+                  )}
+                  <h6>{"Pending Call Requests"}</h6>
+                  {!!requests.length ? (
+                    requests.map(request => (
+                      <SRequestButton
+                        key={request.id}
+                        onClick={() => this.openRequest(request)}
+                      >
+                        <div>{request.method}</div>
+                      </SRequestButton>
+                    ))
+                  ) : (
+                    <div>
+                      <div>{"No pending requests"}</div>
+                    </div>
+                  )}
                 </Column>
-              )
-            ) : !displayRequest ? (
-              <Column>
-                <AccountDetails
-                  address={address}
-                  chainId={chainId}
-                  accounts={accounts}
-                  updateAddress={this.updateAddress}
-                  updateChain={this.updateChain}
+              ) : (
+                <DisplayRequest
+                  displayRequest={displayRequest}
+                  peerMeta={peerMeta}
+                  approveRequest={this.approveRequest}
+                  rejectRequest={this.rejectRequest}
                 />
-                {peerMeta && peerMeta.name && (
-                  <>
-                    <h6>{"Connected to"}</h6>
-                    <SConnectedPeer>
-                      <img src={peerMeta.icons[0]} alt={peerMeta.name} />
-                      <div>{peerMeta.name}</div>
-                    </SConnectedPeer>
-                  </>
-                )}
-                <h6>{"Pending Call Requests"}</h6>
-                {!!requests.length ? (
-                  requests.map(request => (
-                    <SRequestButton
-                      key={request.id}
-                      onClick={() => this.openRequest(request)}
-                    >
-                      <div>{request.method}</div>
-                    </SRequestButton>
-                  ))
-                ) : (
-                  <div>
-                    <div>{"No pending requests"}</div>
-                  </div>
-                )}
-              </Column>
-            ) : (
-              <DisplayRequest
-                displayRequest={displayRequest}
-                peerMeta={peerMeta}
-                approveRequest={this.approveRequest}
-                rejectRequest={this.rejectRequest}
-              />
-            )}
-          </Card>
-        </SContent>
-        {scanner && (
-          <QRCodeScanner
-            onValidate={this.onQRCodeValidate}
-            onScan={this.onQRCodeScan}
-            onError={this.onQRCodeError}
-            onClose={this.onQRCodeClose}
-          />
-        )}
-      </SContainer>
+              )}
+            </Card>
+          </SContent>
+          {scanner && (
+            <QRCodeScanner
+              onValidate={this.onQRCodeValidate}
+              onScan={this.onQRCodeScan}
+              onError={this.onQRCodeError}
+              onClose={this.onQRCodeClose}
+            />
+          )}
+        </SContainer>
+        <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>
+      </React.Fragment>
     );
   }
 }
