@@ -36,7 +36,7 @@
     "react-dom": "^16.6.3",
     "react-qr-reader": "^2.1.1",
     "react-scripts-ts": "^4.0.8",
-    "styled-components": "4.1.8"
+    "styled-components": "4.2.0"
   },
   "devDependencies": {
     "@types/ethereumjs-tx": "^1.0.1",
