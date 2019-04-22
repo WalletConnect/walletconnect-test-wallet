@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import { IAssetData, IGasPrices, IParsedTx } from "./types";
 import { payloadId, getChainData } from "./utilities";
-import { IPartialRpcRequest } from "@walletconnect/types";
+import { IJsonRpcRequest } from "@walletconnect/types";
 
 const api: AxiosInstance = axios.create({
   baseURL: "https://ethereum-api.xyz",
@@ -82,7 +82,7 @@ export const apiGetBlockNumber = async (
 
 export const apiGetCustomRequest = async (
   chainId: number,
-  customRpc: IPartialRpcRequest
+  customRpc: Partial<IJsonRpcRequest>
 ): Promise<any> => {
   const response = await api.post(
     `/custom-request?chainId=${chainId}`,
