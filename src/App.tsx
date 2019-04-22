@@ -188,7 +188,7 @@ class App extends React.Component<{}> {
 
       const address = accounts[0];
 
-      updateWallet(address, chainId);
+      await updateWallet(address, chainId);
 
       await this.setState({
         connected,
