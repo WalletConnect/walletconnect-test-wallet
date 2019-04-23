@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-mock-wallet",
-  "version": "1.0.0-beta.15",
+  "version": "1.0.0-beta.16",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -25,8 +25,8 @@
     "url": "https://github.com/walletconnect/walletconnect-mock-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/browser": "^1.0.0-beta.15",
-    "@walletconnect/utils": "^1.0.0-beta.15",
+    "@walletconnect/browser": "^1.0.0-beta.16",
+    "@walletconnect/utils": "^1.0.0-beta.16",
     "axios": "^0.18.0",
     "bignumber.js": "^8.0.1",
     "ethers": "^4.0.26",
