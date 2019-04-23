@@ -15,6 +15,7 @@ import QRCodeScanner, {
 } from "./components/QRCodeScanner";
 import {
   testAccounts,
+  getWallet,
   updateWallet,
   sendTransaction,
   signMessage
@@ -437,12 +438,16 @@ class App extends React.Component<{}> {
   };
 
   public approveRequest = async () => {
-    const { walletConnector, displayRequest, address } = this.state;
+    const { walletConnector, displayRequest, address, chainId } = this.state;
 
     try {
       let result = null;
 
       if (walletConnector) {
+        if (!getWallet()) {
+          await updateWallet(address, chainId);
+        }
+
         switch (displayRequest.method) {
           case "eth_sendTransaction":
             result = await sendTransaction(displayRequest.params[0]);
@@ -464,9 +469,13 @@ class App extends React.Component<{}> {
             result
           });
         } else {
+          let message = "JSON RPC method not supported";
+          if (!getWallet()) {
+            message = "No Active Account";
+          }
           walletConnector.rejectRequest({
             id: displayRequest.id,
-            error: { message: "JSON RPC method not supported" }
+            error: { message }
           });
         }
       }

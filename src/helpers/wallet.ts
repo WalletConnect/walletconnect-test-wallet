@@ -16,6 +16,13 @@ export const testAccounts = [
 
 let activeAccount: ethers.Wallet | null = null;
 
+export function getWallet() {
+  if (activeAccount) {
+    return activeAccount;
+  }
+  return null;
+}
+
 export async function updateWallet(address: string, chainId: number) {
   const rpcUrl = getChainData(chainId).rpc_url;
   const account = testAccounts.filter(
@@ -30,7 +37,10 @@ export async function updateWallet(address: string, chainId: number) {
 
 export async function sendTransaction(transaction: any) {
   if (activeAccount) {
-    if (transaction.from && transaction.from.toLowerCase() !== activeAccount.address.toLowerCase()) {
+    if (
+      transaction.from &&
+      transaction.from.toLowerCase() !== activeAccount.address.toLowerCase()
+    ) {
       console.error("Transaction request From doesn't match active account"); // tslint:disable-line
     }
 
@@ -39,7 +49,7 @@ export async function sendTransaction(transaction: any) {
     }
 
     // ethers.js expects gasLimit instead
-    if ('gas' in transaction) {
+    if ("gas" in transaction) {
       transaction.gasLimit = transaction.gas;
       delete transaction.gas;
     }
@@ -54,7 +64,11 @@ export async function sendTransaction(transaction: any) {
 
 export async function signMessage(message: any) {
   if (activeAccount) {
-    const result = await activeAccount.signMessage(message.substring(0, 2) === "0x" ? ethers.utils.arrayify(message) : message);
+    const result = await activeAccount.signMessage(
+      message.substring(0, 2) === "0x"
+        ? ethers.utils.arrayify(message)
+        : message
+    );
     return result;
   } else {
     console.error("No Active Account"); // tslint:disable-line
