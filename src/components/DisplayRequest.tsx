@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { convertHexToUtf8 } from "@walletconnect/utils";
+import { convertHexToUtf8, convertHexToNumber } from "@walletconnect/utils";
 import Column from "./Column";
 import Button from "./Button";
 
@@ -56,13 +56,25 @@ class DisplayRequest extends React.Component<any, any> {
           { label: "From", value: displayRequest.params[0].from },
           { label: "To", value: displayRequest.params[0].to },
           {
-            label: "Gas",
-            value:
-              displayRequest.params[0].gas || displayRequest.params[0].gasLimit
+            label: "Gas Limit",
+            value: displayRequest.params[0].gas
+              ? convertHexToNumber(displayRequest.params[0].gas)
+              : displayRequest.params[0].gasLimit
+              ? convertHexToNumber(displayRequest.params[0].gasLimit)
+              : ""
           },
-          { label: "Gas Price", value: displayRequest.params[0].gasPrice },
-          { label: "Nonce", value: displayRequest.params[0].nonce },
-          { label: "Value", value: displayRequest.params[0].value },
+          {
+            label: "Gas Price",
+            value: convertHexToNumber(displayRequest.params[0].gasPrice)
+          },
+          {
+            label: "Nonce",
+            value: convertHexToNumber(displayRequest.params[0].nonce)
+          },
+          {
+            label: "Value",
+            value: convertHexToNumber(displayRequest.params[0].value)
+          },
           { label: "Data", value: displayRequest.params[0].data }
         ];
         break;
