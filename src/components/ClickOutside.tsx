@@ -1,15 +1,19 @@
 import * as React from "react";
+import * as PropTypes from "prop-types";
 
 interface IClickOutsideProps {
-  onClickOutside: any;
+  onClickOutside: (event: any) => void;
 }
 
 class ClickOutside extends React.Component<IClickOutsideProps> {
+  public static propTypes = {
+    onClickOutside: PropTypes.func.isRequired
+  };
+
   private element: HTMLDivElement | null;
-  private isTouch: boolean;
+  private isTouch: boolean = false;
 
   public componentDidMount() {
-    this.isTouch = true;
     document.addEventListener("touchend", this.handle, true);
     document.addEventListener("click", this.handle, true);
   }
