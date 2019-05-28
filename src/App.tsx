@@ -18,7 +18,9 @@ import {
   getWallet,
   updateWallet,
   sendTransaction,
-  signMessage
+  signTransaction,
+  signMessage,
+  signPersonalMessage
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 
@@ -440,6 +442,8 @@ class App extends React.Component<{}> {
   public approveRequest = async () => {
     const { walletConnector, displayRequest, address, chainId } = this.state;
 
+    let errorMsg = "";
+
     try {
       let result = null;
 
@@ -448,17 +452,47 @@ class App extends React.Component<{}> {
           await updateWallet(address, chainId);
         }
 
+        let transaction = null;
+        let dataToSign = null;
+        let addressRequested = null;
+
         switch (displayRequest.method) {
           case "eth_sendTransaction":
-            result = await sendTransaction(displayRequest.params[0]);
+            transaction = displayRequest.params[0];
+            addressRequested = transaction.from;
+            if (address.toLowerCase() === addressRequested.toLowerCase()) {
+              result = await sendTransaction(transaction);
+            } else {
+              errorMsg = "Address requested does not match active account";
+            }
+            break;
+          case "eth_signTransaction":
+            transaction = displayRequest.params[0];
+            addressRequested = transaction.from;
+            if (address.toLowerCase() === addressRequested.toLowerCase()) {
+              result = await signTransaction(transaction);
+            } else {
+              errorMsg = "Address requested does not match active account";
+            }
+            break;
+          case "eth_sign":
+            dataToSign = displayRequest.params[1];
+            addressRequested = displayRequest.params[0];
+            if (address.toLowerCase() === addressRequested.toLowerCase()) {
+              result = await signMessage(dataToSign);
+            } else {
+              errorMsg = "Address requested does not match active account";
+            }
             break;
           case "personal_sign":
-          case "eth_sign":
-            if (
-              address.toLowerCase() === displayRequest.params[0].toLowerCase()
-            ) {
-              result = await signMessage(displayRequest.params[1]);
+            dataToSign = displayRequest.params[0];
+            addressRequested = displayRequest.params[1];
+            if (address.toLowerCase() === addressRequested.toLowerCase()) {
+              result = await signPersonalMessage(dataToSign);
+            } else {
+              errorMsg = "Address requested does not match active account";
             }
+            break;
           default:
             break;
         }
@@ -484,7 +518,7 @@ class App extends React.Component<{}> {
       if (walletConnector) {
         walletConnector.rejectRequest({
           id: displayRequest.id,
-          error: { message: "Failed or Rejected Request" }
+          error: { message: errorMsg || "Failed or Rejected Request" }
         });
       }
     }

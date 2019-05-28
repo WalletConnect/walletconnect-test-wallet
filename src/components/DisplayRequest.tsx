@@ -51,6 +51,7 @@ class DisplayRequest extends React.Component<any, any> {
 
     switch (displayRequest.method) {
       case "eth_sendTransaction":
+      case "eth_signTransaction":
         params = [
           ...params,
           { label: "From", value: displayRequest.params[0].from },
@@ -89,10 +90,10 @@ class DisplayRequest extends React.Component<any, any> {
       case "personal_sign":
         params = [
           ...params,
-          { label: "Address", value: displayRequest.params[0] },
+          { label: "Address", value: displayRequest.params[1] },
           {
             label: "Message",
-            value: convertHexToUtf8(displayRequest.params[1])
+            value: convertHexToUtf8(displayRequest.params[0])
           }
         ];
         break;
