@@ -15,7 +15,9 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "eject": "react-scripts-ts eject",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -27,7 +29,7 @@
   "dependencies": {
     "@walletconnect/browser": "^1.0.0-beta.25",
     "@walletconnect/utils": "^1.0.0-beta.25",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "bignumber.js": "^8.0.1",
     "ethers": "^4.0.26",
     "qr-image": "^3.2.0",
@@ -36,7 +38,8 @@
     "react-dom": "^16.6.3",
     "react-qr-reader": "^2.1.1",
     "react-scripts-ts": "^4.0.8",
-    "styled-components": "4.2.0"
+    "styled-components": "4.2.0",
+    "snyk": "^1.193.1"
   },
   "devDependencies": {
     "@types/ethereumjs-tx": "^1.0.1",
@@ -57,5 +60,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "snyk": true
 }
