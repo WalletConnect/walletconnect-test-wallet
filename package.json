@@ -1,5 +1,5 @@
 {
-  "name": "walletconnect-mock-wallet",
+  "name": "walletconnect-test-wallet",
   "version": "1.0.0-beta.25",
   "private": true,
   "keywords": [
@@ -19,10 +19,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/walletconnect/walletconnect-mock-wallet.git"
+    "url": "git+https://github.com/walletconnect/walletconnect-test-wallet.git"
   },
   "bugs": {
-    "url": "https://github.com/walletconnect/walletconnect-mock-wallet/issues"
+    "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
     "@walletconnect/browser": "^1.0.0-beta.25",
