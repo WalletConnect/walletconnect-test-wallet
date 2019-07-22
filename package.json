@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-test-wallet",
-  "version": "1.0.0-beta.29",
+  "version": "1.0.0-beta.30",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -25,7 +25,7 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/browser": "^1.0.0-beta.29",
+    "@walletconnect/browser": "^1.0.0-beta.30",
     "axios": "^0.18.0",
     "bignumber.js": "^8.0.1",
     "ethers": "^4.0.26",
