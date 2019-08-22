@@ -23,6 +23,7 @@ import {
   signPersonalMessage
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
+import { createChannel } from "./helpers/connext";
 
 const SContainer = styled.div`
   display: flex;
@@ -210,8 +211,14 @@ class App extends React.Component<{}> {
       });
 
       this.subscribeToEvents();
+      this.createChannel();
     }
   };
+
+  public createChannel() {
+    const { activeIndex } = this.state;
+    createChannel(activeIndex);
+  }
 
   public initWalletConnect = async () => {
     const { uri } = this.state;
