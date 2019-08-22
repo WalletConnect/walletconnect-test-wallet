@@ -1,18 +1,9 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
+import { setLocal, getLocal } from "./store";
 
-export const testAccounts = [
-  {
-    address: "0x6e4d387c925a647844623762aB3C4a5B3acd9540",
-    privateKey:
-      "c13d25f6ad00f532b530d75bf3a5f16b8e11e5619bc9b165a6ac99b150a2f456"
-  },
-  {
-    address: "0xeF8fD2BDC6F6Be83F92054F8Ecd6B010f28CE7F4",
-    privateKey:
-      "67543bed4cc767d6153daf55547c5fa751657dab953d4bc01846c7a6a4fc4782"
-  }
-];
+const standardPath = "m/44'/60'/0'/0";
+const MNEMONIC_KEY = "MNEMONIC";
 
 let wallet: ethers.Wallet | null = null;
 
@@ -23,15 +14,48 @@ export function getWallet() {
   return null;
 }
 
-export async function updateWallet(address: string, chainId: number) {
-  const rpcUrl = getChainData(chainId).rpc_url;
-  const account = testAccounts.filter(
-    account => account.address === address
-  )[0];
-  if (account) {
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-    wallet = new ethers.Wallet(account.privateKey, provider);
+export function getMultipleAccounts(count: number = 2) {
+  const accounts = [];
+  let wallet = null;
+  for (let i = 0; i < count; i++) {
+    wallet = createWallet(i);
+    accounts.push(wallet.address);
   }
+  return accounts;
+}
+
+export function generatePath(index: number) {
+  const path = `${standardPath}/${index}`;
+  return path;
+}
+
+export function generateMnemonic() {
+  const entropy = ethers.utils.randomBytes(16);
+  const mnemonic = ethers.utils.HDNode.entropyToMnemonic(entropy);
+  return mnemonic;
+}
+
+export function getMnemonic() {
+  let mnemonic = getLocal(MNEMONIC_KEY);
+  if (!mnemonic) {
+    mnemonic = generateMnemonic();
+    setLocal(MNEMONIC_KEY, mnemonic);
+  }
+  return mnemonic;
+}
+
+export function createWallet(index: number) {
+  const mnemonic = getMnemonic();
+  const path = generatePath(index);
+  const wallet = ethers.Wallet.fromMnemonic(mnemonic, path);
+  return wallet;
+}
+
+export async function updateWallet(index: number, chainId: number) {
+  const rpcUrl = getChainData(chainId).rpc_url;
+  wallet = createWallet(index);
+  const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+  wallet.connect(provider);
   return null;
 }
 

@@ -29,12 +29,20 @@ interface IAccountDetailsProps {
   updateAddress?: any;
   updateChain?: any;
   accounts: string[];
+  activeIndex: number;
   address: string;
   chainId: number;
 }
 
 const AccountDetails = (props: IAccountDetailsProps) => {
-  const { chainId, address, accounts, updateAddress, updateChain } = props;
+  const {
+    chainId,
+    address,
+    activeIndex,
+    accounts,
+    updateAddress,
+    updateChain
+  } = props;
   const windowWidth = getViewportDimensions().x;
   const maxWidth = 468;
   const maxChar = 12;
@@ -42,8 +50,8 @@ const AccountDetails = (props: IAccountDetailsProps) => {
     windowWidth > maxWidth
       ? maxChar
       : Math.floor(windowWidth * (maxChar / maxWidth));
-  const accountsMap = accounts.map((addr: string) => ({
-    address: addr,
+  const accountsMap = accounts.map((addr: string, index: number) => ({
+    index,
     display_address: ellipseAddress(addr, ellipseLength)
   }));
   return (
@@ -54,10 +62,10 @@ const AccountDetails = (props: IAccountDetailsProps) => {
           <SBlockie size={40} address={address} />
           <Dropdown
             monospace
-            selected={address}
+            selected={activeIndex}
             options={accountsMap}
             displayKey={"display_address"}
-            targetKey={"address"}
+            targetKey={"index"}
             onChange={updateAddress}
           />
         </SAddressDropdownWrapper>

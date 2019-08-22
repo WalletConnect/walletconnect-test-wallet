@@ -14,7 +14,7 @@ import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
 import {
-  testAccounts,
+  getMultipleAccounts,
   getWallet,
   updateWallet,
   sendTransaction,
@@ -123,6 +123,7 @@ interface IAppState {
   connected: boolean;
   chainId: number;
   accounts: string[];
+  activeIndex: number;
   address: string;
   requests: any[];
   results: any[];
@@ -130,6 +131,8 @@ interface IAppState {
 }
 
 const defaultChainId = 3;
+
+const TEST_ACCOUNTS = getMultipleAccounts();
 
 const INITIAL_STATE = {
   loading: false,
@@ -145,8 +148,9 @@ const INITIAL_STATE = {
   },
   connected: false,
   chainId: defaultChainId,
-  accounts: testAccounts.map(account => account.address),
-  address: testAccounts[0].address,
+  accounts: TEST_ACCOUNTS,
+  address: TEST_ACCOUNTS[0],
+  activeIndex: 0,
   requests: [],
   results: [],
   displayRequest: null
@@ -191,12 +195,16 @@ class App extends React.Component<{}> {
 
       const address = accounts[0];
 
-      await updateWallet(address, chainId);
+      const activeIndex = accounts.indexOf(address);
+
+      await updateWallet(activeIndex, chainId);
 
       await this.setState({
         connected,
         walletConnector,
         address,
+        activeIndex,
+        accounts,
         chainId,
         peerMeta
       });
@@ -351,36 +359,37 @@ class App extends React.Component<{}> {
 
   public updateSession = async (sessionParams: {
     chainId?: number;
-    address?: string;
+    activeIndex?: number;
   }) => {
-    const { walletConnector, chainId, address } = this.state;
+    const { walletConnector, chainId, accounts, activeIndex } = this.state;
     const _chainId = sessionParams.chainId || chainId;
-    const _address = sessionParams.address || address;
+    const _activeIndex = sessionParams.activeIndex || activeIndex;
+    const address = accounts[_activeIndex];
     if (walletConnector) {
       walletConnector.updateSession({
         chainId: _chainId,
-        accounts: [_address]
+        accounts: [address]
       });
     }
 
     await this.setState({
       walletConnector,
       chainId: _chainId,
-      address: _address
+      address
     });
   };
 
   public updateChain = async (chainId: number | string) => {
-    const { address } = this.state;
+    const { activeIndex } = this.state;
     const _chainId = Number(chainId);
-    await updateWallet(address, _chainId);
+    await updateWallet(activeIndex, _chainId);
     await this.updateSession({ chainId: _chainId });
   };
 
-  public updateAddress = async (address: string) => {
+  public updateAddress = async (activeIndex: number) => {
     const { chainId } = this.state;
-    await updateWallet(address, chainId);
-    await this.updateSession({ address });
+    await updateWallet(activeIndex, chainId);
+    await this.updateSession({ activeIndex });
   };
 
   public toggleScanner = () => {
@@ -440,7 +449,13 @@ class App extends React.Component<{}> {
   };
 
   public approveRequest = async () => {
-    const { walletConnector, displayRequest, address, chainId } = this.state;
+    const {
+      walletConnector,
+      displayRequest,
+      address,
+      activeIndex,
+      chainId
+    } = this.state;
 
     let errorMsg = "";
 
@@ -449,7 +464,7 @@ class App extends React.Component<{}> {
 
       if (walletConnector) {
         if (!getWallet()) {
-          await updateWallet(address, chainId);
+          await updateWallet(activeIndex, chainId);
         }
 
         let transaction = null;
@@ -544,6 +559,7 @@ class App extends React.Component<{}> {
       peerMeta,
       scanner,
       connected,
+      activeIndex,
       accounts,
       address,
       chainId,
@@ -575,6 +591,7 @@ class App extends React.Component<{}> {
                   <Column>
                     <AccountDetails
                       address={address}
+                      activeIndex={activeIndex}
                       chainId={chainId}
                       accounts={accounts}
                       updateAddress={this.updateAddress}
@@ -594,6 +611,7 @@ class App extends React.Component<{}> {
                 <Column>
                   <AccountDetails
                     address={address}
+                    activeIndex={activeIndex}
                     chainId={chainId}
                     accounts={accounts}
                     updateAddress={this.updateAddress}
