@@ -180,6 +180,7 @@ class App extends React.Component<{}> {
 
   public initWallet = async () => {
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
+    // when does the above get set?
 
     if (local) {
       let session;
@@ -195,6 +196,7 @@ class App extends React.Component<{}> {
       const { connected, chainId, accounts, peerMeta } = walletConnector;
 
       const address = accounts[0];
+      // NOTE: ^^ is not the cf path
 
       const activeIndex = accounts.indexOf(address);
 
@@ -215,9 +217,20 @@ class App extends React.Component<{}> {
     }
   };
 
-  public createChannel() {
-    const { activeIndex } = this.state;
-    createChannel(activeIndex);
+  public createChannel = async () => {
+    const { chainId } = this.state;
+
+    this.setState({ loading: true });
+
+    let channel = null;
+    try {
+      channel = await createChannel(chainId);
+    } catch (e) {
+      console.error(e.toString()) // tslint:disable-line
+      return;
+    }
+
+    this.setState({ loading: false, channel });
   }
 
   public initWalletConnect = async () => {
@@ -390,6 +403,8 @@ class App extends React.Component<{}> {
     const { activeIndex } = this.state;
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
+    const channel = await createChannel(_chainId);
+    this.setState({ channel })
     await this.updateSession({ chainId: _chainId });
   };
 
