@@ -43,8 +43,8 @@ export const updateLocal = (key: string, data: any) => {
 };
 
 export const connextStore = {
-  get: async (key: string) => {
-    const raw = store.getItem(`CF_NODE:${key}`);
+  get: async (path: string) => {
+    const raw = store.getItem(`CF_NODE:${path}`);
     if (raw) {
       try {
         return JSON.parse(raw);
@@ -53,19 +53,19 @@ export const connextStore = {
       }
     }
     if (
-      key.endsWith("channel") ||
-      key.endsWith("appInstanceIdToProposedAppInstance")
+      path.endsWith("channel") ||
+      path.endsWith("appInstanceIdToProposedAppInstance")
     ) {
       const partialMatches = {};
       for (const k of Object.keys(localStorage)) {
-        if (k.includes(`${key}/`)) {
+        if (k.includes(`${path}/`)) {
           try {
             partialMatches[
-              k.replace("CF_NODE:", "").replace(`${key}/`, "")
+              k.replace("CF_NODE:", "").replace(`${path}/`, "")
             ] = JSON.parse(store.getItem(k) || "");
           } catch {
             partialMatches[
-              k.replace("CF_NODE:", "").replace(`${key}/`, "")
+              k.replace("CF_NODE:", "").replace(`${path}/`, "")
             ] = store.getItem(k);
           }
         }
@@ -77,7 +77,7 @@ export const connextStore = {
   set: async (pairs: any, allowDelete: any) => {
     for (const pair of pairs) {
       store.setItem(
-        `CF_NODE:${pair.key}`,
+        `CF_NODE:${pair.path}`,
         typeof pair.value === "string" ? pair.value : JSON.stringify(pair.value)
       );
     }
