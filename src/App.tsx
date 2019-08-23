@@ -409,7 +409,7 @@ class App extends React.Component<{}> {
   public updateAddress = async (activeIndex: number) => {
     const { chainId } = this.state;
     await updateWallet(activeIndex, chainId);
-    const channel = await createChannel(_chainId);
+    const channel = await createChannel(chainId);
     this.setState({ channel })
     await this.updateSession({ activeIndex });
   };
