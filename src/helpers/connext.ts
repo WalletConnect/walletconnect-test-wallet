@@ -22,5 +22,14 @@ export async function createChannel(chainId: number) {
     store: connextStore
   };
   const channel = await connext.connect(options);
+  // before returning wait until channel is available
+  const channelIsAvailable = async () => {
+    const chan = await channel.getChannel();
+    return chan && chan.available;
+  }
+  // TODO: add timeout logic
+  while (!(await channelIsAvailable())) {
+    await new Promise((res, rej) => setTimeout(res, 300))
+  }
   return channel;
 }
