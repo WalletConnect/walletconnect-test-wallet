@@ -131,7 +131,7 @@ interface IAppState {
   displayRequest: any;
 }
 
-const defaultChainId = 3;
+const defaultChainId = 4;
 
 const TEST_ACCOUNTS = getMultipleAccounts();
 
