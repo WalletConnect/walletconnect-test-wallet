@@ -344,8 +344,9 @@ class App extends React.Component<{}> {
 
       if (walletConnector.connected) {
         const { chainId, accounts } = walletConnector;
-        const address = accounts[0];
-        updateWallet(address, chainId);
+        const index = 0;
+        const address = accounts[index];
+        updateWallet(index, chainId);
         this.setState({
           connected: true,
           address,
