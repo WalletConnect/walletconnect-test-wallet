@@ -9,7 +9,7 @@
     "crypto"
   ],
   "author": "WalletConnect <walletconnect.org>",
-  "homepage": "https://walletconnect.org",
+  "homepage": ".",
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
