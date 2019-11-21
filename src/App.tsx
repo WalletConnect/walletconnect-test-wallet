@@ -584,8 +584,8 @@ class App extends React.Component<{}> {
                   <Column>
                     <PeerMeta peerMeta={peerMeta} />
                     <SActions>
-                      <Button onClick={this.approveSession}>{`Approve`}</Button>
-                      <Button onClick={this.rejectSession}>{`Reject`}</Button>
+                      <Button id="button-approve" onClick={this.approveSession}>{`Approve`}</Button>
+                      <Button id="button-reject" onClick={this.rejectSession}>{`Reject`}</Button>
                     </SActions>
                   </Column>
                 ) : (
@@ -604,6 +604,7 @@ class App extends React.Component<{}> {
                       <SInput
                         onChange={this.onURIPaste}
                         placeholder={"Paste wc: uri"}
+                        id={"wc-uri-input"}
                       />
                     </SActionsColumn>
                   </Column>

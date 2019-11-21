@@ -61,6 +61,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
         <SAddressDropdownWrapper>
           <SBlockie size={40} address={address} />
           <Dropdown
+            id={"dropdown-account"}
             monospace
             selected={activeIndex}
             options={accountsMap}
@@ -73,6 +74,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
       <SSection>
         <h6>{"Network"}</h6>
         <Dropdown
+          id={"dropdown-network"}
           selected={chainId}
           options={chains}
           displayKey={"name"}

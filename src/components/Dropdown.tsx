@@ -63,6 +63,7 @@ interface IDropdownState {
 }
 
 interface IDropdownProps {
+  id: string;
   selected: number | string;
   options: any[] | object;
   displayKey: number | string;
@@ -140,13 +141,14 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
   };
 
   public render() {
-    const { displayKey, selected, disabled, monospace } = this.props;
+    const { id, displayKey, selected, disabled, monospace } = this.props;
     const { show, otherKeys, optionsDict } = this.state;
     return !!Object.keys(optionsDict).length ? (
       <ClickOutside onClickOutside={this.onClickOutside}>
         <SDropdown
           monospace={!!monospace}
           disabled={disabled || !otherKeys.length}
+          id={id}
         >
           <SRow selected={true} show={show} onClick={this.toggleDropdown}>
             {optionsDict[selected][displayKey]}
@@ -158,6 +160,7 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
                   show={show}
                   onClick={() => this.onChange(otherKey)}
                   key={`${otherKey}-${idx}`}
+                  id={`${id}-${otherKey}-${idx}`}
                 >
                   {optionsDict[otherKey][displayKey]}
                 </SRow>

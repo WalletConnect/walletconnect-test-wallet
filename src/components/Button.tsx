@@ -14,6 +14,7 @@ interface IButtonStyleProps {
 }
 
 interface IButtonProps extends IButtonStyleProps {
+  id?: string;
   children: React.ReactNode;
   onClick?: any;
 }
