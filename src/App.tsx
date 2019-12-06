@@ -218,20 +218,21 @@ class App extends React.Component<{}> {
   };
 
   public createChannel = async () => {
-    const { activeIndex } = this.state;		     const { chainId } = this.state;
-    createChannel(activeIndex);		
-     this.setState({ loading: true });
+    const { activeIndex } = this.state;
+    const { chainId } = this.state;
+    createChannel(activeIndex);
+    this.setState({ loading: true });
 
-     let channel = null;
+    let channel = null;
     try {
       channel = await createChannel(chainId);
     } catch (e) {
-      console.error(e.toString()) // tslint:disable-line
+      console.error(e.toString()); // tslint:disable-line
       return;
     }
 
-     this.setState({ loading: false, channel });
-  }
+    this.setState({ loading: false, channel });
+  };
 
   public initWalletConnect = async () => {
     const { uri } = this.state;
@@ -337,8 +338,8 @@ class App extends React.Component<{}> {
             );
           return;
         }
-
-        const requests = [...this.state.requests, payload];
+        const requests = this.state.requests;
+        requests.push(payload);
         this.setState({ requests });
       });
 
@@ -364,8 +365,9 @@ class App extends React.Component<{}> {
 
       if (walletConnector.connected) {
         const { chainId, accounts } = walletConnector;
-        const address = accounts[0];
-        updateWallet(address, chainId);
+        const index = 0;
+        const address = accounts[index];
+        updateWallet(index, chainId);
         this.setState({
           connected: true,
           address,
@@ -399,18 +401,22 @@ class App extends React.Component<{}> {
     });
   };
 
+  public updateChannel = async (chainId: number) => {
+    const channel = await createChannel(chainId);
+    this.setState({ channel });
+  };
+
   public updateChain = async (chainId: number | string) => {
     const { activeIndex } = this.state;
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
+    await this.updateChannel(_chainId);
     await this.updateSession({ chainId: _chainId });
   };
 
   public updateAddress = async (activeIndex: number) => {
     const { chainId } = this.state;
     await updateWallet(activeIndex, chainId);
-    const channel = await createChannel(chainId);
-    this.setState({ channel })
     await this.updateSession({ activeIndex });
   };
 

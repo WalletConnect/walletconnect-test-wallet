@@ -25,16 +25,18 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@connext/client": "0.0.19",
-    "@walletconnect/browser": "^1.0.0-beta.35",
+    "@connext/client": "^1.2.18",
+    "@connext/types": "^1.2.18",
+    "@walletconnect/browser": "^1.0.0-beta.39",
     "axios": "^0.18.0",
-    "bignumber.js": "^8.0.1",
-    "ethers": "^4.0.26",
+    "bignumber.js": "^8.1.1",
+    "ethers": "^4.0.39",
+    "prop-types": "^15.7.2",
     "qr-image": "^3.2.0",
-    "react": "^16.6.3",
+    "react": "^16.11.0",
     "react-blockies": "^1.4.0",
     "react-dom": "^16.6.3",
-    "react-qr-reader": "^2.1.1",
+    "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
     "styled-components": "4.2.0"
   },
@@ -42,12 +44,13 @@
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.15",
+    "@types/prop-types": "^15.5.8",
     "@types/qr-image": "^3.2.1",
-    "@types/react": "^16.7.17",
-    "@types/react-dom": "^16.0.11",
+    "@types/react": "^16.7.20",
+    "@types/react-dom": "^16.0.12",
     "@types/react-qr-reader": "^2.1.2",
     "@types/styled-components": "4.1.8",
-    "typescript": "=3.4.5"
+    "typescript": "^3.7.2"
   },
   "eslintConfig": {
     "extends": "react-app"

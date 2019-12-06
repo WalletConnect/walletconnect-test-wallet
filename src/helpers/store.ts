@@ -42,9 +42,16 @@ export const updateLocal = (key: string, data: any) => {
   setLocal(key, mergedData);
 };
 
-export const connextStore = {
-  get: async (path: string) => {
-    const raw = store.getItem(`CF_NODE:${path}`);
+const CF_STORE_PREFIX = "CF_NODE:";
+
+interface ICFStorePair {
+  path: string;
+  value: any;
+}
+
+export const cfStore = {
+  get: async (path: string): Promise<any> => {
+    const raw = store.getItem(`${CF_STORE_PREFIX}${path}`);
     if (raw) {
       try {
         return JSON.parse(raw);
@@ -52,6 +59,8 @@ export const connextStore = {
         return raw;
       }
     }
+    // Handle partial matches so the following line works -.-
+    // https://github.com/counterfactual/monorepo/blob/master/packages/node/src/store.ts#L54
     if (
       path.endsWith("channel") ||
       path.endsWith("appInstanceIdToProposedAppInstance")
@@ -61,11 +70,11 @@ export const connextStore = {
         if (k.includes(`${path}/`)) {
           try {
             partialMatches[
-              k.replace("CF_NODE:", "").replace(`${path}/`, "")
+              k.replace(CF_STORE_PREFIX, "").replace(`${path}/`, "")
             ] = JSON.parse(store.getItem(k) || "");
           } catch {
             partialMatches[
-              k.replace("CF_NODE:", "").replace(`${path}/`, "")
+              k.replace(CF_STORE_PREFIX, "").replace(`${path}/`, "")
             ] = store.getItem(k);
           }
         }
@@ -74,12 +83,21 @@ export const connextStore = {
     }
     return raw;
   },
-  set: async (pairs: any, allowDelete: any) => {
+  set: async (pairs: ICFStorePair[]): Promise<void> => {
     for (const pair of pairs) {
       store.setItem(
-        `CF_NODE:${pair.key}`,
+        `${CF_STORE_PREFIX}${pair.path}`,
         typeof pair.value === "string" ? pair.value : JSON.stringify(pair.value)
       );
     }
-  }
+  },
+  reset: async (): Promise<void> => {
+    Object.entries(localStorage).forEach(([key, value]) => {
+      if (key.includes(CF_STORE_PREFIX)) {
+        store.removeItem(key);
+      }
+    });
+    store.removeItem(`${CF_STORE_PREFIX}:EXTENDED_PRIVATE_KEY`);
+  },
+  restore: (): Promise<ICFStorePair[]> => Promise.resolve([])
 };

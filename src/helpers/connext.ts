@@ -1,6 +1,6 @@
 import * as connext from "@connext/client";
 
-import { connextStore } from "./store";
+import { cfStore } from "./store";
 import { getMnemonic } from "./wallet";
 
 export async function createChannel(chainId: number) {
@@ -19,17 +19,17 @@ export async function createChannel(chainId: number) {
     mnemonic: getMnemonic(),
     nodeUrl: `wss://${baseUrl}/messaging`,
     ethProviderUrl: `https://${baseUrl}/ethprovider`,
-    store: connextStore
+    store: cfStore
   };
   const channel = await connext.connect(options);
   // before returning wait until channel is available
   const channelIsAvailable = async () => {
     const chan = await channel.getChannel();
     return chan && chan.available;
-  }
+  };
   // TODO: add timeout logic
   while (!(await channelIsAvailable())) {
-    await new Promise((res, rej) => setTimeout(res, 300))
+    await new Promise((res, rej) => setTimeout(res, 300));
   }
   return channel;
 }
