@@ -1,8 +1,9 @@
 import * as React from "react";
 import styled from "styled-components";
-import { convertHexToUtf8, convertHexToNumber } from "@walletconnect/utils";
+import { convertHexToNumber } from "@walletconnect/utils";
 import Column from "./Column";
 import Button from "./Button";
+import { convertHexToUtf8IfPossible } from "../helpers/utilities";
 
 const SRequestValues = styled.div`
   font-family: monospace;
@@ -93,7 +94,7 @@ class DisplayRequest extends React.Component<any, any> {
           { label: "Address", value: displayRequest.params[1] },
           {
             label: "Message",
-            value: convertHexToUtf8(displayRequest.params[0])
+            value: convertHexToUtf8IfPossible(displayRequest.params[0])
           }
         ];
         break;
