@@ -1,4 +1,5 @@
 import { convertHexToUtf8 } from "@walletconnect/utils";
+import { utils } from "ethers";
 import { IChainData } from "./types";
 import supportedChains from "./chains";
 
@@ -151,7 +152,7 @@ export function getViewportDimensions() {
 export function convertHexToUtf8IfPossible(hex: string) {
   try {
     return convertHexToUtf8(hex);
-  } catch(e) {
+  } catch (e) {
     return hex;
   }
 }
@@ -210,5 +211,8 @@ export function verifyFields(params: any[], keys: any[]) {
     );
   }
   return;
+}
 
+export function toWei(value: string): string {
+  return utils.parseEther(value).toString();
 }
