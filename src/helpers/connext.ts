@@ -1,9 +1,7 @@
 import * as connext from "@connext/client";
 import ConnextStore from "connext-store";
-import { Contract, providers } from "ethers";
 import { getMnemonic } from "./wallet";
 import { prettyPrint, verifyPayload, toWei } from "./utilities";
-import ERC20Mintable from "../contracts/ERC20Mintable";
 
 const DEFAULT_COLLATERAL_MINIMUM = toWei("5");
 const DEFAULT_AMOUNT_TO_COLLATERALIZE = toWei("10");
@@ -38,16 +36,10 @@ export async function createChannel(chainId: number) {
 
   console.log("[createChannel]", "isAvailable", true); // tslint:disable-line
 
-  const token = new Contract(
-    channel.config.contractAddresses.Token,
-    ERC20Mintable.abi,
-    new providers.JsonRpcProvider(options.ethProviderUrl)
-  );
-
   const tokenProfile = await channel.addPaymentProfile({
     minimumMaintainedCollateral: DEFAULT_AMOUNT_TO_COLLATERALIZE,
     amountToCollateralize: DEFAULT_COLLATERAL_MINIMUM,
-    assetId: token.address
+    assetId: channel.config.contractAddresses.Token
   });
 
   // tslint:disable-next-line
