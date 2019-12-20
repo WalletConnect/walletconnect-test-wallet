@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
-import { setLocal, getLocal } from "./store";
+import { setLocal, getLocal } from "./local";
 
 const standardPath = "m/44'/60'/0'/0";
 const MNEMONIC_KEY = "MNEMONIC";

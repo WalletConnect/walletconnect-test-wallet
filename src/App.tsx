@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
+import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -23,7 +24,7 @@ import {
   signPersonalMessage
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
-import { createChannel } from "./helpers/connext";
+import { createChannel, handleChannelRequests } from "./helpers/connext";
 
 const SContainer = styled.div`
   display: flex;
@@ -129,6 +130,7 @@ interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
+  channel: IConnextClient | null;
 }
 
 const defaultChainId = 4;
@@ -154,7 +156,8 @@ const INITIAL_STATE = {
   activeIndex: 0,
   requests: [],
   results: [],
-  displayRequest: null
+  displayRequest: null,
+  channel: null
 };
 
 const signingMethods = [
@@ -213,14 +216,18 @@ class App extends React.Component<{}> {
       });
 
       this.subscribeToEvents();
-      this.createChannel();
     }
+
+    this.createChannel();
   };
 
   public createChannel = async () => {
-    const { activeIndex } = this.state;
     const { chainId } = this.state;
-    createChannel(activeIndex);
+
+    if (chainId !== defaultChainId || this.state.channel) {
+      return;
+    }
+
     this.setState({ loading: true });
 
     let channel = null;
@@ -228,6 +235,7 @@ class App extends React.Component<{}> {
       channel = await createChannel(chainId);
     } catch (e) {
       console.error(e.toString()); // tslint:disable-line
+      this.setState({ loading: false });
       return;
     }
 
@@ -263,6 +271,7 @@ class App extends React.Component<{}> {
   };
 
   public approveSession = () => {
+    console.log("[approveSession]"); // tslint:disable-line
     const { walletConnector, chainId, address } = this.state;
     if (walletConnector) {
       walletConnector.approveSession({ chainId, accounts: [address] });
@@ -271,6 +280,7 @@ class App extends React.Component<{}> {
   };
 
   public rejectSession = () => {
+    console.log("[rejectSession]"); // tslint:disable-line
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.rejectSession();
@@ -279,6 +289,7 @@ class App extends React.Component<{}> {
   };
 
   public killSession = () => {
+    console.log("[killSession]"); // tslint:disable-line
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.killSession();
@@ -292,6 +303,7 @@ class App extends React.Component<{}> {
   };
 
   public subscribeToEvents = () => {
+    console.log("[subscribeToEvents]"); // tslint:disable-line
     const { walletConnector } = this.state;
 
     if (walletConnector) {
@@ -315,13 +327,33 @@ class App extends React.Component<{}> {
       });
 
       walletConnector.on("call_request", (error, payload) => {
-        console.log('walletConnector.on("call_request")'); // tslint:disable-line
+        // tslint:disable-next-line
+        console.log(
+          'walletConnector.on("call_request")',
+          "payload.method",
+          payload.method
+        );
 
         if (error) {
           throw error;
         }
 
-        if (!signingMethods.includes(payload.method)) {
+        if (payload.method.startsWith("chan_")) {
+          handleChannelRequests(payload, this.state.channel)
+            .then(result =>
+              walletConnector.approveRequest({
+                id: payload.id,
+                result
+              })
+            )
+            .catch(e =>
+              walletConnector.rejectRequest({
+                id: payload.id,
+                error: { message: e.message }
+              })
+            );
+          return;
+        } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
@@ -401,17 +433,12 @@ class App extends React.Component<{}> {
     });
   };
 
-  public updateChannel = async (chainId: number) => {
-    const channel = await createChannel(chainId);
-    this.setState({ channel });
-  };
-
   public updateChain = async (chainId: number | string) => {
     const { activeIndex } = this.state;
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
-    await this.updateChannel(_chainId);
     await this.updateSession({ chainId: _chainId });
+    await this.createChannel();
   };
 
   public updateAddress = async (activeIndex: number) => {
@@ -421,6 +448,7 @@ class App extends React.Component<{}> {
   };
 
   public toggleScanner = () => {
+    console.log("[toggleScanner]"); // tslint:disable-line
     this.setState({ scanner: !this.state.scanner });
   };
 
