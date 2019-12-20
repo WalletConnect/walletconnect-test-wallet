@@ -1,3 +1,4 @@
+import { convertHexToUtf8 } from "@walletconnect/utils";
 import { IChainData } from "./types";
 import supportedChains from "./chains";
 
@@ -147,6 +148,14 @@ export function getViewportDimensions() {
   return { x, y };
 }
 
+export function convertHexToUtf8IfPossible(hex: string) {
+  try {
+    return convertHexToUtf8(hex);
+  } catch(e) {
+    return hex;
+  }
+}
+
 export function prettyPrint(obj: any) {
   return JSON.stringify(obj, null, 2);
 }
@@ -201,4 +210,5 @@ export function verifyFields(params: any[], keys: any[]) {
     );
   }
   return;
+
 }
