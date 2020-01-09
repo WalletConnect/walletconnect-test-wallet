@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
+import { signingMethods } from "@walletconnect/utils";
 import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
@@ -139,7 +140,7 @@ interface IAppState {
 
 const TEST_ACCOUNTS = getMultipleAccounts();
 
-const INITIAL_STATE = {
+const INITIAL_STATE: IAppState = {
   loading: false,
   scanner: false,
   walletConnector: null,
@@ -161,14 +162,6 @@ const INITIAL_STATE = {
   displayRequest: null,
   channel: null
 };
-
-const signingMethods = [
-  "eth_sendTransaction",
-  "eth_signTransaction",
-  "personal_sign",
-  "eth_sign",
-  "eth_signTypedData"
-];
 
 class App extends React.Component<{}> {
   public state: IAppState;
