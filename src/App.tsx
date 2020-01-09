@@ -15,6 +15,10 @@ import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
 import {
+  CHANNEL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_CHAIN_ID
+} from "./helpers/constants";
+import {
   getMultipleAccounts,
   getWallet,
   updateWallet,
@@ -133,8 +137,6 @@ interface IAppState {
   channel: IConnextClient | null;
 }
 
-const defaultChainId = 4;
-
 const TEST_ACCOUNTS = getMultipleAccounts();
 
 const INITIAL_STATE = {
@@ -150,7 +152,7 @@ const INITIAL_STATE = {
     ssl: false
   },
   connected: false,
-  chainId: defaultChainId,
+  chainId: DEFAULT_CHAIN_ID,
   accounts: TEST_ACCOUNTS,
   address: TEST_ACCOUNTS[0],
   activeIndex: 0,
@@ -224,7 +226,7 @@ class App extends React.Component<{}> {
   public createChannel = async () => {
     const { chainId } = this.state;
 
-    if (chainId !== defaultChainId || this.state.channel) {
+    if (!CHANNEL_SUPPORTED_CHAIN_IDS.includes(chainId)) {
       return;
     }
 

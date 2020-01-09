@@ -1,23 +1,33 @@
 import * as connext from "@connext/client";
 import ConnextStore from "connext-store";
 import { getMnemonic } from "./wallet";
-import { prettyPrint, verifyPayload, toWei } from "./utilities";
+import { prettyPrint, verifyPayload } from "./utilities";
 
-const DEFAULT_COLLATERAL_MINIMUM = toWei("5");
-const DEFAULT_AMOUNT_TO_COLLATERALIZE = toWei("10");
+import {
+  DEFAULT_COLLATERAL_MINIMUM,
+  DEFAULT_AMOUNT_TO_COLLATERALIZE,
+  MAINNET_CHAIN_ID,
+  RINKEBY_CHAIN_ID
+} from "./constants";
 
-export async function createChannel(chainId: number) {
-  console.log("[createChannel]", "chainId", chainId); // tslint:disable-line
+export function getChannelBaseUrl(chainId: number) {
   const baseUrl =
-    chainId === 1
+    chainId === MAINNET_CHAIN_ID
       ? "indra.connext.network/api"
-      : chainId === 4
+      : chainId === RINKEBY_CHAIN_ID
       ? "rinkeby.indra.connext.network/api"
       : null;
 
   if (!baseUrl) {
     throw new Error(`Channel not supported on chainid=${chainId}`);
   }
+  return baseUrl;
+}
+
+export async function createChannel(chainId: number) {
+  console.log("[createChannel]", "chainId", chainId); // tslint:disable-line
+
+  const baseUrl = getChannelBaseUrl(chainId);
 
   console.log("[createChannel]", "baseUrl", baseUrl); // tslint:disable-line
 
