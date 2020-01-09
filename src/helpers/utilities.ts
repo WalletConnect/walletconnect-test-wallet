@@ -1,4 +1,5 @@
 import { convertHexToUtf8 } from "@walletconnect/utils";
+import { utils } from "ethers";
 import { IChainData } from "./types";
 import supportedChains from "./chains";
 
@@ -151,7 +152,67 @@ export function getViewportDimensions() {
 export function convertHexToUtf8IfPossible(hex: string) {
   try {
     return convertHexToUtf8(hex);
-  } catch(e) {
+  } catch (e) {
     return hex;
   }
+}
+
+export function prettyPrint(obj: any) {
+  return JSON.stringify(obj, null, 2);
+}
+
+export function verifyPayload(payload: any) {
+  const { params, id, method } = payload;
+
+  if (!params || typeof params !== "object") {
+    throw new Error(
+      `WalletConnect Error - invalid payload params. Payload: ${prettyPrint(
+        payload
+      )}`
+    );
+  }
+
+  if (!id || typeof id !== "number") {
+    throw new Error(
+      `WalletConnect Error - invalid payload id. Payload: ${prettyPrint(
+        payload
+      )}`
+    );
+  }
+
+  if (!method || typeof method !== "string") {
+    throw new Error(
+      `WalletConnect Error - invalid payload method. Payload: ${prettyPrint(
+        payload
+      )}`
+    );
+  }
+
+  return;
+}
+
+export function verifyFields(params: any[], keys: any[]) {
+  if (
+    keys.length <= 0 ||
+    keys.filter((k: any) => typeof k !== "string").length !== 0
+  ) {
+    throw new Error(`[verifyFields] Must provide an array of fields to check`);
+  }
+  if (typeof params !== "object") {
+    throw new Error(`[verifyFields] Must provide a params object`);
+  }
+
+  const naStr = keys.filter(k => !!!params[k]);
+  if (naStr.length !== 0) {
+    throw new Error(
+      `[verifyFields] Params missing needed keys. Params: ${prettyPrint(
+        params
+      )}, keys: ${prettyPrint(keys)}`
+    );
+  }
+  return;
+}
+
+export function toWei(value: string): string {
+  return utils.parseEther(value).toString();
 }

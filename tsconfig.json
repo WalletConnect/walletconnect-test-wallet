@@ -19,7 +19,8 @@
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true // TODO: remove temporary fix
   },
   "exclude": [
     "node_modules",

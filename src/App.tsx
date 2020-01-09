@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
+import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -14,6 +15,10 @@ import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
 import {
+  CHANNEL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_CHAIN_ID
+} from "./helpers/constants";
+import {
   getMultipleAccounts,
   getWallet,
   updateWallet,
@@ -23,6 +28,7 @@ import {
   signPersonalMessage
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
+import { createChannel, handleChannelRequests } from "./helpers/connext";
 
 const SContainer = styled.div`
   display: flex;
@@ -128,9 +134,8 @@ interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
+  channel: IConnextClient | null;
 }
-
-const defaultChainId = 3;
 
 const TEST_ACCOUNTS = getMultipleAccounts();
 
@@ -147,13 +152,14 @@ const INITIAL_STATE = {
     ssl: false
   },
   connected: false,
-  chainId: defaultChainId,
+  chainId: DEFAULT_CHAIN_ID,
   accounts: TEST_ACCOUNTS,
   address: TEST_ACCOUNTS[0],
   activeIndex: 0,
   requests: [],
   results: [],
-  displayRequest: null
+  displayRequest: null,
+  channel: null
 };
 
 const signingMethods = [
@@ -179,6 +185,7 @@ class App extends React.Component<{}> {
 
   public initWallet = async () => {
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
+    // when does the above get set?
 
     if (local) {
       let session;
@@ -194,6 +201,7 @@ class App extends React.Component<{}> {
       const { connected, chainId, accounts, peerMeta } = walletConnector;
 
       const address = accounts[0];
+      // NOTE: ^^ is not the cf path
 
       const activeIndex = accounts.indexOf(address);
 
@@ -211,6 +219,29 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
+
+    this.createChannel();
+  };
+
+  public createChannel = async () => {
+    const { chainId } = this.state;
+
+    if (!CHANNEL_SUPPORTED_CHAIN_IDS.includes(chainId)) {
+      return;
+    }
+
+    this.setState({ loading: true });
+
+    let channel = null;
+    try {
+      channel = await createChannel(chainId);
+    } catch (e) {
+      console.error(e.toString()); // tslint:disable-line
+      this.setState({ loading: false });
+      return;
+    }
+
+    this.setState({ loading: false, channel });
   };
 
   public initWalletConnect = async () => {
@@ -242,6 +273,7 @@ class App extends React.Component<{}> {
   };
 
   public approveSession = () => {
+    console.log("[approveSession]"); // tslint:disable-line
     const { walletConnector, chainId, address } = this.state;
     if (walletConnector) {
       walletConnector.approveSession({ chainId, accounts: [address] });
@@ -250,6 +282,7 @@ class App extends React.Component<{}> {
   };
 
   public rejectSession = () => {
+    console.log("[rejectSession]"); // tslint:disable-line
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.rejectSession();
@@ -258,6 +291,7 @@ class App extends React.Component<{}> {
   };
 
   public killSession = () => {
+    console.log("[killSession]"); // tslint:disable-line
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.killSession();
@@ -271,6 +305,7 @@ class App extends React.Component<{}> {
   };
 
   public subscribeToEvents = () => {
+    console.log("[subscribeToEvents]"); // tslint:disable-line
     const { walletConnector } = this.state;
 
     if (walletConnector) {
@@ -294,13 +329,33 @@ class App extends React.Component<{}> {
       });
 
       walletConnector.on("call_request", (error, payload) => {
-        console.log('walletConnector.on("call_request")'); // tslint:disable-line
+        // tslint:disable-next-line
+        console.log(
+          'walletConnector.on("call_request")',
+          "payload.method",
+          payload.method
+        );
 
         if (error) {
           throw error;
         }
 
-        if (!signingMethods.includes(payload.method)) {
+        if (payload.method.startsWith("chan_")) {
+          handleChannelRequests(payload, this.state.channel)
+            .then(result =>
+              walletConnector.approveRequest({
+                id: payload.id,
+                result
+              })
+            )
+            .catch(e =>
+              walletConnector.rejectRequest({
+                id: payload.id,
+                error: { message: e.message }
+              })
+            );
+          return;
+        } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
@@ -317,8 +372,8 @@ class App extends React.Component<{}> {
             );
           return;
         }
-
-        const requests = [...this.state.requests, payload];
+        const requests = this.state.requests;
+        requests.push(payload);
         this.setState({ requests });
       });
 
@@ -344,8 +399,9 @@ class App extends React.Component<{}> {
 
       if (walletConnector.connected) {
         const { chainId, accounts } = walletConnector;
-        const address = accounts[0];
-        updateWallet(address, chainId);
+        const index = 0;
+        const address = accounts[index];
+        updateWallet(index, chainId);
         this.setState({
           connected: true,
           address,
@@ -384,6 +440,7 @@ class App extends React.Component<{}> {
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
     await this.updateSession({ chainId: _chainId });
+    await this.createChannel();
   };
 
   public updateAddress = async (activeIndex: number) => {
@@ -393,6 +450,7 @@ class App extends React.Component<{}> {
   };
 
   public toggleScanner = () => {
+    console.log("[toggleScanner]"); // tslint:disable-line
     this.setState({ scanner: !this.state.scanner });
   };
 
