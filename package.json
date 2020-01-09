@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@walletconnect/browser": "^1.0.0-beta.42",
-    "axios": "^0.18.0",
-    "bignumber.js": "^8.1.1",
+    "axios": "^0.19.1",
+    "bignumber.js": "^9.0.0",
     "ethers": "^4.0.42",
     "prop-types": "^15.7.2",
     "qr-image": "^3.2.0",
@@ -36,17 +36,17 @@
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
-    "styled-components": "4.2.0"
+    "styled-components": "^4.4.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.25",
-    "@types/node": "^12.12.14",
+    "@types/node": "^13.1.6",
     "@types/prop-types": "^15.7.3",
     "@types/qr-image": "^3.2.1",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
     "@types/react-qr-reader": "^2.1.2",
-    "@types/styled-components": "4.1.8",
+    "@types/styled-components": "^4.4.2",
     "typescript": "^3.7.4"
   },
   "eslintConfig": {
