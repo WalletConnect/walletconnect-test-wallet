@@ -1,9 +1,7 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
-
-const standardPath = "m/44'/60'/0'/0";
-const MNEMONIC_KEY = "MNEMONIC";
+import { STANDARD_PATH, MNEMONIC_KEY } from "./constants";
 
 let wallet: ethers.Wallet | null = null;
 
@@ -25,7 +23,7 @@ export function getMultipleAccounts(count: number = 2) {
 }
 
 export function generatePath(index: number) {
-  const path = `${standardPath}/${index}`;
+  const path = `${STANDARD_PATH}/${index}`;
   return path;
 }
 

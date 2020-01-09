@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
+import { IJsonRpcRequest } from "@walletconnect/types";
 import { IAssetData, IGasPrices, IParsedTx } from "./types";
 import { payloadId, getChainData } from "./utilities";
-import { IJsonRpcRequest } from "@walletconnect/types";
 
 const api: AxiosInstance = axios.create({
   baseURL: "https://ethereum-api.xyz",
