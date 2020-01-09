@@ -1,7 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
-import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -14,10 +13,7 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, {
   IQRCodeValidateResponse
 } from "./components/QRCodeScanner";
-import {
-  CHANNEL_SUPPORTED_CHAIN_IDS,
-  DEFAULT_CHAIN_ID
-} from "./helpers/constants";
+import { DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
   getMultipleAccounts,
   getWallet,
@@ -28,7 +24,6 @@ import {
   signPersonalMessage
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
-import { createChannel, handleChannelRequests } from "./helpers/connext";
 
 const SContainer = styled.div`
   display: flex;
@@ -134,7 +129,6 @@ interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
-  channel: IConnextClient | null;
 }
 
 const TEST_ACCOUNTS = getMultipleAccounts();
@@ -158,8 +152,7 @@ const INITIAL_STATE = {
   activeIndex: 0,
   requests: [],
   results: [],
-  displayRequest: null,
-  channel: null
+  displayRequest: null
 };
 
 const signingMethods = [
@@ -219,29 +212,6 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
-
-    this.createChannel();
-  };
-
-  public createChannel = async () => {
-    const { chainId } = this.state;
-
-    if (!CHANNEL_SUPPORTED_CHAIN_IDS.includes(chainId)) {
-      return;
-    }
-
-    this.setState({ loading: true });
-
-    let channel = null;
-    try {
-      channel = await createChannel(chainId);
-    } catch (e) {
-      console.error(e.toString()); // tslint:disable-line
-      this.setState({ loading: false });
-      return;
-    }
-
-    this.setState({ loading: false, channel });
   };
 
   public initWalletConnect = async () => {
@@ -340,22 +310,7 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        if (payload.method.startsWith("chan_")) {
-          handleChannelRequests(payload, this.state.channel)
-            .then(result =>
-              walletConnector.approveRequest({
-                id: payload.id,
-                result
-              })
-            )
-            .catch(e =>
-              walletConnector.rejectRequest({
-                id: payload.id,
-                error: { message: e.message }
-              })
-            );
-          return;
-        } else if (!signingMethods.includes(payload.method)) {
+        if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
@@ -440,7 +395,6 @@ class App extends React.Component<{}> {
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
     await this.updateSession({ chainId: _chainId });
-    await this.createChannel();
   };
 
   public updateAddress = async (activeIndex: number) => {
