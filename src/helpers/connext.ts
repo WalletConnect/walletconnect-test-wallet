@@ -1,16 +1,11 @@
 import * as connext from "@connext/client";
-import ConnextStore from "connext-store";
 import { getMnemonic } from "./wallet";
 import { prettyPrint, verifyPayload } from "./utilities";
 
-import {
-  DEFAULT_COLLATERAL_MINIMUM,
-  DEFAULT_AMOUNT_TO_COLLATERALIZE,
-  MAINNET_CHAIN_ID,
-  RINKEBY_CHAIN_ID
-} from "./constants";
+import { MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID } from "./constants";
+import { ClientOptions } from "@connext/types";
 
-export function getChannelBaseUrl(chainId: number) {
+export function getChannelUrlOptions(chainId: number) {
   const baseUrl =
     chainId === MAINNET_CHAIN_ID
       ? "indra.connext.network/api"
@@ -21,41 +16,32 @@ export function getChannelBaseUrl(chainId: number) {
   if (!baseUrl) {
     throw new Error(`Channel not supported on chainid=${chainId}`);
   }
-  return baseUrl;
+
+  console.log("[getChannelUrlOptions]", "baseUrl", baseUrl); // tslint:disable-line
+
+  const urlOptions = {
+    ethProviderUrl: `https://${baseUrl}/ethprovider`,
+    nodeUrl: `wss://${baseUrl}/messaging`
+  };
+
+  return urlOptions;
 }
 
 export async function createChannel(chainId: number) {
   console.log("[createChannel]", "chainId", chainId); // tslint:disable-line
 
-  const baseUrl = getChannelBaseUrl(chainId);
+  const urlOptions = getChannelUrlOptions(chainId);
 
-  console.log("[createChannel]", "baseUrl", baseUrl); // tslint:disable-line
-
-  const options = {
+  const options: ClientOptions = {
     mnemonic: getMnemonic(),
-    nodeUrl: `wss://${baseUrl}/messaging`,
-    ethProviderUrl: `https://${baseUrl}/ethprovider`,
-    store: new ConnextStore(window.localStorage)
+    ...urlOptions
   };
+
+  console.log("[createChannel]", "options", prettyPrint(options)); // tslint:disable-line
 
   const channel = await connext.connect(options);
 
   console.log("[createChannel]", "channel", channel); // tslint:disable-line
-
-  await channel.isAvailable();
-
-  console.log("[createChannel]", "isAvailable", true); // tslint:disable-line
-
-  const tokenProfile = await channel.addPaymentProfile({
-    minimumMaintainedCollateral: DEFAULT_AMOUNT_TO_COLLATERALIZE,
-    amountToCollateralize: DEFAULT_COLLATERAL_MINIMUM,
-    assetId: channel.config.contractAddresses.Token
-  });
-
-  // tslint:disable-next-line
-  console.log(
-    `Created channel with tokenProfile: ${prettyPrint(tokenProfile)}`
-  );
 
   return channel;
 }

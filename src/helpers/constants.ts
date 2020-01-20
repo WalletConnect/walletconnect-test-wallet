@@ -1,10 +1,5 @@
-import { toWei } from "./utilities";
-
 export const STANDARD_PATH = "m/44'/60'/0'/0";
 export const MNEMONIC_KEY = "MNEMONIC";
-
-export const DEFAULT_COLLATERAL_MINIMUM = toWei("5");
-export const DEFAULT_AMOUNT_TO_COLLATERALIZE = toWei("10");
 
 export const MAINNET_CHAIN_ID = 1;
 export const RINKEBY_CHAIN_ID = 4;
