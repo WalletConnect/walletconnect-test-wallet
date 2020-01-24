@@ -25,8 +25,8 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@connext/client": "4.0.5",
-    "@connext/types": "4.0.5",
+    "@connext/client": "4.0.6",
+    "@connext/types": "4.0.6",
     "@walletconnect/browser": "1.0.0-beta.46",
     "axios": "^0.19.1",
     "bignumber.js": "^9.0.0",
