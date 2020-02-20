@@ -24,7 +24,7 @@ import {
   signPersonalMessage,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
-import walletconnectLogo from "./assets/walletconnect-logo.png";
+import starkwareLogo from "./assets/starkware-logo.svg";
 import { getCachedSession } from "./helpers/utilities";
 
 const SContainer = styled.div`
@@ -568,7 +568,7 @@ class App extends React.Component<{}> {
           <SContent>
             <Card maxWidth={400}>
               <SLogo>
-                <img src={walletconnectLogo} alt="WalletConnect" />
+                <img src={starkwareLogo} alt="Starkware" />
               </SLogo>
               {!connected ? (
                 peerMeta && peerMeta.name ? (
