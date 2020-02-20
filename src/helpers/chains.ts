@@ -11,7 +11,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://mainnet.infura.io/v3/INFURA_ID",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether",
       decimals: "18",
       contractAddress: "",
       balance: "",
@@ -27,7 +27,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://ropsten.infura.io/v3/INFURA_ID",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether",
       decimals: "18",
       contractAddress: "",
       balance: "",
@@ -43,7 +43,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://rinkeby.infura.io/v3/INFURA_ID",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether",
       decimals: "18",
       contractAddress: "",
       balance: "",
@@ -59,7 +59,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://goerli.infura.io/v3/INFURA_ID",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether",
       decimals: "18",
       contractAddress: "",
       balance: "",
@@ -91,7 +91,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://kovan.infura.io/v3/INFURA_ID",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether",
       decimals: "18",
       contractAddress: "",
       balance: "",
@@ -107,7 +107,7 @@ const supportedChains: IChainData[] = [
     rpc_url: "https://ethereumclassic.network",
     native_currency: {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ether Classic",
       decimals: "18",
       contractAddress: "",
       balance: "",

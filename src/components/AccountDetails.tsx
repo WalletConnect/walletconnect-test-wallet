@@ -39,7 +39,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
   const windowWidth = getViewportDimensions().x;
   const maxWidth = 468;
   const maxChar = 12;
-  const chains = supportedChains.filter(x => x.chain.toLowerCase() === "eth");
+  const chains = supportedChains.filter(x => x.native_currency.name.toLowerCase() === "ether");
   const ellipseLength =
     windowWidth > maxWidth ? maxChar : Math.floor(windowWidth * (maxChar / maxWidth));
   const accountsMap = accounts.map((addr: string, index: number) => ({
