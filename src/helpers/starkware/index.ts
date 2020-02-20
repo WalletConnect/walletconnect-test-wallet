@@ -258,5 +258,5 @@ export const sign = (keyPair: KeyPair, msg: string) => keyPair.sign(fixMessage(m
  msgSignature should be an elliptic.Signature.
  Returns a boolean true if the verification succeeds.
 */
-export const verify = (keyPair: KeyPair, msg: string, msgSignature: string) =>
+export const verify = (keyPair: KeyPair, msg: string, msgSignature: elliptic.SignatureInput) =>
   keyPair.verify(fixMessage(msg), msgSignature);

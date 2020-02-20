@@ -67,6 +67,7 @@ export function generateWallet(index: number) {
 
 export function generateStarkwareKeyPair(): starkware.KeyPair {
   starkKeyPair = starkware.ec.genKeyPair({ entropy: getEntropy() });
+  console.log("starkKeyPair", starkKeyPair);
   return starkKeyPair;
 }
 

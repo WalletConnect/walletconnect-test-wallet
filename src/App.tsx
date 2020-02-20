@@ -26,6 +26,7 @@ import {
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import starkwareLogo from "./assets/starkware-logo.svg";
+import { getCachedSession } from "./helpers/utilities";
 
 const SContainer = styled.div`
   display: flex;
@@ -56,12 +57,6 @@ const SContent = styled.div`
   align-items: center;
   justify-content: center;
 `;
-
-// const STitle = styled.h1`
-//   margin: 10px auto;
-//   text-align: center;
-//   font-size: calc(10px + 2vmin);
-// `;
 
 const SLogo = styled.div`
   padding: 10px 0;
@@ -125,7 +120,7 @@ const SRequestButton = styled(RequestButton)`
 interface IAppState {
   loading: boolean;
   scanner: boolean;
-  walletConnector: WalletConnect | null;
+  connector: WalletConnect | null;
   uri: string;
   peerMeta: {
     description: string;
@@ -150,7 +145,7 @@ const TEST_ACCOUNTS = getMultipleAccounts();
 const INITIAL_STATE: IAppState = {
   loading: false,
   scanner: false,
-  walletConnector: null,
+  connector: null,
   uri: "",
   peerMeta: {
     description: "",
@@ -187,31 +182,27 @@ class App extends React.Component<{}> {
   }
 
   public initWallet = async () => {
-    const local = localStorage ? localStorage.getItem("walletconnect") : null;
-    // when does the above get set?
+    let { activeIndex, chainId } = this.state;
 
-    if (local) {
-      let session;
+    const session = getCachedSession();
 
-      try {
-        session = JSON.parse(local);
-      } catch (error) {
-        throw error;
-      }
+    if (!session) {
+      await initWallet(activeIndex, chainId);
+    } else {
+      const connector = new WalletConnect({ session });
 
-      const walletConnector = new WalletConnect({ session });
-
-      const { connected, chainId, accounts, peerMeta } = walletConnector;
+      const { connected, accounts, peerMeta } = connector;
 
       const address = accounts[0];
 
-      const activeIndex = accounts.indexOf(address);
+      activeIndex = accounts.indexOf(address);
+      chainId = connector.chainId;
 
       await initWallet(activeIndex, chainId);
 
       await this.setState({
         connected,
-        walletConnector,
+        connector,
         address,
         activeIndex,
         accounts,
@@ -220,8 +211,6 @@ class App extends React.Component<{}> {
       });
 
       this.subscribeToEvents();
-    } else {
-      await initWallet(this.state.activeIndex, this.state.chainId);
     }
   };
 
@@ -231,18 +220,16 @@ class App extends React.Component<{}> {
     this.setState({ loading: true });
 
     try {
-      const walletConnector = new WalletConnect({ uri });
+      const connector = new WalletConnect({ uri });
 
-      window.walletConnector = walletConnector;
-
-      if (!walletConnector.connected) {
-        await walletConnector.createSession();
+      if (!connector.connected) {
+        await connector.createSession();
       }
 
       await this.setState({
         loading: false,
-        walletConnector,
-        uri: walletConnector.uri,
+        connector,
+        uri: connector.uri,
       });
 
       this.subscribeToEvents();
@@ -255,27 +242,27 @@ class App extends React.Component<{}> {
 
   public approveSession = () => {
     console.log("[approveSession]");
-    const { walletConnector, chainId, address } = this.state;
-    if (walletConnector) {
-      walletConnector.approveSession({ chainId, accounts: [address] });
+    const { connector, chainId, address } = this.state;
+    if (connector) {
+      connector.approveSession({ chainId, accounts: [address] });
     }
-    this.setState({ walletConnector });
+    this.setState({ connector });
   };
 
   public rejectSession = () => {
     console.log("[rejectSession]");
-    const { walletConnector } = this.state;
-    if (walletConnector) {
-      walletConnector.rejectSession();
+    const { connector } = this.state;
+    if (connector) {
+      connector.rejectSession();
     }
-    this.setState({ walletConnector });
+    this.setState({ connector });
   };
 
   public killSession = () => {
     console.log("[killSession]");
-    const { walletConnector } = this.state;
-    if (walletConnector) {
-      walletConnector.killSession();
+    const { connector } = this.state;
+    if (connector) {
+      connector.killSession();
     }
     this.resetApp();
   };
@@ -287,11 +274,11 @@ class App extends React.Component<{}> {
 
   public subscribeToEvents = () => {
     console.log("[subscribeToEvents]");
-    const { walletConnector } = this.state;
+    const { connector } = this.state;
 
-    if (walletConnector) {
-      walletConnector.on("session_request", (error, payload) => {
-        console.log(`walletConnector.on("session_request")`);
+    if (connector) {
+      connector.on("session_request", (error, payload) => {
+        console.log(`connector.on("session_request")`);
 
         if (error) {
           throw error;
@@ -301,17 +288,17 @@ class App extends React.Component<{}> {
         this.setState({ peerMeta });
       });
 
-      walletConnector.on("session_update", error => {
-        console.log(`walletConnector.on("session_update")`);
+      connector.on("session_update", error => {
+        console.log(`connector.on("session_update")`);
 
         if (error) {
           throw error;
         }
       });
 
-      walletConnector.on("call_request", (error, payload) => {
+      connector.on("call_request", (error, payload) => {
         // tslint:disable-next-line
-        console.log(`walletConnector.on("call_request")`, "payload.method", payload.method);
+        console.log(`connector.on("call_request")`, "payload.method", payload.method);
 
         if (error) {
           throw error;
@@ -321,13 +308,13 @@ class App extends React.Component<{}> {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
-              walletConnector.approveRequest({
+              connector.approveRequest({
                 id: payload.id,
                 result,
               }),
             )
             .catch(() =>
-              walletConnector.rejectRequest({
+              connector.rejectRequest({
                 id: payload.id,
                 error: { message: "JSON RPC method not supported" },
               }),
@@ -339,8 +326,8 @@ class App extends React.Component<{}> {
         this.setState({ requests });
       });
 
-      walletConnector.on("connect", (error, payload) => {
-        console.log(`walletConnector.on("connect")`);
+      connector.on("connect", (error, payload) => {
+        console.log(`connector.on("connect")`);
 
         if (error) {
           throw error;
@@ -349,8 +336,8 @@ class App extends React.Component<{}> {
         this.setState({ connected: true });
       });
 
-      walletConnector.on("disconnect", (error, payload) => {
-        console.log(`walletConnector.on("disconnect")`);
+      connector.on("disconnect", (error, payload) => {
+        console.log(`connector.on("disconnect")`);
 
         if (error) {
           throw error;
@@ -359,8 +346,8 @@ class App extends React.Component<{}> {
         this.resetApp();
       });
 
-      if (walletConnector.connected) {
-        const { chainId, accounts } = walletConnector;
+      if (connector.connected) {
+        const { chainId, accounts } = connector;
         const index = 0;
         const address = accounts[index];
         updateWallet(index, chainId);
@@ -371,24 +358,24 @@ class App extends React.Component<{}> {
         });
       }
 
-      this.setState({ walletConnector });
+      this.setState({ connector });
     }
   };
 
   public updateSession = async (sessionParams: { chainId?: number; activeIndex?: number }) => {
-    const { walletConnector, chainId, accounts, activeIndex } = this.state;
+    const { connector, chainId, accounts, activeIndex } = this.state;
     const _chainId = sessionParams.chainId || chainId;
     const _activeIndex = sessionParams.activeIndex || activeIndex;
     const address = accounts[_activeIndex];
-    if (walletConnector) {
-      walletConnector.updateSession({
+    if (connector) {
+      connector.updateSession({
         chainId: _chainId,
         accounts: [address],
       });
     }
 
     await this.setState({
-      walletConnector,
+      connector,
       chainId: _chainId,
       address,
     });
@@ -462,14 +449,14 @@ class App extends React.Component<{}> {
   };
 
   public approveRequest = async () => {
-    const { walletConnector, displayRequest, address, activeIndex, chainId } = this.state;
+    const { connector, displayRequest, address, activeIndex, chainId } = this.state;
 
     let errorMsg = "";
 
     try {
       let result = null;
 
-      if (walletConnector) {
+      if (connector) {
         if (!getWallet()) {
           await updateWallet(activeIndex, chainId);
         }
@@ -520,7 +507,7 @@ class App extends React.Component<{}> {
         }
 
         if (result) {
-          walletConnector.approveRequest({
+          connector.approveRequest({
             id: displayRequest.id,
             result,
           });
@@ -529,7 +516,7 @@ class App extends React.Component<{}> {
           if (!getWallet()) {
             message = "No Active Account";
           }
-          walletConnector.rejectRequest({
+          connector.rejectRequest({
             id: displayRequest.id,
             error: { message },
           });
@@ -537,8 +524,8 @@ class App extends React.Component<{}> {
       }
     } catch (error) {
       console.error(error);
-      if (walletConnector) {
-        walletConnector.rejectRequest({
+      if (connector) {
+        connector.rejectRequest({
           id: displayRequest.id,
           error: { message: errorMsg || "Failed or Rejected Request" },
         });
@@ -546,19 +533,19 @@ class App extends React.Component<{}> {
     }
 
     this.closeRequest();
-    await this.setState({ walletConnector });
+    await this.setState({ connector });
   };
 
   public rejectRequest = async () => {
-    const { walletConnector, displayRequest } = this.state;
-    if (walletConnector) {
-      walletConnector.rejectRequest({
+    const { connector, displayRequest } = this.state;
+    if (connector) {
+      connector.rejectRequest({
         id: displayRequest.id,
         error: { message: "Failed or Rejected Request" },
       });
     }
     await this.closeRequest();
-    await this.setState({ walletConnector });
+    await this.setState({ connector });
   };
 
   public render() {

@@ -197,3 +197,17 @@ export function verifyFields(params: any[], keys: any[]) {
 export function toWei(value: string): string {
   return utils.parseEther(value).toString();
 }
+
+export function getCachedSession(): any {
+  const local = localStorage ? localStorage.getItem("walletconnect") : null;
+
+  let session = null;
+  if (local) {
+    try {
+      session = JSON.parse(local);
+    } catch (error) {
+      throw error;
+    }
+  }
+  return session;
+}
