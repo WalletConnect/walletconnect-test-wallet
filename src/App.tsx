@@ -86,6 +86,8 @@ const SActionsColumn = styled(SActions)`
   flex-direction: row;
   align-items: center;
 
+  margin: 24px 0 6px;
+
   & > p {
     font-weight: 600;
   }
@@ -166,6 +168,9 @@ const INITIAL_STATE: IAppState = {
   displayRequest: null,
   channel: null,
 };
+
+const showPasteUri = false;
+const showVersion = false;
 
 class App extends React.Component<{}> {
   public state: IAppState;
@@ -601,8 +606,12 @@ class App extends React.Component<{}> {
                     />
                     <SActionsColumn>
                       <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
-                      <p>{"OR"}</p>
-                      <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
+                      {showPasteUri && (
+                        <>
+                          <p>{"OR"}</p>
+                          <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
+                        </>
+                      )}
                     </SActionsColumn>
                   </Column>
                 )
@@ -657,7 +666,7 @@ class App extends React.Component<{}> {
             />
           )}
         </SContainer>
-        <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>
+        {showVersion && <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>}
       </React.Fragment>
     );
   }

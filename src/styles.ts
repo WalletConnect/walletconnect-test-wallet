@@ -1,4 +1,4 @@
-export const colors = {
+export const baseColors = {
   white: "255, 255, 255",
   black: "0, 0, 0",
   dark: "12, 12, 13",
@@ -13,7 +13,18 @@ export const colors = {
   pink: "255, 51, 102",
   red: "214, 75, 71",
   purple: "110, 107, 233",
-  background: "25, 24, 46",
+};
+
+export const customColors = {
+  starkware: "40, 40, 110",
+  purple2: "25, 24, 46",
+};
+
+export const colors = {
+  ...baseColors,
+  ...customColors,
+  defaultColor: customColors.starkware,
+  backgroundColor: customColors.purple2,
 };
 
 export const fonts = {
@@ -99,7 +110,7 @@ export const globalStyle = `
     font-stretch: normal;
     font-weight: ${fonts.weight.normal};
     font-size: ${fonts.size.medium};
-    background-color: rgb(${colors.background});
+    background-color: rgb(${colors.backgroundColor});
     color: rgb(${colors.white});
     overflow-y:auto;
     text-rendering: optimizeLegibility;

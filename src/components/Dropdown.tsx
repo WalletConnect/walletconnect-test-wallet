@@ -33,9 +33,9 @@ const SRow = styled.div<IDropdownStyle>`
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: ${({ show }) =>
-    show ? `rgba(${colors.dark}, 0.3)` : `rgba(${colors.dark}, 0)`};
+    show ? `rgba(${colors.defaultColor}, 0.3)` : `rgba(${colors.defaultColor}, 0)`};
   &:last-child {
-    border-bottom-color: rgba(${colors.dark}, 0);
+    border-bottom-color: rgba(${colors.defaultColor}, 0);
   }
 `;
 

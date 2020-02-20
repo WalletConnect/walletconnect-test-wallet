@@ -19,7 +19,7 @@ const SCard = styled.div<ICardStyleProps>`
   justify-content: center;
   align-items: center;
   background: rgb(${colors.white});
-  color: rgb(${colors.dark});
+  color: rgb(${colors.defaultColor});
   border-radius: 6px;
   padding: 20px;
 `;
