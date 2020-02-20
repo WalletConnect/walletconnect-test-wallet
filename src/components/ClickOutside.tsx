@@ -7,11 +7,11 @@ interface IClickOutsideProps {
 
 class ClickOutside extends React.Component<IClickOutsideProps> {
   public static propTypes = {
-    onClickOutside: PropTypes.func.isRequired
+    onClickOutside: PropTypes.func.isRequired,
   };
 
   private element: HTMLDivElement | null;
-  private isTouch: boolean = false;
+  private isTouch = false;
 
   public componentDidMount() {
     document.addEventListener("touchend", this.handle, true);

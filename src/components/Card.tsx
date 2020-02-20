@@ -33,7 +33,7 @@ const Card = (props: ICardProps) => {
 };
 
 Card.defaultProps = {
-  maxWidth: 600
+  maxWidth: 600,
 };
 
 export default Card;

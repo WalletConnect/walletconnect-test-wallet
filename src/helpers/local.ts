@@ -1,9 +1,6 @@
 export let local: Storage;
 
-if (
-  typeof window !== "undefined" &&
-  typeof window.localStorage !== "undefined"
-) {
+if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
   local = window.localStorage;
 }
 
@@ -41,4 +38,3 @@ export const updateLocal = (key: string, data: any) => {
   const mergedData = { ...localData, ...data };
   setLocal(key, mergedData);
 };
-

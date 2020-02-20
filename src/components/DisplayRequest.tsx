@@ -41,12 +41,7 @@ const SActions = styled.div`
 
 class DisplayRequest extends React.Component<any, any> {
   public render() {
-    const {
-      displayRequest,
-      peerMeta,
-      approveRequest,
-      rejectRequest
-    } = this.props;
+    const { displayRequest, peerMeta, approveRequest, rejectRequest } = this.props;
 
     let params = [{ label: "Method", value: displayRequest.method }];
 
@@ -63,21 +58,21 @@ class DisplayRequest extends React.Component<any, any> {
               ? convertHexToNumber(displayRequest.params[0].gas)
               : displayRequest.params[0].gasLimit
               ? convertHexToNumber(displayRequest.params[0].gasLimit)
-              : ""
+              : "",
           },
           {
             label: "Gas Price",
-            value: convertHexToNumber(displayRequest.params[0].gasPrice)
+            value: convertHexToNumber(displayRequest.params[0].gasPrice),
           },
           {
             label: "Nonce",
-            value: convertHexToNumber(displayRequest.params[0].nonce)
+            value: convertHexToNumber(displayRequest.params[0].nonce),
           },
           {
             label: "Value",
-            value: convertHexToNumber(displayRequest.params[0].value)
+            value: convertHexToNumber(displayRequest.params[0].value),
           },
-          { label: "Data", value: displayRequest.params[0].data }
+          { label: "Data", value: displayRequest.params[0].data },
         ];
         break;
 
@@ -85,7 +80,7 @@ class DisplayRequest extends React.Component<any, any> {
         params = [
           ...params,
           { label: "Address", value: displayRequest.params[0] },
-          { label: "Message", value: displayRequest.params[1] }
+          { label: "Message", value: displayRequest.params[1] },
         ];
         break;
       case "personal_sign":
@@ -94,8 +89,8 @@ class DisplayRequest extends React.Component<any, any> {
           { label: "Address", value: displayRequest.params[1] },
           {
             label: "Message",
-            value: convertHexToUtf8IfPossible(displayRequest.params[0])
-          }
+            value: convertHexToUtf8IfPossible(displayRequest.params[0]),
+          },
         ];
         break;
       default:
@@ -103,8 +98,8 @@ class DisplayRequest extends React.Component<any, any> {
           ...params,
           {
             label: "params",
-            value: JSON.stringify(displayRequest.params, null, "\t")
-          }
+            value: JSON.stringify(displayRequest.params, null, "\t"),
+          },
         ];
         break;
     }

@@ -12,7 +12,7 @@ export function getWallet() {
   return null;
 }
 
-export function getMultipleAccounts(count: number = 2) {
+export function getMultipleAccounts(count = 2) {
   const accounts = [];
   let wallet = null;
   for (let i = 0; i < count; i++) {
@@ -59,11 +59,8 @@ export async function updateWallet(index: number, chainId: number) {
 
 export async function sendTransaction(transaction: any) {
   if (wallet) {
-    if (
-      transaction.from &&
-      transaction.from.toLowerCase() !== wallet.address.toLowerCase()
-    ) {
-      console.error("Transaction request From doesn't match active account"); // tslint:disable-line
+    if (transaction.from && transaction.from.toLowerCase() !== wallet.address.toLowerCase()) {
+      console.error("Transaction request From doesn't match active account");
     }
 
     if (transaction.from) {
@@ -79,7 +76,7 @@ export async function sendTransaction(transaction: any) {
     const result = await wallet.sendTransaction(transaction);
     return result.hash;
   } else {
-    console.error("No Active Account"); // tslint:disable-line
+    console.error("No Active Account");
   }
   return null;
 }
@@ -92,7 +89,7 @@ export async function signTransaction(data: any) {
     const result = await wallet.sign(data);
     return result;
   } else {
-    console.error("No Active Account"); // tslint:disable-line
+    console.error("No Active Account");
   }
   return null;
 }
@@ -104,7 +101,7 @@ export async function signMessage(data: any) {
     const result = await ethers.utils.joinSignature(sigParams);
     return result;
   } else {
-    console.error("No Active Account"); // tslint:disable-line
+    console.error("No Active Account");
   }
   return null;
 }
@@ -112,13 +109,11 @@ export async function signMessage(data: any) {
 export async function signPersonalMessage(message: any) {
   if (wallet) {
     const result = await wallet.signMessage(
-      ethers.utils.isHexString(message)
-        ? ethers.utils.arrayify(message)
-        : message
+      ethers.utils.isHexString(message) ? ethers.utils.arrayify(message) : message,
     );
     return result;
   } else {
-    console.error("No Active Account"); // tslint:disable-line
+    console.error("No Active Account");
   }
   return null;
 }

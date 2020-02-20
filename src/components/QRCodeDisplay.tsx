@@ -22,13 +22,10 @@ interface IQRCodeDisplayProps {
   data: string;
 }
 
-class QRCodeDisplay extends React.Component<
-  IQRCodeDisplayProps,
-  IQRCodeDisplayState
-> {
+class QRCodeDisplay extends React.Component<IQRCodeDisplayProps, IQRCodeDisplayState> {
   public state = {
     img: "",
-    data: ""
+    data: "",
   };
 
   public componentDidMount() {
@@ -52,10 +49,7 @@ class QRCodeDisplay extends React.Component<
   public render() {
     const { img } = this.state;
     return img ? (
-      <SQRCodeDisplay
-        dangerouslySetInnerHTML={{ __html: img }}
-        {...this.props}
-      />
+      <SQRCodeDisplay dangerouslySetInnerHTML={{ __html: img }} {...this.props} />
     ) : null;
   }
 }

@@ -29,8 +29,7 @@ const SRow = styled.div<IDropdownStyle>`
   width: 100%;
   padding: 10px 20px;
   background: rgb(${colors.white});
-  border-radius: ${({ selected, show }) =>
-    selected ? (show ? "6px 6px 0 0 " : "6px") : "none"};
+  border-radius: ${({ selected, show }) => (selected ? (show ? "6px 6px 0 0 " : "6px") : "none")};
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: ${({ show }) =>
@@ -76,7 +75,7 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
   public state = {
     show: false,
     optionsDict: {},
-    otherKeys: []
+    otherKeys: [],
   };
 
   public componentDidMount() {
@@ -101,9 +100,7 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
     let otherKeys: any[] = [];
     if (Array.isArray(options)) {
       if (!targetKey) {
-        throw new Error(
-          'Error: "option" prop is type Array requires "targetKey" prop'
-        );
+        throw new Error(`Error: "option" prop is type Array requires "targetKey" prop`);
       }
       options.forEach((option: any) => {
         const optionKey = option[targetKey];
@@ -142,12 +139,9 @@ class Dropdown extends React.Component<IDropdownProps, IDropdownState> {
   public render() {
     const { displayKey, selected, disabled, monospace } = this.props;
     const { show, otherKeys, optionsDict } = this.state;
-    return !!Object.keys(optionsDict).length ? (
+    return Object.keys(optionsDict).length ? (
       <ClickOutside onClickOutside={this.onClickOutside}>
-        <SDropdown
-          monospace={!!monospace}
-          disabled={disabled || !otherKeys.length}
-        >
+        <SDropdown monospace={!!monospace} disabled={disabled || !otherKeys.length}>
           <SRow selected={true} show={show} onClick={this.toggleDropdown}>
             {optionsDict[selected][displayKey]}
           </SRow>

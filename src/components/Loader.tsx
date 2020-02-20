@@ -27,9 +27,7 @@ const SLoader = styled.div<ILoaderStyleProps>`
   border-radius: 50%;
   background: ${({ color }) => `rgb(${colors[color]})`};
   background: ${({ background, color }) =>
-    `linear-gradient(to right, rgb(${colors[color]}) 10%, rgba(${
-      colors[background]
-    }, 0) 42%)`};
+    `linear-gradient(to right, rgb(${colors[color]}) 10%, rgba(${colors[background]}, 0) 42%)`};
   animation: ${load} 1s infinite linear;
   transform: translateZ(0);
 
@@ -60,18 +58,13 @@ const SLoader = styled.div<ILoaderStyleProps>`
 `;
 
 const Loader = (props: ILoaderStyleProps) => (
-  <SLoader
-    size={props.size}
-    color={props.color}
-    background={props.background}
-    {...props}
-  />
+  <SLoader size={props.size} color={props.color} background={props.background} {...props} />
 );
 
 Loader.defaultProps = {
   size: 50,
   color: "dark",
-  background: "white"
+  background: "white",
 };
 
 export default Loader;

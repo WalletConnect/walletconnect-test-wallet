@@ -8,14 +8,11 @@ const api: AxiosInstance = axios.create({
   timeout: 30000, // 30 secs
   headers: {
     Accept: "application/json",
-    "Content-Type": "application/json"
-  }
+    "Content-Type": "application/json",
+  },
 });
 
-export const apiSendTransaction = async (
-  txParams: any,
-  chainId: number
-): Promise<number> => {
+export const apiSendTransaction = async (txParams: any, chainId: number): Promise<number> => {
   const rpcUrl = getChainData(chainId).rpc_url;
 
   if (!rpcUrl && typeof rpcUrl !== "string") {
@@ -26,42 +23,30 @@ export const apiSendTransaction = async (
     jsonrpc: "2.0",
     id: payloadId(),
     method: "eth_sendTransaction",
-    params: [txParams]
+    params: [txParams],
   });
 
   const result = response.data.result;
   return result;
 };
 
-export async function apiGetAccountAssets(
-  address: string,
-  chainId: number
-): Promise<IAssetData[]> {
-  const response = await api.get(
-    `/account-assets?address=${address}&chainId=${chainId}`
-  );
+export async function apiGetAccountAssets(address: string, chainId: number): Promise<IAssetData[]> {
+  const response = await api.get(`/account-assets?address=${address}&chainId=${chainId}`);
   const { result } = response.data;
   return result;
 }
 
 export async function apiGetAccountTransactions(
   address: string,
-  chainId: number
+  chainId: number,
 ): Promise<IParsedTx[]> {
-  const response = await api.get(
-    `/account-transactions?address=${address}&chainId=${chainId}`
-  );
+  const response = await api.get(`/account-transactions?address=${address}&chainId=${chainId}`);
   const { result } = response.data;
   return result;
 }
 
-export const apiGetAccountNonce = async (
-  address: string,
-  chainId: number
-): Promise<string> => {
-  const response = await api.get(
-    `/account-nonce?address=${address}&chainId=${chainId}`
-  );
+export const apiGetAccountNonce = async (address: string, chainId: number): Promise<string> => {
+  const response = await api.get(`/account-nonce?address=${address}&chainId=${chainId}`);
   const { result } = response.data;
   return result;
 };
@@ -72,9 +57,7 @@ export const apiGetGasPrices = async (): Promise<IGasPrices> => {
   return result;
 };
 
-export const apiGetBlockNumber = async (
-  chainId: number
-): Promise<IGasPrices> => {
+export const apiGetBlockNumber = async (chainId: number): Promise<IGasPrices> => {
   const response = await api.get(`/block-number?chainId=${chainId}`);
   const { result } = response.data;
   return result;
@@ -82,12 +65,9 @@ export const apiGetBlockNumber = async (
 
 export const apiGetCustomRequest = async (
   chainId: number,
-  customRpc: Partial<IJsonRpcRequest>
+  customRpc: Partial<IJsonRpcRequest>,
 ): Promise<any> => {
-  const response = await api.post(
-    `/custom-request?chainId=${chainId}`,
-    customRpc
-  );
+  const response = await api.post(`/custom-request?chainId=${chainId}`, customRpc);
   const { result } = response.data;
   return result;
 };

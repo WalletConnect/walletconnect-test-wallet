@@ -12,13 +12,8 @@ import PeerMeta from "./components/PeerMeta";
 import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
-import QRCodeScanner, {
-  IQRCodeValidateResponse
-} from "./components/QRCodeScanner";
-import {
-  CHANNEL_SUPPORTED_CHAIN_IDS,
-  DEFAULT_CHAIN_ID
-} from "./helpers/constants";
+import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
+import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
   getMultipleAccounts,
   getWallet,
@@ -26,7 +21,7 @@ import {
   sendTransaction,
   signTransaction,
   signMessage,
-  signPersonalMessage
+  signPersonalMessage,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import { createChannel, handleChannelRequests } from "./helpers/connext";
@@ -150,7 +145,7 @@ const INITIAL_STATE: IAppState = {
     url: "",
     icons: [],
     name: "",
-    ssl: false
+    ssl: false,
   },
   connected: false,
   chainId: DEFAULT_CHAIN_ID,
@@ -160,7 +155,7 @@ const INITIAL_STATE: IAppState = {
   requests: [],
   results: [],
   displayRequest: null,
-  channel: null
+  channel: null,
 };
 
 class App extends React.Component<{}> {
@@ -169,7 +164,7 @@ class App extends React.Component<{}> {
   constructor(props: any) {
     super(props);
     this.state = {
-      ...INITIAL_STATE
+      ...INITIAL_STATE,
     };
   }
   public componentDidMount() {
@@ -207,7 +202,7 @@ class App extends React.Component<{}> {
         activeIndex,
         accounts,
         chainId,
-        peerMeta
+        peerMeta,
       });
 
       this.subscribeToEvents();
@@ -229,7 +224,7 @@ class App extends React.Component<{}> {
     try {
       channel = await createChannel(chainId);
     } catch (e) {
-      console.error(e.toString()); // tslint:disable-line
+      console.error(e.toString());
       this.setState({ loading: false });
       return;
     }
@@ -245,7 +240,7 @@ class App extends React.Component<{}> {
     try {
       const walletConnector = new WalletConnect({ uri });
 
-      window.walletConnector = walletConnector; // tslint:disable-line
+      window.walletConnector = walletConnector;
 
       if (!walletConnector.connected) {
         await walletConnector.createSession();
@@ -254,7 +249,7 @@ class App extends React.Component<{}> {
       await this.setState({
         loading: false,
         walletConnector,
-        uri: walletConnector.uri
+        uri: walletConnector.uri,
       });
 
       this.subscribeToEvents();
@@ -266,7 +261,7 @@ class App extends React.Component<{}> {
   };
 
   public approveSession = () => {
-    console.log("[approveSession]"); // tslint:disable-line
+    console.log("[approveSession]");
     const { walletConnector, chainId, address } = this.state;
     if (walletConnector) {
       walletConnector.approveSession({ chainId, accounts: [address] });
@@ -275,7 +270,7 @@ class App extends React.Component<{}> {
   };
 
   public rejectSession = () => {
-    console.log("[rejectSession]"); // tslint:disable-line
+    console.log("[rejectSession]");
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.rejectSession();
@@ -284,7 +279,7 @@ class App extends React.Component<{}> {
   };
 
   public killSession = () => {
-    console.log("[killSession]"); // tslint:disable-line
+    console.log("[killSession]");
     const { walletConnector } = this.state;
     if (walletConnector) {
       walletConnector.killSession();
@@ -298,12 +293,12 @@ class App extends React.Component<{}> {
   };
 
   public subscribeToEvents = () => {
-    console.log("[subscribeToEvents]"); // tslint:disable-line
+    console.log("[subscribeToEvents]");
     const { walletConnector } = this.state;
 
     if (walletConnector) {
       walletConnector.on("session_request", (error, payload) => {
-        console.log('walletConnector.on("session_request")'); // tslint:disable-line
+        console.log(`walletConnector.on("session_request")`);
 
         if (error) {
           throw error;
@@ -313,8 +308,8 @@ class App extends React.Component<{}> {
         this.setState({ peerMeta });
       });
 
-      walletConnector.on("session_update", (error, payload) => {
-        console.log('walletConnector.on("session_update")'); // tslint:disable-line
+      walletConnector.on("session_update", error => {
+        console.log(`walletConnector.on("session_update")`);
 
         if (error) {
           throw error;
@@ -323,11 +318,7 @@ class App extends React.Component<{}> {
 
       walletConnector.on("call_request", (error, payload) => {
         // tslint:disable-next-line
-        console.log(
-          'walletConnector.on("call_request")',
-          "payload.method",
-          payload.method
-        );
+        console.log(`walletConnector.on("call_request")`, "payload.method", payload.method);
 
         if (error) {
           throw error;
@@ -338,14 +329,14 @@ class App extends React.Component<{}> {
             .then(result =>
               walletConnector.approveRequest({
                 id: payload.id,
-                result
-              })
+                result,
+              }),
             )
             .catch(e =>
               walletConnector.rejectRequest({
                 id: payload.id,
-                error: { message: e.message }
-              })
+                error: { message: e.message },
+              }),
             );
           return;
         } else if (!signingMethods.includes(payload.method)) {
@@ -354,14 +345,14 @@ class App extends React.Component<{}> {
             .then(result =>
               walletConnector.approveRequest({
                 id: payload.id,
-                result
-              })
+                result,
+              }),
             )
             .catch(() =>
               walletConnector.rejectRequest({
                 id: payload.id,
-                error: { message: "JSON RPC method not supported" }
-              })
+                error: { message: "JSON RPC method not supported" },
+              }),
             );
           return;
         }
@@ -371,7 +362,7 @@ class App extends React.Component<{}> {
       });
 
       walletConnector.on("connect", (error, payload) => {
-        console.log('walletConnector.on("connect")'); // tslint:disable-line
+        console.log(`walletConnector.on("connect")`);
 
         if (error) {
           throw error;
@@ -381,7 +372,7 @@ class App extends React.Component<{}> {
       });
 
       walletConnector.on("disconnect", (error, payload) => {
-        console.log('walletConnector.on("disconnect")'); // tslint:disable-line
+        console.log(`walletConnector.on("disconnect")`);
 
         if (error) {
           throw error;
@@ -398,7 +389,7 @@ class App extends React.Component<{}> {
         this.setState({
           connected: true,
           address,
-          chainId
+          chainId,
         });
       }
 
@@ -406,10 +397,7 @@ class App extends React.Component<{}> {
     }
   };
 
-  public updateSession = async (sessionParams: {
-    chainId?: number;
-    activeIndex?: number;
-  }) => {
+  public updateSession = async (sessionParams: { chainId?: number; activeIndex?: number }) => {
     const { walletConnector, chainId, accounts, activeIndex } = this.state;
     const _chainId = sessionParams.chainId || chainId;
     const _activeIndex = sessionParams.activeIndex || activeIndex;
@@ -417,14 +405,14 @@ class App extends React.Component<{}> {
     if (walletConnector) {
       walletConnector.updateSession({
         chainId: _chainId,
-        accounts: [address]
+        accounts: [address],
       });
     }
 
     await this.setState({
       walletConnector,
       chainId: _chainId,
-      address
+      address,
     });
   };
 
@@ -443,14 +431,14 @@ class App extends React.Component<{}> {
   };
 
   public toggleScanner = () => {
-    console.log("[toggleScanner]"); // tslint:disable-line
+    console.log("[toggleScanner]");
     this.setState({ scanner: !this.state.scanner });
   };
 
   public onQRCodeValidate = (data: string): IQRCodeValidateResponse => {
     const res: IQRCodeValidateResponse = {
       error: null,
-      result: null
+      result: null,
     };
     try {
       res.result = data;
@@ -485,28 +473,19 @@ class App extends React.Component<{}> {
 
   public onQRCodeClose = () => this.toggleScanner();
 
-  public openRequest = (request: any) =>
-    this.setState({ displayRequest: request });
+  public openRequest = (request: any) => this.setState({ displayRequest: request });
 
   public closeRequest = async () => {
     const { requests, displayRequest } = this.state;
-    const filteredRequests = requests.filter(
-      request => request.id !== displayRequest.id
-    );
+    const filteredRequests = requests.filter(request => request.id !== displayRequest.id);
     await this.setState({
       requests: filteredRequests,
-      displayRequest: null
+      displayRequest: null,
     });
   };
 
   public approveRequest = async () => {
-    const {
-      walletConnector,
-      displayRequest,
-      address,
-      activeIndex,
-      chainId
-    } = this.state;
+    const { walletConnector, displayRequest, address, activeIndex, chainId } = this.state;
 
     let errorMsg = "";
 
@@ -566,7 +545,7 @@ class App extends React.Component<{}> {
         if (result) {
           walletConnector.approveRequest({
             id: displayRequest.id,
-            result
+            result,
           });
         } else {
           let message = "JSON RPC method not supported";
@@ -575,16 +554,16 @@ class App extends React.Component<{}> {
           }
           walletConnector.rejectRequest({
             id: displayRequest.id,
-            error: { message }
+            error: { message },
           });
         }
       }
     } catch (error) {
-      console.error(error); // tslint:disable-line
+      console.error(error);
       if (walletConnector) {
         walletConnector.rejectRequest({
           id: displayRequest.id,
-          error: { message: errorMsg || "Failed or Rejected Request" }
+          error: { message: errorMsg || "Failed or Rejected Request" },
         });
       }
     }
@@ -598,7 +577,7 @@ class App extends React.Component<{}> {
     if (walletConnector) {
       walletConnector.rejectRequest({
         id: displayRequest.id,
-        error: { message: "Failed or Rejected Request" }
+        error: { message: "Failed or Rejected Request" },
       });
     }
     await this.closeRequest();
@@ -615,7 +594,7 @@ class App extends React.Component<{}> {
       address,
       chainId,
       requests,
-      displayRequest
+      displayRequest,
     } = this.state;
     return (
       <React.Fragment>
@@ -651,10 +630,7 @@ class App extends React.Component<{}> {
                     <SActionsColumn>
                       <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
                       <p>{"OR"}</p>
-                      <SInput
-                        onChange={this.onURIPaste}
-                        placeholder={"Paste wc: uri"}
-                      />
+                      <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
                     </SActionsColumn>
                   </Column>
                 )
@@ -678,12 +654,9 @@ class App extends React.Component<{}> {
                     </>
                   )}
                   <h6>{"Pending Call Requests"}</h6>
-                  {!!requests.length ? (
+                  {requests.length ? (
                     requests.map(request => (
-                      <SRequestButton
-                        key={request.id}
-                        onClick={() => this.openRequest(request)}
-                      >
+                      <SRequestButton key={request.id} onClick={() => this.openRequest(request)}>
                         <div>{request.method}</div>
                       </SRequestButton>
                     ))

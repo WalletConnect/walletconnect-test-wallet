@@ -68,12 +68,9 @@ interface IQRCodeScannerState {
   delay: number | false;
 }
 
-class QRCodeScanner extends React.Component<
-  IQRCodeScannerProps,
-  IQRCodeScannerState
-> {
+class QRCodeScanner extends React.Component<IQRCodeScannerProps, IQRCodeScannerState> {
   public state = {
-    delay: 300
+    delay: 300,
   };
 
   public stopRecording = async () => {

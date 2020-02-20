@@ -14,8 +14,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Ethereum Ropsten",
@@ -30,8 +30,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Ethereum Rinkeby",
@@ -46,8 +46,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Ethereum Görli",
@@ -62,8 +62,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "RSK Mainnet",
@@ -78,8 +78,8 @@ const supportedChains: IChainData[] = [
       name: "RSK",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Ethereum Kovan",
@@ -94,8 +94,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Ethereum Classic Mainnet",
@@ -110,8 +110,8 @@ const supportedChains: IChainData[] = [
       name: "Ethereum",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "POA Network Sokol",
@@ -126,8 +126,8 @@ const supportedChains: IChainData[] = [
       name: "POA",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "POA Network Core",
@@ -142,8 +142,8 @@ const supportedChains: IChainData[] = [
       name: "POA",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "xDAI Chain",
@@ -158,8 +158,8 @@ const supportedChains: IChainData[] = [
       name: "xDAI",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
+      balance: "",
+    },
   },
   {
     name: "Callisto Mainnet",
@@ -174,9 +174,9 @@ const supportedChains: IChainData[] = [
       name: "CLO",
       decimals: "18",
       contractAddress: "",
-      balance: ""
-    }
-  }
+      balance: "",
+    },
+  },
 ];
 
 export default supportedChains;
