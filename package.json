@@ -16,7 +16,7 @@
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "lint": "eslint -c './.eslintrc' --fix './src/**/*'"
+    "lint": "eslint -c './.eslintrc' --fix './src/**/*{.ts,.tsx}'"
   },
   "repository": {
     "type": "git",
@@ -26,8 +26,6 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@connext/client": "4.0.10",
-    "@connext/types": "4.0.10",
     "@walletconnect/browser": "1.0.0-beta.47",
     "axios": "^0.19.1",
     "bignumber.js": "^9.0.0",
