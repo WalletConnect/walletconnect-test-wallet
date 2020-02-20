@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 import Dropdown from "../components/Dropdown";
-import chains from "../helpers/chains";
+import supportedChains from "../helpers/chains";
 import { ellipseAddress } from "src/helpers/utilities";
 import { responsive } from "../styles";
 import Blockie from "./Blockie";
@@ -39,6 +39,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
   const windowWidth = getViewportDimensions().x;
   const maxWidth = 468;
   const maxChar = 12;
+  const chains = supportedChains.filter(x => x.chain.toLowerCase() === "eth");
   const ellipseLength =
     windowWidth > maxWidth ? maxChar : Math.floor(windowWidth * (maxChar / maxWidth));
   const accountsMap = accounts.map((addr: string, index: number) => ({
