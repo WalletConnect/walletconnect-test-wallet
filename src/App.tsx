@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
 import { signingMethods } from "@walletconnect/utils";
+import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -12,9 +13,8 @@ import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
-import { DEFAULT_CHAIN_ID } from "./helpers/constants";
+import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
-  getMultipleAccounts,
   getWallet,
   initWallet,
   updateWallet,
@@ -24,8 +24,10 @@ import {
   signPersonalMessage,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
-import starkwareLogo from "./assets/starkware-logo.svg";
+import connextLogo from "./assets/connext-logo.svg";
 import { getCachedSession } from "./helpers/utilities";
+import { createChannel, handleChannelRequests } from "./helpers/connext";
+import { ChannelWallet, getChannelWallet } from "./helpers/channelWallet";
 
 const SContainer = styled.div`
   display: flex;
@@ -136,9 +138,13 @@ interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
+  channel: IConnextClient | null;
+  channelWallet: ChannelWallet | null;
 }
 
-const TEST_ACCOUNTS = getMultipleAccounts();
+const CHANNEL_WALLET = getChannelWallet();
+const DEFAULT_ADDRESS = CHANNEL_WALLET.address;
+const DEFAULT_ACCOUNTS = [DEFAULT_ADDRESS];
 
 const INITIAL_STATE: IAppState = {
   loading: false,
@@ -154,16 +160,18 @@ const INITIAL_STATE: IAppState = {
   },
   connected: false,
   chainId: DEFAULT_CHAIN_ID,
-  accounts: TEST_ACCOUNTS,
-  address: TEST_ACCOUNTS[0],
+  accounts: DEFAULT_ACCOUNTS,
+  address: DEFAULT_ADDRESS,
   activeIndex: 0,
   requests: [],
   results: [],
   displayRequest: null,
+  channel: null,
+  channelWallet: null,
 };
 
-const showPasteUri = false;
-const showVersion = false;
+const showPasteUri = true;
+const showVersion = true;
 
 class App extends React.Component<{}> {
   public state: IAppState;
@@ -188,11 +196,9 @@ class App extends React.Component<{}> {
     } else {
       const connector = new WalletConnect({ session });
 
-      const { connected, accounts, peerMeta } = connector;
+      const { connected, peerMeta } = connector;
 
-      const address = accounts[0];
-
-      activeIndex = accounts.indexOf(address);
+      activeIndex = 0;
       chainId = connector.chainId;
 
       await initWallet(activeIndex, chainId);
@@ -200,15 +206,41 @@ class App extends React.Component<{}> {
       await this.setState({
         connected,
         connector,
-        address,
         activeIndex,
-        accounts,
         chainId,
         peerMeta,
       });
 
       this.subscribeToEvents();
     }
+    this.createChannel();
+  };
+
+  public createChannel = async () => {
+    const { chainId } = this.state;
+    let { channelWallet } = this.state;
+
+    if (!CHANNEL_SUPPORTED_CHAIN_IDS.includes(chainId)) {
+      return;
+    }
+
+    this.setState({ loading: true });
+
+    if (!channelWallet) {
+      channelWallet = getChannelWallet();
+    }
+
+    let channel = null;
+    try {
+      channel = await createChannel(chainId);
+    } catch (e) {
+      console.error(e.toString());
+      this.setState({ loading: false });
+      return;
+    }
+    const address = channelWallet.address;
+    const accounts = [address];
+    this.setState({ loading: false, channel, channelWallet, address, accounts });
   };
 
   public initWalletConnect = async () => {
@@ -301,7 +333,22 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        if (!signingMethods.includes(payload.method)) {
+        if (payload.method.startsWith("chan_")) {
+          handleChannelRequests(payload, this.state.channel)
+            .then(result =>
+              connector.approveRequest({
+                id: payload.id,
+                result,
+              }),
+            )
+            .catch(e =>
+              connector.rejectRequest({
+                id: payload.id,
+                error: { message: e.message },
+              }),
+            );
+          return;
+        } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
@@ -383,6 +430,7 @@ class App extends React.Component<{}> {
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
     await this.updateSession({ chainId: _chainId });
+    await this.createChannel();
   };
 
   public updateAddress = async (activeIndex: number) => {
@@ -569,7 +617,7 @@ class App extends React.Component<{}> {
           <SContent>
             <Card maxWidth={400}>
               <SLogo>
-                <img src={starkwareLogo} alt="Starkware" />
+                <img src={connextLogo} alt="Connext" />
               </SLogo>
               {!connected ? (
                 peerMeta && peerMeta.name ? (

@@ -16,15 +16,15 @@ export const baseColors = {
 };
 
 export const customColors = {
-  starkware: "40, 40, 110",
-  purple2: "25, 24, 46",
+  connext: "230, 142, 0",
+  yellow2: "231, 171, 75",
 };
 
 export const colors = {
   ...baseColors,
   ...customColors,
-  defaultColor: customColors.starkware,
-  backgroundColor: customColors.purple2,
+  defaultColor: baseColors.dark,
+  backgroundColor: customColors.yellow2,
 };
 
 export const fonts = {

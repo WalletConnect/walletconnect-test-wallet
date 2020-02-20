@@ -6,6 +6,7 @@ import { ellipseAddress } from "src/helpers/utilities";
 import { responsive } from "../styles";
 import Blockie from "./Blockie";
 import { getViewportDimensions } from "../helpers/utilities";
+import { CHANNEL_SUPPORTED_CHAIN_IDS } from "src/helpers/constants";
 
 const SSection = styled.div`
   width: 100%;
@@ -39,7 +40,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
   const windowWidth = getViewportDimensions().x;
   const maxWidth = 468;
   const maxChar = 12;
-  const chains = supportedChains.filter(x => x.native_currency.name.toLowerCase() === "ether");
+  const chains = supportedChains.filter(x => CHANNEL_SUPPORTED_CHAIN_IDS.includes(x.chain_id));
   const ellipseLength =
     windowWidth > maxWidth ? maxChar : Math.floor(windowWidth * (maxChar / maxWidth));
   const accountsMap = accounts.map((addr: string, index: number) => ({

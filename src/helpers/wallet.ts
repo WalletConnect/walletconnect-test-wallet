@@ -2,12 +2,10 @@ import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
 import { STANDARD_PATH, ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_CHAIN_ID } from "./constants";
-import * as starkware from "./starkware";
 
 let path: string | null = null;
 let entropy: string | null = null;
 let mnemonic: string | null = null;
-let starkKeyPair: starkware.KeyPair | null = null;
 let wallet: ethers.Wallet | null = null;
 
 export function getWallet() {
@@ -65,12 +63,6 @@ export function generateWallet(index: number) {
   return wallet;
 }
 
-export function generateStarkwareKeyPair(): starkware.KeyPair {
-  starkKeyPair = starkware.ec.genKeyPair({ entropy: getEntropy() });
-  console.log("starkKeyPair", starkKeyPair);
-  return starkKeyPair;
-}
-
 export function getEntropy(): string {
   return getData(ENTROPY_KEY);
 }
@@ -79,16 +71,7 @@ export function getMnemonic(): string {
   return getData(MNEMONIC_KEY);
 }
 
-export function getStakwareKeyPair(): starkware.KeyPair {
-  let keyPair = starkKeyPair;
-  if (!keyPair) {
-    keyPair = generateStarkwareKeyPair();
-  }
-  return keyPair;
-}
-
 export function initWallet(index = 0, chainId = DEFAULT_CHAIN_ID) {
-  generateStarkwareKeyPair();
   return updateWallet(index, chainId);
 }
 
@@ -159,12 +142,4 @@ export async function signPersonalMessage(message: any) {
     console.error("No Active Account");
   }
   return null;
-}
-
-export async function starkwareSign(msg: any) {
-  return starkware.sign(getStakwareKeyPair(), msg);
-}
-
-export async function starkwareVerify(msg: any, sig: any) {
-  return starkware.verify(getStakwareKeyPair(), msg, sig);
 }
