@@ -61,7 +61,6 @@ const SContent = styled.div`
 
 const SLogo = styled.div`
   padding: 10px 0;
-  margin: 10px;
   display: flex;
   & img {
     width: 100%;
