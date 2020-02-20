@@ -17,6 +17,7 @@ import { DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
   getMultipleAccounts,
   getWallet,
+  initWallet,
   updateWallet,
   sendTransaction,
   signTransaction,
@@ -203,11 +204,10 @@ class App extends React.Component<{}> {
       const { connected, chainId, accounts, peerMeta } = walletConnector;
 
       const address = accounts[0];
-      // NOTE: ^^ is not the cf path
 
       const activeIndex = accounts.indexOf(address);
 
-      await updateWallet(activeIndex, chainId);
+      await initWallet(activeIndex, chainId);
 
       await this.setState({
         connected,
@@ -220,6 +220,8 @@ class App extends React.Component<{}> {
       });
 
       this.subscribeToEvents();
+    } else {
+      await initWallet(this.state.activeIndex, this.state.chainId);
     }
   };
 

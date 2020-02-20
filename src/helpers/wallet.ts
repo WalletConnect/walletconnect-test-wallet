@@ -1,11 +1,14 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
-import { STANDARD_PATH, ENTROPY_KEY, MNEMONIC_KEY, STARKWARE_KEY } from "./constants";
+import { STANDARD_PATH, ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_CHAIN_ID } from "./constants";
 import * as starkware from "./starkware";
 
-let wallet: ethers.Wallet | null = null;
+let path: string | null = null;
+let entropy: string | null = null;
+let mnemonic: string | null = null;
 let starkKeyPair: starkware.KeyPair | null = null;
+let wallet: ethers.Wallet | null = null;
 
 export function getWallet() {
   if (wallet) {
@@ -18,13 +21,13 @@ export function getMultipleAccounts(count = 2) {
   const accounts = [];
   let wallet = null;
   for (let i = 0; i < count; i++) {
-    wallet = createWallet(i);
+    wallet = generateWallet(i);
     accounts.push(wallet.address);
   }
   return accounts;
 }
 
-export function getData(key: string) {
+export function getData(key: string): string {
   let value = getLocal(key);
   if (!value) {
     switch (key) {
@@ -33,9 +36,6 @@ export function getData(key: string) {
         break;
       case MNEMONIC_KEY:
         value = generateMnemonic();
-        break;
-      case STARKWARE_KEY:
-        value = generateStarkwareKeyPair();
         break;
       default:
         throw new Error(`Unknown data key: ${key}`);
@@ -46,48 +46,57 @@ export function getData(key: string) {
 }
 
 export function generatePath(index: number) {
-  const path = `${STANDARD_PATH}/${index}`;
+  path = `${STANDARD_PATH}/${index}`;
   return path;
 }
 
 export function generateEntropy(): string {
-  return ethers.utils.hexlify(ethers.utils.randomBytes(16));
+  entropy = ethers.utils.hexlify(ethers.utils.randomBytes(16));
+  return entropy;
 }
 
 export function generateMnemonic() {
-  return ethers.utils.HDNode.entropyToMnemonic(getEntropy());
+  mnemonic = ethers.utils.HDNode.entropyToMnemonic(getEntropy());
+  return mnemonic;
 }
 
-export function generateStarkwareKeyPair() {
+export function generateWallet(index: number) {
+  wallet = ethers.Wallet.fromMnemonic(getMnemonic(), generatePath(index));
+  return wallet;
+}
+
+export function generateStarkwareKeyPair(): starkware.KeyPair {
   starkKeyPair = starkware.ec.genKeyPair({ entropy: getEntropy() });
   return starkKeyPair;
 }
 
-export function getEntropy() {
+export function getEntropy(): string {
   return getData(ENTROPY_KEY);
 }
 
-export function getMnemonic() {
+export function getMnemonic(): string {
   return getData(MNEMONIC_KEY);
 }
 
-export function getStarkwareKeyPair() {
-  return getData(STARKWARE_KEY);
+export function getStakwareKeyPair(): starkware.KeyPair {
+  let keyPair = starkKeyPair;
+  if (!keyPair) {
+    keyPair = generateStarkwareKeyPair();
+  }
+  return keyPair;
 }
 
-export function createWallet(index: number) {
-  const mnemonic = getMnemonic();
-  const path = generatePath(index);
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic, path);
-  return wallet;
+export function initWallet(index = 0, chainId = DEFAULT_CHAIN_ID) {
+  generateStarkwareKeyPair();
+  return updateWallet(index, chainId);
 }
 
 export async function updateWallet(index: number, chainId: number) {
   const rpcUrl = getChainData(chainId).rpc_url;
-  wallet = createWallet(index);
+  wallet = generateWallet(index);
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   wallet.connect(provider);
-  return null;
+  return wallet;
 }
 
 export async function sendTransaction(transaction: any) {
@@ -152,9 +161,9 @@ export async function signPersonalMessage(message: any) {
 }
 
 export async function starkwareSign(msg: any) {
-  return starkware.sign(getStarkwareKeyPair(), msg);
+  return starkware.sign(getStakwareKeyPair(), msg);
 }
 
 export async function starkwareVerify(msg: any, sig: any) {
-  return starkware.verify(getStarkwareKeyPair(), msg, sig);
+  return starkware.verify(getStakwareKeyPair(), msg, sig);
 }
