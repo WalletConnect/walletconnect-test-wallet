@@ -161,8 +161,8 @@ const INITIAL_STATE: IAppState = {
   displayRequest: null,
 };
 
-const showPasteUri = false;
-const showVersion = false;
+const showPasteUri = true;
+const showVersion = true;
 
 class App extends React.Component<{}> {
   public state: IAppState;
