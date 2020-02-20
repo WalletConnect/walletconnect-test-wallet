@@ -299,8 +299,11 @@ class App extends React.Component<{}> {
         if (error) {
           throw error;
         }
-
-        if (!signingMethods.includes(payload.method)) {
+        if (payload.method.startsWith("stark_")) {
+          console.log("RECEIVED STARK METHOD");
+          console.log("payload.method", payload.method);
+          console.log("payload.params", payload.params);
+        } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
             .then(result =>
