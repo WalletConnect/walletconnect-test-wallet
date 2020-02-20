@@ -1,9 +1,11 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
-import { STANDARD_PATH, MNEMONIC_KEY } from "./constants";
+import { STANDARD_PATH, ENTROPY_KEY, MNEMONIC_KEY, STARKWARE_KEY } from "./constants";
+import * as starkware from "./starkware";
 
 let wallet: ethers.Wallet | null = null;
+let starkKeyPair: starkware.KeyPair | null = null;
 
 export function getWallet() {
   if (wallet) {
@@ -22,24 +24,55 @@ export function getMultipleAccounts(count = 2) {
   return accounts;
 }
 
+export function getData(key: string) {
+  let value = getLocal(key);
+  if (!value) {
+    switch (key) {
+      case ENTROPY_KEY:
+        value = generateEntropy();
+        break;
+      case MNEMONIC_KEY:
+        value = generateMnemonic();
+        break;
+      case STARKWARE_KEY:
+        value = generateStarkwareKeyPair();
+        break;
+      default:
+        throw new Error(`Unknown data key: ${key}`);
+    }
+    setLocal(key, value);
+  }
+  return value;
+}
+
 export function generatePath(index: number) {
   const path = `${STANDARD_PATH}/${index}`;
   return path;
 }
 
+export function generateEntropy(): string {
+  return ethers.utils.hexlify(ethers.utils.randomBytes(16));
+}
+
 export function generateMnemonic() {
-  const entropy = ethers.utils.randomBytes(16);
-  const mnemonic = ethers.utils.HDNode.entropyToMnemonic(entropy);
-  return mnemonic;
+  return ethers.utils.HDNode.entropyToMnemonic(getEntropy());
+}
+
+export function generateStarkwareKeyPair() {
+  starkKeyPair = starkware.ec.genKeyPair({ entropy: getEntropy() });
+  return starkKeyPair;
+}
+
+export function getEntropy() {
+  return getData(ENTROPY_KEY);
 }
 
 export function getMnemonic() {
-  let mnemonic = getLocal(MNEMONIC_KEY);
-  if (!mnemonic) {
-    mnemonic = generateMnemonic();
-    setLocal(MNEMONIC_KEY, mnemonic);
-  }
-  return mnemonic;
+  return getData(MNEMONIC_KEY);
+}
+
+export function getStarkwareKeyPair() {
+  return getData(STARKWARE_KEY);
 }
 
 export function createWallet(index: number) {
@@ -116,4 +149,12 @@ export async function signPersonalMessage(message: any) {
     console.error("No Active Account");
   }
   return null;
+}
+
+export async function starkwareSign(msg: any) {
+  return starkware.sign(getStarkwareKeyPair(), msg);
+}
+
+export async function starkwareVerify(msg: any, sig: any) {
+  return starkware.verify(getStarkwareKeyPair(), msg, sig);
 }

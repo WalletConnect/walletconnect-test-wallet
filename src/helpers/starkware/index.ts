@@ -22,7 +22,7 @@ import constantPointsHex from "./constantPoints";
 
 const { curves: eCurves, ec: EllipticCurve } = elliptic;
 
-type KeyPair = elliptic.ec.KeyPair;
+export type KeyPair = elliptic.ec.KeyPair;
 
 export const prime = new BN("800000000000011000000000000000000000000000000000000000000000001", 16);
 

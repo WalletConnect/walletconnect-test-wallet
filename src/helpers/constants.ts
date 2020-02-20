@@ -1,5 +1,7 @@
 export const STANDARD_PATH = "m/44'/60'/0'/0";
+export const ENTROPY_KEY = "ENTROPY";
 export const MNEMONIC_KEY = "MNEMONIC";
+export const STARKWARE_KEY = "STARKWARE";
 
 export const MAINNET_CHAIN_ID = 1;
 export const RINKEBY_CHAIN_ID = 4;
