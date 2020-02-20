@@ -2,7 +2,6 @@ import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
 import { signingMethods } from "@walletconnect/utils";
-import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -137,7 +136,6 @@ interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
-  channel: IConnextClient | null;
 }
 
 const TEST_ACCOUNTS = getMultipleAccounts();
@@ -162,7 +160,6 @@ const INITIAL_STATE: IAppState = {
   requests: [],
   results: [],
   displayRequest: null,
-  channel: null,
 };
 
 const showPasteUri = false;
