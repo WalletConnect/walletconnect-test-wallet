@@ -37,12 +37,6 @@ export function ellipseAddress(address = "", width = 10): string {
   return `${address.slice(0, width)}...${address.slice(-width)}`;
 }
 
-export function padLeft(n: string, width: number, z?: string): string {
-  z = z || "0";
-  n = n + "";
-  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-}
-
 export function sanitizeHex(hex: string): string {
   hex = hex.substring(0, 2) === "0x" ? hex.substring(2) : hex;
   if (hex === "") {
@@ -56,13 +50,28 @@ export function removeHexPrefix(hex: string): string {
   return hex.toLowerCase().replace("0x", "");
 }
 
-export function getDataString(func: string, arrVals: any[]): string {
-  let val = "";
+export const padLeft = (n: string, length: number, z?: string): string => {
+  z = z || "0";
+  n = n + "";
+  return n.length >= length ? n : new Array(length - n.length + 1).join(z) + n;
+};
+
+export const padRight = (n: string, length: number, z?: string): string => {
+  z = z || "0";
+  n = n + "";
+  return n.length >= length ? n : n + new Array(length - n.length + 1).join(z);
+};
+
+export const encodeAbi = (arrVals: any[]): string => {
+  let res = "";
   for (let i = 0; i < arrVals.length; i++) {
-    val += padLeft(arrVals[i], 64);
+    res += padLeft(removeHexPrefix(arrVals[i]), 64);
   }
-  const data = func + val;
-  return data;
+  return res;
+};
+
+export function getDataString(func: string, arrVals: any[]): string {
+  return func + encodeAbi(arrVals);
 }
 
 export function isMobile(): boolean {

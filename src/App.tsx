@@ -22,6 +22,7 @@ import {
   signTransaction,
   signMessage,
   signPersonalMessage,
+  getStarkKey,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import starkwareLogo from "./assets/starkware-logo.svg";
@@ -209,6 +210,8 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
+    const starkKey = await getStarkKey();
+    console.log("starkKey", starkKey);
   };
 
   public initWalletConnect = async () => {
