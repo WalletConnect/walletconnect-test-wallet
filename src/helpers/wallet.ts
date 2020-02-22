@@ -15,7 +15,7 @@ export function getWallet() {
   return null;
 }
 
-export function getMultipleAccounts(count = 2) {
+export function getAccounts(count = 2) {
   const accounts = [];
   let wallet = null;
   for (let i = 0; i < count; i++) {

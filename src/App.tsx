@@ -15,6 +15,10 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
+<<<<<<< HEAD
+=======
+  getAccounts,
+>>>>>>> f67a8fb73c6e80627485b336d8f4b093dbad2c60
   getWallet,
   initWallet,
   updateWallet,
