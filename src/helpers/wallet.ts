@@ -23,11 +23,12 @@ export function isWalletActive() {
   return null;
 }
 
-export async function getWallet(index?: number, chainId?: number) {
-  if (!wallet || activeIndex === index || activeChainId === chainId) {
-    await initWallet(index, chainId);
+export async function getWallet(index?: number, chainId?: number): Promise<ethers.Wallet> {
+  let _wallet = wallet;
+  if (!_wallet || activeIndex === index || activeChainId === chainId) {
+    _wallet = await initWallet(index, chainId);
   }
-  return wallet;
+  return _wallet;
 }
 
 export function getAccounts(count = 2) {
