@@ -15,7 +15,7 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
-  getWallet,
+  isWalletActive,
   initWallet,
   updateWallet,
   sendTransaction,
@@ -503,8 +503,8 @@ class App extends React.Component<{}> {
       let result = null;
 
       if (connector) {
-        if (!getWallet()) {
-          await updateWallet(activeIndex, chainId);
+        if (!isWalletActive()) {
+          await initWallet(activeIndex, chainId);
         }
 
         let transaction = null;
@@ -559,7 +559,7 @@ class App extends React.Component<{}> {
           });
         } else {
           let message = "JSON RPC method not supported";
-          if (!getWallet()) {
+          if (!isWalletActive()) {
             message = "No Active Account";
           }
           connector.rejectRequest({
