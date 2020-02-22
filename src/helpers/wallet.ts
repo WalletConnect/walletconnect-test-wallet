@@ -8,11 +8,18 @@ let entropy: string | null = null;
 let mnemonic: string | null = null;
 let wallet: ethers.Wallet | null = null;
 
-export function getWallet() {
-  if (wallet) {
+export function isWalletActive() {
+  if (!wallet) {
     return wallet;
   }
   return null;
+}
+
+export async function getWallet(index?: number, chainId?: number) {
+  if (!wallet) {
+    await initWallet(index, chainId);
+  }
+  return wallet;
 }
 
 export function getAccounts(count = 2) {
