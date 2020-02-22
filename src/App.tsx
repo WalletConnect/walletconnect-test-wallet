@@ -12,7 +12,7 @@ import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
-import { DEFAULT_CHAIN_ID } from "./helpers/constants";
+import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
 import {
   getAccounts,
   isWalletActive,
@@ -137,7 +137,6 @@ interface IAppState {
   displayRequest: any;
 }
 
-const DEFAULT_ACTIVE_INDEX = 0;
 const DEFAULT_ACCOUNTS = getAccounts();
 const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
