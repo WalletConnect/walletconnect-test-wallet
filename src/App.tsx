@@ -24,8 +24,8 @@ import {
   signPersonalMessage,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
-import walletconnectLogo from "./assets/walletconnect-logo.png";
 import { getCachedSession } from "./helpers/utilities";
+import custom from "./custom";
 
 const SContainer = styled.div`
   display: flex;
@@ -153,7 +153,7 @@ const INITIAL_STATE: IAppState = {
     ssl: false,
   },
   connected: false,
-  chainId: DEFAULT_CHAIN_ID,
+  chainId: custom.chainId || DEFAULT_CHAIN_ID,
   accounts: DEFAULT_ACCOUNTS,
   address: DEFAULT_ADDRESS,
   activeIndex: DEFAULT_ACTIVE_INDEX,
@@ -161,9 +161,6 @@ const INITIAL_STATE: IAppState = {
   results: [],
   displayRequest: null,
 };
-
-const showPasteUri = true;
-const showVersion = true;
 
 class App extends React.Component<{}> {
   public state: IAppState;
@@ -569,7 +566,7 @@ class App extends React.Component<{}> {
           <SContent>
             <Card maxWidth={400}>
               <SLogo>
-                <img src={walletconnectLogo} alt="WalletConnect" />
+                <img src={custom.logo} alt={custom.name} />
               </SLogo>
               {!connected ? (
                 peerMeta && peerMeta.name ? (
@@ -592,7 +589,7 @@ class App extends React.Component<{}> {
                     />
                     <SActionsColumn>
                       <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
-                      {showPasteUri && (
+                      {custom.styleOpts.showPasteUri && (
                         <>
                           <p>{"OR"}</p>
                           <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
@@ -652,7 +649,9 @@ class App extends React.Component<{}> {
             />
           )}
         </SContainer>
-        {showVersion && <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>}
+        {custom.styleOpts.showVersion && (
+          <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>
+        )}
       </React.Fragment>
     );
   }
