@@ -1,12 +1,20 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
-import { STANDARD_PATH, ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_CHAIN_ID } from "./constants";
+import {
+  STANDARD_PATH,
+  ENTROPY_KEY,
+  MNEMONIC_KEY,
+  DEFAULT_ACTIVE_INDEX,
+  DEFAULT_CHAIN_ID,
+} from "./constants";
 import * as starkware from "./starkware";
 
 let path: string | null = null;
 let entropy: string | null = null;
 let mnemonic: string | null = null;
+let activeIndex: number = DEFAULT_ACTIVE_INDEX;
+let activeChainId: number = DEFAULT_CHAIN_ID;
 let wallet: ethers.Wallet | null = null;
 let starkKeyPair: starkware.KeyPair | null = null;
 
@@ -18,7 +26,7 @@ export function isWalletActive() {
 }
 
 export async function getWallet(index?: number, chainId?: number) {
-  if (!wallet) {
+  if (!wallet || activeIndex === index || activeChainId === chainId) {
     await initWallet(index, chainId);
   }
   return wallet;
@@ -94,12 +102,14 @@ export function getStakwareKeyPair(): starkware.KeyPair {
   return keyPair;
 }
 
-export function initWallet(index = 0, chainId = DEFAULT_CHAIN_ID) {
+export function initWallet(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
   generateStarkwareKeyPair();
   return updateWallet(index, chainId);
 }
 
 export async function updateWallet(index: number, chainId: number) {
+  activeIndex = index;
+  activeChainId = chainId;
   const rpcUrl = getChainData(chainId).rpc_url;
   wallet = generateWallet(index);
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
