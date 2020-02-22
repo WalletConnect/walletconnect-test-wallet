@@ -1,3 +1,4 @@
+import custom from "./custom";
 export const baseColors = {
   white: "255, 255, 255",
   black: "0, 0, 0",
@@ -15,15 +16,9 @@ export const baseColors = {
   purple: "110, 107, 233",
 };
 
-export const customColors = {
-  customBackground: "40, 44, 52",
-};
-
 export const colors = {
   ...baseColors,
-  ...customColors,
-  defaultColor: baseColors.dark,
-  backgroundColor: customColors.customBackground,
+  ...custom.colors,
 };
 
 export const fonts = {
