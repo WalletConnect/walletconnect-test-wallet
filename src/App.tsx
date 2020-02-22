@@ -15,10 +15,6 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
-<<<<<<< HEAD
-=======
-  getAccounts,
->>>>>>> f67a8fb73c6e80627485b336d8f4b093dbad2c60
   getWallet,
   initWallet,
   updateWallet,
@@ -149,6 +145,8 @@ const CHANNEL_WALLET = getChannelWallet();
 const DEFAULT_ADDRESS = CHANNEL_WALLET.address;
 const DEFAULT_ACCOUNTS = [DEFAULT_ADDRESS];
 
+const DEFAULT_ACTIVE_INDEX = 0;
+
 const INITIAL_STATE: IAppState = {
   loading: false,
   scanner: false,
@@ -165,7 +163,7 @@ const INITIAL_STATE: IAppState = {
   chainId: DEFAULT_CHAIN_ID,
   accounts: DEFAULT_ACCOUNTS,
   address: DEFAULT_ADDRESS,
-  activeIndex: 0,
+  activeIndex: DEFAULT_ACTIVE_INDEX,
   requests: [],
   results: [],
   displayRequest: null,
