@@ -13,7 +13,11 @@ import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
-import { CHANNEL_SUPPORTED_CHAIN_IDS, DEFAULT_CHAIN_ID } from "./helpers/constants";
+import {
+  CHANNEL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_CHAIN_ID,
+  DEFAULT_ACTIVE_INDEX,
+} from "./helpers/constants";
 import {
   isWalletActive,
   initWallet,
@@ -144,8 +148,6 @@ interface IAppState {
 const CHANNEL_WALLET = getChannelWallet();
 const DEFAULT_ADDRESS = CHANNEL_WALLET.address;
 const DEFAULT_ACCOUNTS = [DEFAULT_ADDRESS];
-
-const DEFAULT_ACTIVE_INDEX = 0;
 
 const INITIAL_STATE: IAppState = {
   loading: false,
