@@ -8,7 +8,7 @@ import {
   DEFAULT_ACTIVE_INDEX,
   DEFAULT_CHAIN_ID,
 } from "./constants";
-import * as starkware from "./starkware";
+import * as starkwareCrypto from "./starkware";
 
 let path: string | null = null;
 let entropy: string | null = null;
@@ -16,7 +16,7 @@ let mnemonic: string | null = null;
 let activeIndex: number = DEFAULT_ACTIVE_INDEX;
 let activeChainId: number = DEFAULT_CHAIN_ID;
 let wallet: ethers.Wallet | null = null;
-let starkKeyPair: starkware.KeyPair | null = null;
+let starkKeyPair: starkwareCrypto.KeyPair | null = null;
 
 export function isWalletActive() {
   if (!wallet) {
@@ -80,8 +80,8 @@ export function generateWallet(index: number) {
   return wallet;
 }
 
-export function generateStarkwareKeyPair(): starkware.KeyPair {
-  starkKeyPair = starkware.ec.genKeyPair({ entropy: getEntropy() });
+export function generateStarkwareKeyPair(): starkwareCrypto.KeyPair {
+  starkKeyPair = starkwareCrypto.ec.genKeyPair({ entropy: getEntropy() });
   console.log("starkKeyPair", starkKeyPair);
   return starkKeyPair;
 }
@@ -94,7 +94,7 @@ export function getMnemonic(): string {
   return getData(MNEMONIC_KEY);
 }
 
-export function getStakwareKeyPair(): starkware.KeyPair {
+export function getStakwareKeyPair(): starkwareCrypto.KeyPair {
   let keyPair = starkKeyPair;
   if (!keyPair) {
     keyPair = generateStarkwareKeyPair();
@@ -179,9 +179,9 @@ export async function signPersonalMessage(message: any) {
 }
 
 export async function starkwareSign(msg: any) {
-  return starkware.sign(getStakwareKeyPair(), msg);
+  return starkwareCrypto.sign(getStakwareKeyPair(), msg);
 }
 
 export async function starkwareVerify(msg: any, sig: any) {
-  return starkware.verify(getStakwareKeyPair(), msg, sig);
+  return starkwareCrypto.verify(getStakwareKeyPair(), msg, sig);
 }
