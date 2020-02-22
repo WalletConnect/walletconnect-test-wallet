@@ -14,7 +14,7 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID } from "./helpers/constants";
 import {
-  getMultipleAccounts,
+  getAccounts,
   getWallet,
   initWallet,
   updateWallet,
@@ -137,7 +137,9 @@ interface IAppState {
   displayRequest: any;
 }
 
-const TEST_ACCOUNTS = getMultipleAccounts();
+const DEFAULT_ACTIVE_INDEX = 0;
+const DEFAULT_ACCOUNTS = getAccounts();
+const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
 const INITIAL_STATE: IAppState = {
   loading: false,
@@ -153,9 +155,9 @@ const INITIAL_STATE: IAppState = {
   },
   connected: false,
   chainId: DEFAULT_CHAIN_ID,
-  accounts: TEST_ACCOUNTS,
-  address: TEST_ACCOUNTS[0],
-  activeIndex: 0,
+  accounts: DEFAULT_ACCOUNTS,
+  address: DEFAULT_ADDRESS,
+  activeIndex: DEFAULT_ACTIVE_INDEX,
   requests: [],
   results: [],
   displayRequest: null,
