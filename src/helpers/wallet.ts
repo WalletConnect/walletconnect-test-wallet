@@ -25,11 +25,12 @@ export function isWalletActive() {
   return null;
 }
 
-export async function getWallet(index?: number, chainId?: number) {
-  if (!wallet || activeIndex === index || activeChainId === chainId) {
-    await initWallet(index, chainId);
+export async function getWallet(index?: number, chainId?: number): Promise<ethers.Wallet> {
+  let _wallet = wallet;
+  if (!_wallet || activeIndex === index || activeChainId === chainId) {
+    _wallet = await initWallet(index, chainId);
   }
-  return wallet;
+  return _wallet;
 }
 
 export function getAccounts(count = 2) {
@@ -80,9 +81,9 @@ export function generateWallet(index: number) {
   return wallet;
 }
 
-export function generateStarkwareKeyPair(): starkwareCrypto.KeyPair {
-  starkKeyPair = starkwareCrypto.ec.genKeyPair({ entropy: getEntropy() });
-  console.log("starkKeyPair", starkKeyPair);
+export async function generateStarkwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
+  const privateKey = (await getWallet()).privateKey;
+  starkKeyPair = starkwareCrypto.ec.keyFromPrivate(privateKey, "hex");
   return starkKeyPair;
 }
 
@@ -94,16 +95,22 @@ export function getMnemonic(): string {
   return getData(MNEMONIC_KEY);
 }
 
-export function getStakwareKeyPair(): starkwareCrypto.KeyPair {
+export async function getStakwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
   let keyPair = starkKeyPair;
   if (!keyPair) {
-    keyPair = generateStarkwareKeyPair();
+    keyPair = await generateStarkwareKeyPair();
   }
   return keyPair;
 }
 
-export function initWallet(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
-  generateStarkwareKeyPair();
+export async function getStarkKey() {
+  const keyPair = await getStakwareKeyPair();
+  const publicKey = starkwareCrypto.ec.keyFromPublic(keyPair.getPublic(true, "hex"), "hex");
+  const starkKey = (publicKey as any).pub.getX();
+  return starkKey;
+}
+
+export async function initWallet(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
   return updateWallet(index, chainId);
 }
 
@@ -112,6 +119,7 @@ export async function updateWallet(index: number, chainId: number) {
   activeChainId = chainId;
   const rpcUrl = getChainData(chainId).rpc_url;
   wallet = generateWallet(index);
+  await generateStarkwareKeyPair();
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   wallet.connect(provider);
   return wallet;
@@ -179,9 +187,11 @@ export async function signPersonalMessage(message: any) {
 }
 
 export async function starkwareSign(msg: any) {
-  return starkwareCrypto.sign(getStakwareKeyPair(), msg);
+  const keyPair = await getStakwareKeyPair();
+  return starkwareCrypto.sign(keyPair, msg);
 }
 
 export async function starkwareVerify(msg: any, sig: any) {
-  return starkwareCrypto.verify(getStakwareKeyPair(), msg, sig);
+  const keyPair = await getStakwareKeyPair();
+  return starkwareCrypto.verify(keyPair, msg, sig);
 }
