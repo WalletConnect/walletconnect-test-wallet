@@ -20,6 +20,16 @@ import * as elliptic from "elliptic";
 import assert from "assert";
 import constantPointsHex from "./constantPoints";
 
+const MISSING_HEX_PREFIX = "Hex strings expected to be prefixed with 0x.";
+
+function removeHexPrefix(hex: string): string {
+  return hex.toLowerCase().replace("0x", "");
+}
+
+function isHexPrefixed(str: string) {
+  return str.substring(0, 2) === "0x";
+}
+
 const { curves: eCurves, ec: EllipticCurve } = elliptic;
 
 export type KeyPair = elliptic.ec.KeyPair;
@@ -46,13 +56,19 @@ export const constantPoints = constantPointsHex.map(coords =>
 );
 export const shiftPoint = constantPoints[0];
 
+const ZERO_BN = new BN("0");
+const ONE_BN = new BN("1");
+const TWO_POW_22_BN = new BN("400000", 16);
+const TWO_POW_31_BN = new BN("80000000", 16);
+const TWO_POW_63_BN = new BN("8000000000000000", 16);
+
 export function pedersen(input: string[]): string {
-  const zero = new BN("0");
+  const ZERO_BN = new BN("0");
   const one = new BN("1");
   let point = shiftPoint;
   for (let i = 0; i < input.length; i++) {
     let x = new BN(input[i], 16);
-    assert(x.gte(zero) && x.lt(prime), "Invalid input: " + input[i]);
+    assert(x.gte(ZERO_BN) && x.lt(prime), "Invalid input: " + input[i]);
     for (let j = 0; j < 252; j++) {
       const pt = constantPoints[2 + i * 252 + j];
       assert(!point.getX().eq(pt.getX()));
@@ -65,7 +81,7 @@ export function pedersen(input: string[]): string {
   return point.getX().toString(16);
 }
 
-function signMsg(
+function serializeMessage(
   instructionTypeBn: BN,
   vault0Bn: BN,
   vault1Bn: BN,
@@ -73,17 +89,68 @@ function signMsg(
   amount1Bn: BN,
   nonceBn: BN,
   expirationTimestampBn: BN,
-  token0: string,
-  token1OrPubKey: string,
 ) {
-  let packedMessage = instructionTypeBn;
-  packedMessage = packedMessage.ushln(31).add(vault0Bn);
-  packedMessage = packedMessage.ushln(31).add(vault1Bn);
-  packedMessage = packedMessage.ushln(63).add(amount0Bn);
-  packedMessage = packedMessage.ushln(63).add(amount1Bn);
-  packedMessage = packedMessage.ushln(31).add(nonceBn);
-  packedMessage = packedMessage.ushln(22).add(expirationTimestampBn);
-  return pedersen([pedersen([token0, token1OrPubKey]), packedMessage.toString(16)]);
+  let serialized = instructionTypeBn;
+  serialized = serialized.ushln(31).add(vault0Bn);
+  serialized = serialized.ushln(31).add(vault1Bn);
+  serialized = serialized.ushln(63).add(amount0Bn);
+  serialized = serialized.ushln(63).add(amount1Bn);
+  serialized = serialized.ushln(31).add(nonceBn);
+  serialized = serialized.ushln(22).add(expirationTimestampBn);
+  return serialized.toString(16);
+}
+
+function signMsg(serialized: string, token0: string, token1OrPubKey: string) {
+  return pedersen([pedersen([token0, token1OrPubKey]), serialized]);
+}
+
+function formatLimitOrderMsg(
+  vaultSell: string,
+  vaultBuy: string,
+  amountSell: string,
+  amountBuy: string,
+  tokenSell: string,
+  tokenBuy: string,
+  nonce: string,
+  expirationTimestamp: string,
+) {
+  assert(isHexPrefixed(tokenSell) && isHexPrefixed(tokenBuy), MISSING_HEX_PREFIX);
+  const vaultSellBn = new BN(vaultSell);
+  const vaultBuyBn = new BN(vaultBuy);
+  const amountSellBn = new BN(amountSell, 10);
+  const amountBuyBn = new BN(amountBuy, 10);
+  const tokenSellBn = new BN(removeHexPrefix(tokenSell), 16);
+  const tokenBuyBn = new BN(removeHexPrefix(tokenBuy), 16);
+  const nonceBn = new BN(nonce);
+  const expirationTimestampBn = new BN(expirationTimestamp);
+
+  assert(vaultSellBn.gte(ZERO_BN));
+  assert(vaultBuyBn.gte(ZERO_BN));
+  assert(amountSellBn.gte(ZERO_BN));
+  assert(amountBuyBn.gte(ZERO_BN));
+  assert(tokenSellBn.gte(ZERO_BN));
+  assert(tokenBuyBn.gte(ZERO_BN));
+  assert(nonceBn.gte(ZERO_BN));
+  assert(expirationTimestampBn.gte(ZERO_BN));
+  assert(vaultSellBn.lt(TWO_POW_31_BN));
+  assert(vaultBuyBn.lt(TWO_POW_31_BN));
+  assert(amountSellBn.lt(TWO_POW_63_BN));
+  assert(amountBuyBn.lt(TWO_POW_63_BN));
+  assert(tokenSellBn.lt(prime));
+  assert(tokenBuyBn.lt(prime));
+  assert(nonceBn.lt(TWO_POW_31_BN));
+  assert(expirationTimestampBn.lt(TWO_POW_22_BN));
+
+  const instructionType = ZERO_BN;
+  return serializeMessage(
+    instructionType,
+    vaultSellBn,
+    vaultBuyBn,
+    amountSellBn,
+    amountBuyBn,
+    nonceBn,
+    expirationTimestampBn,
+  );
 }
 
 /*
@@ -109,51 +176,61 @@ export function getLimitOrderMsg(
   nonce: string,
   expirationTimestamp: string,
 ): string {
-  assert(
-    tokenSell.substring(0, 2) === "0x" && tokenBuy.substring(0, 2) === "0x",
-    "Hex strings expected to be prefixed with 0x.",
+  const serialized = formatLimitOrderMsg(
+    vaultSell,
+    vaultBuy,
+    amountSell,
+    amountBuy,
+    tokenSell,
+    tokenBuy,
+    nonce,
+    expirationTimestamp,
   );
-  const vaultSellBn = new BN(vaultSell);
-  const vaultBuyBn = new BN(vaultBuy);
-  const amountSellBn = new BN(amountSell, 10);
-  const amountBuyBn = new BN(amountBuy, 10);
-  const tokenSellBn = new BN(tokenSell.substring(2), 16);
-  const tokenBuyBn = new BN(tokenBuy.substring(2), 16);
+  return signMsg(serialized, removeHexPrefix(tokenSell), removeHexPrefix(tokenBuy));
+}
+
+function formatTransferMsg(
+  amount: string,
+  nonce: string,
+  senderVaultId: string,
+  token: string,
+  receiverVaultId: string,
+  receiverPublicKey: string,
+  expirationTimestamp: string,
+) {
+  assert(isHexPrefixed(token) && isHexPrefixed(receiverPublicKey), MISSING_HEX_PREFIX);
+  const amountBn = new BN(amount, 10);
   const nonceBn = new BN(nonce);
+  const senderVaultIdBn = new BN(senderVaultId);
+  const tokenBn = new BN(removeHexPrefix(token), 16);
+  const receiverVaultIdBn = new BN(receiverVaultId);
+  const receiverPublicKeyBn = new BN(removeHexPrefix(receiverPublicKey), 16);
   const expirationTimestampBn = new BN(expirationTimestamp);
 
-  const zero = new BN("0");
-  const twoPow22 = new BN("400000", 16);
-  const twoPow31 = new BN("80000000", 16);
-  const twoPow63 = new BN("8000000000000000", 16);
-  assert(vaultSellBn.gte(zero));
-  assert(vaultBuyBn.gte(zero));
-  assert(amountSellBn.gte(zero));
-  assert(amountBuyBn.gte(zero));
-  assert(tokenSellBn.gte(zero));
-  assert(tokenBuyBn.gte(zero));
-  assert(nonceBn.gte(zero));
-  assert(expirationTimestampBn.gte(zero));
-  assert(vaultSellBn.lt(twoPow31));
-  assert(vaultBuyBn.lt(twoPow31));
-  assert(amountSellBn.lt(twoPow63));
-  assert(amountBuyBn.lt(twoPow63));
-  assert(tokenSellBn.lt(prime));
-  assert(tokenBuyBn.lt(prime));
-  assert(nonceBn.lt(twoPow31));
-  assert(expirationTimestampBn.lt(twoPow22));
+  assert(amountBn.gte(ZERO_BN));
+  assert(nonceBn.gte(ZERO_BN));
+  assert(senderVaultIdBn.gte(ZERO_BN));
+  assert(tokenBn.gte(ZERO_BN));
+  assert(receiverVaultIdBn.gte(ZERO_BN));
+  assert(receiverPublicKeyBn.gte(ZERO_BN));
+  assert(expirationTimestampBn.gte(ZERO_BN));
+  assert(amountBn.lt(TWO_POW_63_BN));
+  assert(nonceBn.lt(TWO_POW_31_BN));
+  assert(senderVaultIdBn.lt(TWO_POW_31_BN));
+  assert(tokenBn.lt(prime));
+  assert(receiverVaultIdBn.lt(TWO_POW_31_BN));
+  assert(receiverPublicKeyBn.lt(prime));
+  assert(expirationTimestampBn.lt(TWO_POW_22_BN));
 
-  const instructionType = zero;
-  return signMsg(
+  const instructionType = ONE_BN;
+  return serializeMessage(
     instructionType,
-    vaultSellBn,
-    vaultBuyBn,
-    amountSellBn,
-    amountBuyBn,
+    senderVaultIdBn,
+    receiverVaultIdBn,
+    amountBn,
+    ZERO_BN,
     nonceBn,
     expirationTimestampBn,
-    tokenSell.substring(2),
-    tokenBuy.substring(2),
   );
 }
 
@@ -180,50 +257,16 @@ export function getTransferMsg(
   receiverPublicKey: string,
   expirationTimestamp: string,
 ) {
-  assert(
-    token.substring(0, 2) === "0x" && receiverPublicKey.substring(0, 2) === "0x",
-    "Hex strings expected to be prefixed with 0x.",
+  const serialized = formatTransferMsg(
+    amount,
+    nonce,
+    senderVaultId,
+    token,
+    receiverVaultId,
+    receiverPublicKey,
+    expirationTimestamp,
   );
-  const amountBn = new BN(amount, 10);
-  const nonceBn = new BN(nonce);
-  const senderVaultIdBn = new BN(senderVaultId);
-  const tokenBn = new BN(token.substring(2), 16);
-  const receiverVaultIdBn = new BN(receiverVaultId);
-  const receiverPublicKeyBn = new BN(receiverPublicKey.substring(2), 16);
-  const expirationTimestampBn = new BN(expirationTimestamp);
-
-  const zero = new BN("0");
-  const one = new BN("1");
-  const twoPow22 = new BN("400000", 16);
-  const twoPow31 = new BN("80000000", 16);
-  const twoPow63 = new BN("8000000000000000", 16);
-  assert(amountBn.gte(zero));
-  assert(nonceBn.gte(zero));
-  assert(senderVaultIdBn.gte(zero));
-  assert(tokenBn.gte(zero));
-  assert(receiverVaultIdBn.gte(zero));
-  assert(receiverPublicKeyBn.gte(zero));
-  assert(expirationTimestampBn.gte(zero));
-  assert(amountBn.lt(twoPow63));
-  assert(nonceBn.lt(twoPow31));
-  assert(senderVaultIdBn.lt(twoPow31));
-  assert(tokenBn.lt(prime));
-  assert(receiverVaultIdBn.lt(twoPow31));
-  assert(receiverPublicKeyBn.lt(prime));
-  assert(expirationTimestampBn.lt(twoPow22));
-
-  const instructionType = one;
-  return signMsg(
-    instructionType,
-    senderVaultIdBn,
-    receiverVaultIdBn,
-    amountBn,
-    zero,
-    nonceBn,
-    expirationTimestampBn,
-    token.substring(2),
-    receiverPublicKey.substring(2),
-  );
+  return signMsg(serialized, removeHexPrefix(token), removeHexPrefix(receiverPublicKey));
 }
 
 /*
@@ -241,7 +284,7 @@ function fixMessage(msg: string) {
     return msg;
   }
   assert(msg.length === 63);
-  // In this case delta will be 4 so we perform a shift-left of 4 bits by adding a zero.
+  // In this case delta will be 4 so we perform a shift-left of 4 bits by adding a ZERO_BN.
   return msg + "0";
 }
 
