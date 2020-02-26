@@ -91,3 +91,7 @@ export function starkwareGetLimitOrderMsg(
     expirationTimestamp,
   );
 }
+
+export function starkwareDeserialize(serialized: string) {
+  return starkwareCrypto.deserializeMessage(serialized);
+}
