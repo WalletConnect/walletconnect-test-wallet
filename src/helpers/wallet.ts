@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import { getChainData, sanitizeHex } from "./utilities";
+import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
 import {
   STANDARD_PATH,
@@ -8,7 +8,7 @@ import {
   DEFAULT_ACTIVE_INDEX,
   DEFAULT_CHAIN_ID,
 } from "./constants";
-import * as starkwareCrypto from "./starkware";
+import { generateStarkwareKeyPair } from "./starkware";
 
 let path: string | null = null;
 let entropy: string | null = null;
@@ -16,7 +16,6 @@ let mnemonic: string | null = null;
 let activeIndex: number = DEFAULT_ACTIVE_INDEX;
 let activeChainId: number = DEFAULT_CHAIN_ID;
 let wallet: ethers.Wallet | null = null;
-let starkKeyPair: starkwareCrypto.KeyPair | null = null;
 
 export function isWalletActive() {
   if (!wallet) {
@@ -81,34 +80,12 @@ export function generateWallet(index: number) {
   return wallet;
 }
 
-export async function generateStarkwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
-  const privateKey = (await getWallet()).privateKey;
-  starkKeyPair = starkwareCrypto.ec.keyFromPrivate(privateKey, "hex");
-  return starkKeyPair;
-}
-
 export function getEntropy(): string {
   return getData(ENTROPY_KEY);
 }
 
 export function getMnemonic(): string {
   return getData(MNEMONIC_KEY);
-}
-
-export async function getStakwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
-  let keyPair = starkKeyPair;
-  if (!keyPair) {
-    keyPair = await generateStarkwareKeyPair();
-  }
-  return keyPair;
-}
-
-export async function getStarkKey(): Promise<string> {
-  const keyPair = await getStakwareKeyPair();
-  const publicKey = starkwareCrypto.ec.keyFromPublic(keyPair.getPublic(true, "hex"), "hex");
-  const starkKeyBn = (publicKey as any).pub.getX();
-  const starkKey = sanitizeHex(starkKeyBn.toString(16));
-  return starkKey;
 }
 
 export function initWallet(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
@@ -185,29 +162,4 @@ export async function signPersonalMessage(message: any) {
     console.error("No Active Account");
   }
   return null;
-}
-
-export async function starkwareRegister() {
-  const wallet = await getWallet();
-  const starkKey = await getStarkKey();
-  const msg = starkwareFormatRegistrationMessage(wallet.address, starkKey);
-  const sig = await signMessage(msg);
-  // TODO: send sig to registry contract
-  return sig;
-}
-
-export async function starkwareSign(msg: any) {
-  const keyPair = await getStakwareKeyPair();
-  return starkwareCrypto.sign(keyPair, msg);
-}
-
-export async function starkwareVerify(msg: any, sig: any) {
-  const keyPair = await getStakwareKeyPair();
-  return starkwareCrypto.verify(keyPair, msg, sig);
-}
-
-export function starkwareFormatRegistrationMessage(etherKey: string, starkKey: string) {
-  return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [etherKey, starkKey]),
-  );
 }
