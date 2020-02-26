@@ -2,6 +2,14 @@ import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getWallet, signMessage } from "./wallet";
 
+export const starkMethods = [
+  "stark_accounts",
+  "stark_register",
+  "stark_deposit",
+  "stark_sign",
+  "stark_withdraw",
+];
+
 let starkKeyPair: starkwareCrypto.KeyPair | null = null;
 
 export async function generateStarkwareKeyPair(): Promise<starkwareCrypto.KeyPair> {

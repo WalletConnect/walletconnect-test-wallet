@@ -22,8 +22,8 @@ import {
   signTransaction,
   signMessage,
   signPersonalMessage,
-  getStarkKey,
 } from "./helpers/wallet";
+import { starkMethods, getStarkKey } from "./helpers/starkware";
 import { apiGetCustomRequest } from "./helpers/api";
 import { getCachedSession } from "./helpers/utilities";
 import custom from "./custom";
@@ -300,10 +300,19 @@ class App extends React.Component<{}> {
         if (error) {
           throw error;
         }
-        if (payload.method.startsWith("stark_")) {
-          console.log("RECEIVED STARK METHOD");
-          console.log("payload.method", payload.method);
-          console.log("payload.params", payload.params);
+        if (starkMethods.includes(payload.method)) {
+          switch (payload.method) {
+            case "stark_accounts":
+              connector.approveRequest({
+                id: payload.id,
+                result: {
+                  accounts: [],
+                },
+              });
+              break;
+            default:
+              break;
+          }
         } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           apiGetCustomRequest(chainId, payload)
