@@ -115,7 +115,7 @@ const SRequestButton = styled(RequestButton)`
   margin-bottom: 10px;
 `;
 
-interface IAppState {
+export interface IAppState {
   loading: boolean;
   scanner: boolean;
   connector: WalletConnect | null;
@@ -290,7 +290,7 @@ class App extends React.Component<{}> {
         }
       });
 
-      connector.on("call_request", (error, payload) => {
+      connector.on("call_request", async (error, payload) => {
         // tslint:disable-next-line
         console.log(`connector.on("call_request")`, "payload.method", payload.method);
 
@@ -298,26 +298,26 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        if (!signingMethods.includes(payload.method)) {
+        if (custom.rpcController.condition(payload)) {
+          await custom.rpcController.handler(payload, this.state, this.setState);
+        } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
-          apiGetCustomRequest(chainId, payload)
-            .then(result =>
-              connector.approveRequest({
-                id: payload.id,
-                result,
-              }),
-            )
-            .catch(() =>
-              connector.rejectRequest({
-                id: payload.id,
-                error: { message: "JSON RPC method not supported" },
-              }),
-            );
-          return;
+          try {
+            const result = await apiGetCustomRequest(chainId, payload);
+            connector.approveRequest({
+              id: payload.id,
+              result,
+            });
+          } catch (error) {
+            return connector.rejectRequest({
+              id: payload.id,
+              error: { message: "JSON RPC method not supported" },
+            });
+          }
         }
         const requests = this.state.requests;
         requests.push(payload);
-        this.setState({ requests });
+        await this.setState({ requests });
       });
 
       connector.on("connect", (error, payload) => {

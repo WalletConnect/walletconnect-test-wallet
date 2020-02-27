@@ -1,8 +1,9 @@
 import walletconnectLogo from "./assets/walletconnect-logo.png";
 import { MAINNET_CHAIN_ID, ETH_STANDARD_PATH } from "./helpers/constants";
 import supportedChains from "./helpers/chains";
+import { ICustomSettings } from "./helpers/types";
 
-export default {
+const custom: ICustomSettings = {
   name: "WalletConnect",
   logo: walletconnectLogo,
   chainId: MAINNET_CHAIN_ID,
@@ -17,4 +18,10 @@ export default {
     showPasteUri: true,
     showVersion: true,
   },
+  rpcController: {
+    condition: payload => false,
+    handler: (payload, state, setState) => Promise.resolve(undefined),
+  },
 };
+
+export default custom;
