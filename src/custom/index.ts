@@ -1,10 +1,16 @@
 import starkwareLogo from "./assets/starkware-logo.svg";
 
-import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "./helpers/constants";
-import supportedChains from "./helpers/chains";
-import { starkRegistryMap, getStarkKey, starkMethods } from "./helpers/starkware";
-import { convertStringToNumber } from "./helpers/bignumber";
-import { ICustomSettings } from "./helpers/types";
+import { convertStringToNumber } from "../helpers/bignumber";
+import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "../helpers/constants";
+import supportedChains from "../helpers/chains";
+import { ICustomSettings } from "../helpers/types";
+
+import {
+  starkRegistryMap,
+  getStarkKey,
+  starkMethods,
+  generateStarkwareKeyPair,
+} from "./helpers/starkware";
 
 export const STARKWARE_SUPPORTED_CHAIN_IDS = Object.keys(starkRegistryMap).map(
   convertStringToNumber,
@@ -15,7 +21,7 @@ const custom: ICustomSettings = {
   logo: starkwareLogo,
   chainId: ROPSTEN_CHAIN_ID,
   derivationPath: ETH_STANDARD_PATH,
-  numberOfAccounts: 3,
+  numberOfAccounts: 1,
   colors: {
     defaultColor: "40, 40, 110",
     backgroundColor: "25, 24, 46",
@@ -46,6 +52,7 @@ const custom: ICustomSettings = {
     },
   },
   onInit: async (state, setState) => {
+    await generateStarkwareKeyPair();
     const starkKey = await getStarkKey();
     console.log("starkKey", starkKey);
   },

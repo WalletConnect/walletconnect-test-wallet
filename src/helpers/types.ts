@@ -155,7 +155,3 @@ export interface ICustomSettings {
   onInit: (state: IAppState, setState: any) => Promise<void>;
   onUpdate: (state: IAppState, setState: any) => Promise<void>;
 }
-
-export interface IStarkRegistryMap {
-  [chainId: number]: string;
-}

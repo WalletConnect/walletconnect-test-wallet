@@ -2,7 +2,6 @@ import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
 import { ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_ACTIVE_INDEX, DEFAULT_CHAIN_ID } from "./constants";
-import { generateStarkwareKeyPair } from "./starkware";
 import custom from "../custom";
 
 let path: string | null = null;
@@ -92,7 +91,6 @@ export async function updateWallet(index: number, chainId: number) {
   activeChainId = chainId;
   const rpcUrl = getChainData(chainId).rpc_url;
   wallet = generateWallet(index);
-  await generateStarkwareKeyPair();
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
   wallet.connect(provider);
   return wallet;

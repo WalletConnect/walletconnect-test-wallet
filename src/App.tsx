@@ -361,34 +361,31 @@ class App extends React.Component<{}> {
 
   public updateSession = async (sessionParams: { chainId?: number; activeIndex?: number }) => {
     const { connector, chainId, accounts, activeIndex } = this.state;
-    const _chainId = sessionParams.chainId || chainId;
-    const _activeIndex = sessionParams.activeIndex || activeIndex;
-    const address = accounts[_activeIndex];
+    const newChainId = sessionParams.chainId || chainId;
+    const newActiveIndex = sessionParams.activeIndex || activeIndex;
+    const address = accounts[newActiveIndex];
     if (connector) {
       connector.updateSession({
-        chainId: _chainId,
+        chainId: newChainId,
         accounts: [address],
       });
     }
-
     await this.setState({
       connector,
-      chainId: _chainId,
       address,
+      accounts,
+      activeIndex: newActiveIndex,
+      chainId: newChainId,
     });
+    await updateWallet(newActiveIndex, newChainId);
     await custom.onUpdate(this.state, (newState: Partial<IAppState>) => this.setState(newState));
   };
 
   public updateChain = async (chainId: number | string) => {
-    const { activeIndex } = this.state;
-    const _chainId = Number(chainId);
-    await updateWallet(activeIndex, _chainId);
-    await this.updateSession({ chainId: _chainId });
+    await this.updateSession({ chainId: Number(chainId) });
   };
 
   public updateAddress = async (activeIndex: number) => {
-    const { chainId } = this.state;
-    await updateWallet(activeIndex, chainId);
     await this.updateSession({ activeIndex });
   };
 
