@@ -1,10 +1,13 @@
-import connextLogo from "./assets/connext-logo.svg";
+import { IJsonRpcRequest } from "@walletconnect/types";
 import { CF_PATH } from "@connext/types";
-import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "./helpers/constants";
 
+import connextLogo from "./assets/connext-logo.svg";
+
+import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "./helpers/constants";
 import supportedChains from "./helpers/chains";
 import { ICustomSettings } from "./helpers/types";
 import { handleChannelRequests, createChannel } from "./helpers/connext";
+
 import { IAppState } from "./App";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
@@ -26,24 +29,29 @@ const custom: ICustomSettings = {
   },
   rpcController: {
     condition: payload => payload.method.startsWith("chan_"),
-    handler: (payload, state, setState) =>
-      handleChannelRequests(payload, state.channel)
-        .then(result =>
-          state.connector?.approveRequest({
-            id: payload.id,
-            result,
-          }),
-        )
-        .catch(e =>
-          state.connector?.rejectRequest({
-            id: payload.id,
-            error: { message: e.message },
-          }),
-        ),
+    handler: (payload, state, setState) => onRpcRequest(payload, state, setState),
   },
   onInit: (state, setState) => onCreateChannel(state, setState),
   onUpdate: (state, setState) => onCreateChannel(state, setState),
 };
+
+async function onRpcRequest(payload: IJsonRpcRequest, state: IAppState, setState: any) {
+  if (!state.connector) {
+    return;
+  }
+  try {
+    const result = await handleChannelRequests(payload, state.channel);
+    state.connector.approveRequest({
+      id: payload.id,
+      result,
+    });
+  } catch (e) {
+    state.connector.rejectRequest({
+      id: payload.id,
+      error: { message: e.message },
+    });
+  }
+}
 
 async function onCreateChannel(state: IAppState, setState: any) {
   const { chainId } = state;
