@@ -1,4 +1,5 @@
 import custom from "./custom";
+
 export const baseColors = {
   white: "255, 255, 255",
   black: "0, 0, 0",
