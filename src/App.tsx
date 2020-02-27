@@ -361,7 +361,6 @@ class App extends React.Component<{}> {
 
   public updateSession = async (sessionParams: { chainId?: number; activeIndex?: number }) => {
     const { connector, chainId, accounts, activeIndex } = this.state;
-    console.log("updateSession");
     const newChainId = sessionParams.chainId || chainId;
     const newActiveIndex = sessionParams.activeIndex || activeIndex;
     const address = accounts[newActiveIndex];
