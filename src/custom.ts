@@ -40,7 +40,7 @@ async function onRpcRequest(payload: IJsonRpcRequest, state: IAppState, setState
     return;
   }
   try {
-    const result = await handleChannelRequests(payload, state.channel);
+    const result = await handleChannelRequests(payload);
     state.connector.approveRequest({
       id: payload.id,
       result,
@@ -58,16 +58,15 @@ async function onCreateChannel(state: IAppState, setState: any) {
 
   await setState({ loading: true });
 
-  let channel = null;
   try {
-    channel = await createChannel(chainId);
+    await createChannel(chainId);
   } catch (e) {
     console.error(e.toString());
     await setState({ loading: false });
     return;
   }
 
-  await setState({ loading: false, channel });
+  await setState({ loading: false });
 }
 
 export default custom;

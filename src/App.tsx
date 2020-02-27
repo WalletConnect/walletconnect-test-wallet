@@ -2,7 +2,6 @@ import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
 import { signingMethods } from "@walletconnect/utils";
-import { IConnextClient } from "@connext/types";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -15,6 +14,7 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
 import {
+  getAccounts,
   isWalletActive,
   initWallet,
   updateWallet,
@@ -22,7 +22,6 @@ import {
   signTransaction,
   signMessage,
   signPersonalMessage,
-  getAccounts,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import { getCachedSession } from "./helpers/utilities";
@@ -136,7 +135,6 @@ export interface IAppState {
   requests: any[];
   results: any[];
   displayRequest: any;
-  channel: IConnextClient | null;
 }
 
 const DEFAULT_ACCOUNTS = getAccounts();
@@ -162,7 +160,6 @@ const INITIAL_STATE: IAppState = {
   requests: [],
   results: [],
   displayRequest: null,
-  channel: null,
 };
 
 class App extends React.Component<{}> {
@@ -188,9 +185,11 @@ class App extends React.Component<{}> {
     } else {
       const connector = new WalletConnect({ session });
 
-      const { connected, peerMeta } = connector;
+      const { connected, accounts, peerMeta } = connector;
 
-      activeIndex = 0;
+      const address = accounts[0];
+
+      activeIndex = accounts.indexOf(address);
       chainId = connector.chainId;
 
       await initWallet(activeIndex, chainId);
@@ -198,7 +197,9 @@ class App extends React.Component<{}> {
       await this.setState({
         connected,
         connector,
+        address,
         activeIndex,
+        accounts,
         chainId,
         peerMeta,
       });
