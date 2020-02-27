@@ -4,7 +4,8 @@ import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "./helpers/constants";
 
 import supportedChains from "./helpers/chains";
 import { ICustomSettings } from "./helpers/types";
-import { handleChannelRequests } from "./helpers/connext";
+import { handleChannelRequests, createChannel } from "./helpers/connext";
+import { IAppState } from "./App";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
 
@@ -40,6 +41,25 @@ const custom: ICustomSettings = {
           }),
         ),
   },
+  onInit: (state, setState) => onCreateChannel(state, setState),
+  onUpdate: (state, setState) => onCreateChannel(state, setState),
 };
+
+async function onCreateChannel(state: IAppState, setState: any) {
+  const { chainId } = state;
+
+  await setState({ loading: true });
+
+  let channel = null;
+  try {
+    channel = await createChannel(chainId);
+  } catch (e) {
+    console.error(e.toString());
+    await setState({ loading: false });
+    return;
+  }
+
+  await setState({ loading: false, channel });
+}
 
 export default custom;

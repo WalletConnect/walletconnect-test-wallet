@@ -26,7 +26,6 @@ import {
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import { getCachedSession } from "./helpers/utilities";
-import { createChannel } from "./helpers/connext";
 import custom from "./custom";
 
 const SContainer = styled.div`
@@ -206,24 +205,7 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
-    this.createChannel();
-  };
-
-  public createChannel = async () => {
-    const { chainId } = this.state;
-
-    this.setState({ loading: true });
-
-    let channel = null;
-    try {
-      channel = await createChannel(chainId);
-    } catch (e) {
-      console.error(e.toString());
-      this.setState({ loading: false });
-      return;
-    }
-
-    this.setState({ loading: false, channel });
+    await custom.onInit(this.state, (newState: Partial<IAppState>) => this.setState(newState));
   };
 
   public initWalletConnect = async () => {
@@ -317,7 +299,9 @@ class App extends React.Component<{}> {
         }
 
         if (custom.rpcController.condition(payload)) {
-          await custom.rpcController.handler(payload, this.state, this.setState);
+          await custom.rpcController.handler(payload, this.state, (newState: Partial<IAppState>) =>
+            this.setState(newState),
+          );
         } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           try {
@@ -391,6 +375,7 @@ class App extends React.Component<{}> {
       chainId: _chainId,
       address,
     });
+    await custom.onUpdate(this.state, (newState: Partial<IAppState>) => this.setState(newState));
   };
 
   public updateChain = async (chainId: number | string) => {
@@ -398,7 +383,6 @@ class App extends React.Component<{}> {
     const _chainId = Number(chainId);
     await updateWallet(activeIndex, _chainId);
     await this.updateSession({ chainId: _chainId });
-    await this.createChannel();
   };
 
   public updateAddress = async (activeIndex: number) => {

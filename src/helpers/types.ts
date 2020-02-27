@@ -152,4 +152,6 @@ export interface ICustomSettings {
     condition: (payload: IJsonRpcRequest) => boolean;
     handler: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
   };
+  onInit: (state: IAppState, setState: any) => Promise<void>;
+  onUpdate: (state: IAppState, setState: any) => Promise<void>;
 }
