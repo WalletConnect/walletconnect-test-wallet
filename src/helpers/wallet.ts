@@ -1,14 +1,9 @@
 import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
-import {
-  STANDARD_PATH,
-  ENTROPY_KEY,
-  MNEMONIC_KEY,
-  DEFAULT_ACTIVE_INDEX,
-  DEFAULT_CHAIN_ID,
-} from "./constants";
+import { ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_ACTIVE_INDEX, DEFAULT_CHAIN_ID } from "./constants";
 import { generateStarkwareKeyPair } from "./starkware";
+import custom from "../custom";
 
 let path: string | null = null;
 let entropy: string | null = null;
@@ -32,7 +27,7 @@ export async function getWallet(index?: number, chainId?: number): Promise<ether
   return _wallet;
 }
 
-export function getAccounts(count = 2) {
+export function getAccounts(count = custom.numberOfAccounts) {
   const accounts = [];
   let wallet = null;
   for (let i = 0; i < count; i++) {
@@ -61,7 +56,7 @@ export function getData(key: string): string {
 }
 
 export function generatePath(index: number) {
-  path = `${STANDARD_PATH}/${index}`;
+  path = `${custom.derivationPath}/${index}`;
   return path;
 }
 
