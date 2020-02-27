@@ -39,7 +39,7 @@ const SActions = styled.div`
   }
 `;
 
-class DisplayRequest extends React.Component<any, any> {
+class RequestDisplay extends React.Component<any, any> {
   public render() {
     const { displayRequest, peerMeta, approveRequest, rejectRequest } = this.props;
 
@@ -125,4 +125,4 @@ class DisplayRequest extends React.Component<any, any> {
   }
 }
 
-export default DisplayRequest;
+export default RequestDisplay;
