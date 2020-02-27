@@ -18,10 +18,10 @@ export function isWalletActive() {
   return null;
 }
 
-export async function getWallet(index?: number, chainId?: number): Promise<ethers.Wallet> {
+export function getWallet(index?: number, chainId?: number): ethers.Wallet {
   let _wallet = wallet;
   if (!_wallet || activeIndex === index || activeChainId === chainId) {
-    _wallet = await initWallet(index, chainId);
+    _wallet = initWallet(index, chainId);
   }
   return _wallet;
 }
@@ -86,7 +86,7 @@ export function initWallet(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN
   return updateWallet(index, chainId);
 }
 
-export async function updateWallet(index: number, chainId: number) {
+export function updateWallet(index: number, chainId: number) {
   activeIndex = index;
   activeChainId = chainId;
   const rpcUrl = getChainData(chainId).rpc_url;
