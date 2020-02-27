@@ -67,7 +67,7 @@ export const apiGetCustomRequest = async (
   chainId: number,
   customRpc: Partial<IJsonRpcRequest>,
 ): Promise<any> => {
-  const response = await api.post(`/custom-request?chainId=${chainId}`, customRpc);
+  const response = await api.post(`config-request?chainId=${chainId}`, customRpc);
   const { result } = response.data;
   return result;
 };

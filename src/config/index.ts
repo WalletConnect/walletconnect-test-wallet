@@ -3,21 +3,22 @@ import starkwareLogo from "./assets/starkware-logo.svg";
 import { convertStringToNumber } from "../helpers/bignumber";
 import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "../helpers/constants";
 import supportedChains from "../helpers/chains";
-import { ICustomSettings } from "../helpers/types";
+import { IAppConfig } from "../helpers/types";
+import RpcEngine from "./rpcEngine";
+import ethereum from "src/config/rpcEngine/ethereum";
+import starkware from "src/config/rpcEngine/starkware";
 
 import {
   starkRegistryMap,
   starkwareGetStarkKey,
-  starkwareMethods,
   starkwareGenerateKeyPair,
-  handleStarkwareMethods,
 } from "./helpers/starkware";
 
 export const STARKWARE_SUPPORTED_CHAIN_IDS = Object.keys(starkRegistryMap).map(
   convertStringToNumber,
 );
 
-const custom: ICustomSettings = {
+const appConfig: IAppConfig = {
   name: "StarkWare",
   logo: starkwareLogo,
   chainId: ROPSTEN_CHAIN_ID,
@@ -32,21 +33,15 @@ const custom: ICustomSettings = {
     showPasteUri: false,
     showVersion: false,
   },
-  rpcController: {
-    condition: payload => starkwareMethods.includes(payload.method),
-    handler: async (payload, state, setState) => {
-      if (!state.connector) {
-        return;
-      }
-      await handleStarkwareMethods(payload, state.connector);
+  rpcEngine: new RpcEngine([starkware, ethereum]),
+  events: {
+    init: async (state, setState) => {
+      await starkwareGenerateKeyPair();
+      const starkKey = await starkwareGetStarkKey();
+      console.log("starkKey", starkKey);
     },
+    update: (state, setState) => Promise.resolve(),
   },
-  onInit: async (state, setState) => {
-    await starkwareGenerateKeyPair();
-    const starkKey = await starkwareGetStarkKey();
-    console.log("starkKey", starkKey);
-  },
-  onUpdate: (state, setState) => Promise.resolve(),
 };
 
-export default custom;
+export default appConfig;

@@ -1,7 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
 import WalletConnect from "@walletconnect/browser";
-import { signingMethods } from "@walletconnect/utils";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -13,19 +12,9 @@ import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
-import {
-  getAccounts,
-  isWalletActive,
-  initWallet,
-  updateWallet,
-  sendTransaction,
-  signTransaction,
-  signMessage,
-  signPersonalMessage,
-} from "./helpers/wallet";
-import { apiGetCustomRequest } from "./helpers/api";
+import { getAccounts, initWallet, updateWallet } from "./helpers/wallet";
 import { getCachedSession } from "./helpers/utilities";
-import custom from "./custom";
+import appConfig from "./config";
 
 const SContainer = styled.div`
   display: flex;
@@ -134,7 +123,7 @@ export interface IAppState {
   address: string;
   requests: any[];
   results: any[];
-  displayRequest: any;
+  payload: any;
 }
 
 const DEFAULT_ACCOUNTS = getAccounts();
@@ -153,13 +142,13 @@ const INITIAL_STATE: IAppState = {
     ssl: false,
   },
   connected: false,
-  chainId: custom.chainId || DEFAULT_CHAIN_ID,
+  chainId: appConfig.chainId || DEFAULT_CHAIN_ID,
   accounts: DEFAULT_ACCOUNTS,
   address: DEFAULT_ADDRESS,
   activeIndex: DEFAULT_ACTIVE_INDEX,
   requests: [],
   results: [],
-  displayRequest: null,
+  payload: null,
 };
 
 class App extends React.Component<{}> {
@@ -206,8 +195,10 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
-    await custom.onInit(this.state, (newState: Partial<IAppState>) => this.setState(newState));
+    await appConfig.events.init(this.state, this.bindedSetState);
   };
+
+  public bindedSetState = (newState: Partial<IAppState>) => this.setState(newState);
 
   public initWalletConnect = async () => {
     const { uri } = this.state;
@@ -299,28 +290,7 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        if (custom.rpcController.condition(payload)) {
-          await custom.rpcController.handler(payload, this.state, (newState: Partial<IAppState>) =>
-            this.setState(newState),
-          );
-        } else if (!signingMethods.includes(payload.method)) {
-          const { chainId } = this.state;
-          try {
-            const result = await apiGetCustomRequest(chainId, payload);
-            connector.approveRequest({
-              id: payload.id,
-              result,
-            });
-          } catch (error) {
-            return connector.rejectRequest({
-              id: payload.id,
-              error: { message: "JSON RPC method not supported" },
-            });
-          }
-        }
-        const requests = this.state.requests;
-        requests.push(payload);
-        await this.setState({ requests });
+        await appConfig.rpcEngine.router(payload, this.state, this.bindedSetState);
       });
 
       connector.on("connect", (error, payload) => {
@@ -378,7 +348,7 @@ class App extends React.Component<{}> {
       chainId: newChainId,
     });
     await updateWallet(newActiveIndex, newChainId);
-    await custom.onUpdate(this.state, (newState: Partial<IAppState>) => this.setState(newState));
+    await appConfig.events.update(this.state, this.bindedSetState);
   };
 
   public updateChain = async (chainId: number | string) => {
@@ -432,97 +402,28 @@ class App extends React.Component<{}> {
 
   public onQRCodeClose = () => this.toggleScanner();
 
-  public openRequest = (request: any) => this.setState({ displayRequest: request });
+  public openRequest = (request: any) => this.setState({ payload: request });
 
   public closeRequest = async () => {
-    const { requests, displayRequest } = this.state;
-    const filteredRequests = requests.filter(request => request.id !== displayRequest.id);
+    const { requests, payload } = this.state;
+    const filteredRequests = requests.filter(request => request.id !== payload.id);
     await this.setState({
       requests: filteredRequests,
-      displayRequest: null,
+      payload: null,
     });
   };
 
   public approveRequest = async () => {
-    const { connector, displayRequest, address, activeIndex, chainId } = this.state;
-
-    let errorMsg = "";
+    const { connector, payload } = this.state;
 
     try {
-      let result = null;
-
-      if (connector) {
-        if (!isWalletActive()) {
-          await initWallet(activeIndex, chainId);
-        }
-
-        let transaction = null;
-        let dataToSign = null;
-        let addressRequested = null;
-
-        switch (displayRequest.method) {
-          case "eth_sendTransaction":
-            transaction = displayRequest.params[0];
-            addressRequested = transaction.from;
-            if (address.toLowerCase() === addressRequested.toLowerCase()) {
-              result = await sendTransaction(transaction);
-            } else {
-              errorMsg = "Address requested does not match active account";
-            }
-            break;
-          case "eth_signTransaction":
-            transaction = displayRequest.params[0];
-            addressRequested = transaction.from;
-            if (address.toLowerCase() === addressRequested.toLowerCase()) {
-              result = await signTransaction(transaction);
-            } else {
-              errorMsg = "Address requested does not match active account";
-            }
-            break;
-          case "eth_sign":
-            dataToSign = displayRequest.params[1];
-            addressRequested = displayRequest.params[0];
-            if (address.toLowerCase() === addressRequested.toLowerCase()) {
-              result = await signMessage(dataToSign);
-            } else {
-              errorMsg = "Address requested does not match active account";
-            }
-            break;
-          case "personal_sign":
-            dataToSign = displayRequest.params[0];
-            addressRequested = displayRequest.params[1];
-            if (address.toLowerCase() === addressRequested.toLowerCase()) {
-              result = await signPersonalMessage(dataToSign);
-            } else {
-              errorMsg = "Address requested does not match active account";
-            }
-            break;
-          default:
-            break;
-        }
-
-        if (result) {
-          connector.approveRequest({
-            id: displayRequest.id,
-            result,
-          });
-        } else {
-          let message = "JSON RPC method not supported";
-          if (!isWalletActive()) {
-            message = "No Active Account";
-          }
-          connector.rejectRequest({
-            id: displayRequest.id,
-            error: { message },
-          });
-        }
-      }
+      await appConfig.rpcEngine.signer(payload, this.state, this.bindedSetState);
     } catch (error) {
       console.error(error);
       if (connector) {
         connector.rejectRequest({
-          id: displayRequest.id,
-          error: { message: errorMsg || "Failed or Rejected Request" },
+          id: payload.id,
+          error: { message: "Failed or Rejected Request" },
         });
       }
     }
@@ -532,10 +433,10 @@ class App extends React.Component<{}> {
   };
 
   public rejectRequest = async () => {
-    const { connector, displayRequest } = this.state;
+    const { connector, payload } = this.state;
     if (connector) {
       connector.rejectRequest({
-        id: displayRequest.id,
+        id: payload.id,
         error: { message: "Failed or Rejected Request" },
       });
     }
@@ -553,7 +454,7 @@ class App extends React.Component<{}> {
       address,
       chainId,
       requests,
-      displayRequest,
+      payload,
     } = this.state;
     return (
       <React.Fragment>
@@ -567,7 +468,7 @@ class App extends React.Component<{}> {
           <SContent>
             <Card maxWidth={400}>
               <SLogo>
-                <img src={custom.logo} alt={custom.name} />
+                <img src={appConfig.logo} alt={appConfig.name} />
               </SLogo>
               {!connected ? (
                 peerMeta && peerMeta.name ? (
@@ -581,6 +482,7 @@ class App extends React.Component<{}> {
                 ) : (
                   <Column>
                     <AccountDetails
+                      chains={appConfig.chains}
                       address={address}
                       activeIndex={activeIndex}
                       chainId={chainId}
@@ -590,7 +492,7 @@ class App extends React.Component<{}> {
                     />
                     <SActionsColumn>
                       <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
-                      {custom.styleOpts.showPasteUri && (
+                      {appConfig.styleOpts.showPasteUri && (
                         <>
                           <p>{"OR"}</p>
                           <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
@@ -599,9 +501,10 @@ class App extends React.Component<{}> {
                     </SActionsColumn>
                   </Column>
                 )
-              ) : !displayRequest ? (
+              ) : !payload ? (
                 <Column>
                   <AccountDetails
+                    chains={appConfig.chains}
                     address={address}
                     activeIndex={activeIndex}
                     chainId={chainId}
@@ -633,7 +536,7 @@ class App extends React.Component<{}> {
                 </Column>
               ) : (
                 <RequestDisplay
-                  displayRequest={displayRequest}
+                  payload={payload}
                   peerMeta={peerMeta}
                   approveRequest={this.approveRequest}
                   rejectRequest={this.rejectRequest}
@@ -650,7 +553,7 @@ class App extends React.Component<{}> {
             />
           )}
         </SContainer>
-        {custom.styleOpts.showVersion && (
+        {appConfig.styleOpts.showVersion && (
           <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>
         )}
       </React.Fragment>

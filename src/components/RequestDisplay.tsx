@@ -1,9 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
-import { convertHexToNumber } from "@walletconnect/utils";
 import Column from "./Column";
 import Button from "./Button";
-import { convertHexToUtf8IfPossible } from "../helpers/utilities";
+import appConfig from "../config";
 
 const SRequestValues = styled.div`
   font-family: monospace;
@@ -41,68 +40,9 @@ const SActions = styled.div`
 
 class RequestDisplay extends React.Component<any, any> {
   public render() {
-    const { displayRequest, peerMeta, approveRequest, rejectRequest } = this.props;
+    const { payload, peerMeta, approveRequest, rejectRequest } = this.props;
 
-    let params = [{ label: "Method", value: displayRequest.method }];
-
-    switch (displayRequest.method) {
-      case "eth_sendTransaction":
-      case "eth_signTransaction":
-        params = [
-          ...params,
-          { label: "From", value: displayRequest.params[0].from },
-          { label: "To", value: displayRequest.params[0].to },
-          {
-            label: "Gas Limit",
-            value: displayRequest.params[0].gas
-              ? convertHexToNumber(displayRequest.params[0].gas)
-              : displayRequest.params[0].gasLimit
-              ? convertHexToNumber(displayRequest.params[0].gasLimit)
-              : "",
-          },
-          {
-            label: "Gas Price",
-            value: convertHexToNumber(displayRequest.params[0].gasPrice),
-          },
-          {
-            label: "Nonce",
-            value: convertHexToNumber(displayRequest.params[0].nonce),
-          },
-          {
-            label: "Value",
-            value: convertHexToNumber(displayRequest.params[0].value),
-          },
-          { label: "Data", value: displayRequest.params[0].data },
-        ];
-        break;
-
-      case "eth_sign":
-        params = [
-          ...params,
-          { label: "Address", value: displayRequest.params[0] },
-          { label: "Message", value: displayRequest.params[1] },
-        ];
-        break;
-      case "personal_sign":
-        params = [
-          ...params,
-          { label: "Address", value: displayRequest.params[1] },
-          {
-            label: "Message",
-            value: convertHexToUtf8IfPossible(displayRequest.params[0]),
-          },
-        ];
-        break;
-      default:
-        params = [
-          ...params,
-          {
-            label: "params",
-            value: JSON.stringify(displayRequest.params, null, "\t"),
-          },
-        ];
-        break;
-    }
+    const params = appConfig.rpcEngine.render(payload);
     return (
       <Column>
         <h6>{"Request From"}</h6>
