@@ -129,3 +129,7 @@ export interface IMethod {
   name: string;
   args: IMethodArgument[];
 }
+
+export interface IStarkRegistryMap {
+  [chainId: number]: string;
+}

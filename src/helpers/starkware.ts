@@ -1,6 +1,11 @@
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getWallet, signMessage } from "./wallet";
+import { IStarkRegistryMap } from "./types";
+
+export const starkRegistryMap: IStarkRegistryMap = {
+  3: "0x204eAF71D3f15CF6F9A024159228573EE4543bF9",
+};
 
 export const starkMethods = [
   "stark_accounts",
