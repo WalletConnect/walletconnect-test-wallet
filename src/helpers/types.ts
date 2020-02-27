@@ -153,4 +153,5 @@ export interface ICustomSettings {
     handler: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
   };
   onInit: (state: IAppState, setState: any) => Promise<void>;
+  onUpdate: (state: IAppState, setState: any) => Promise<void>;
 }

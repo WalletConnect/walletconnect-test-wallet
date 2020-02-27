@@ -374,6 +374,7 @@ class App extends React.Component<{}> {
       chainId: _chainId,
       address,
     });
+    await custom.onUpdate(this.state, this.setState);
   };
 
   public updateChain = async (chainId: number | string) => {

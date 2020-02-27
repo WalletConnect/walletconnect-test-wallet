@@ -23,6 +23,7 @@ const custom: ICustomSettings = {
     handler: (payload, state, setState) => Promise.resolve(),
   },
   onInit: (state, setState) => Promise.resolve(),
+  onUpdate: (state, setState) => Promise.resolve(),
 };
 
 export default custom;
