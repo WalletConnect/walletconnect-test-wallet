@@ -13,11 +13,7 @@ import DisplayRequest from "./components/DisplayRequest";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
-import {
-  CHANNEL_SUPPORTED_CHAIN_IDS,
-  DEFAULT_CHAIN_ID,
-  DEFAULT_ACTIVE_INDEX,
-} from "./helpers/constants";
+import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
 import {
   isWalletActive,
   initWallet,
@@ -26,11 +22,11 @@ import {
   signTransaction,
   signMessage,
   signPersonalMessage,
+  getAccounts,
 } from "./helpers/wallet";
 import { apiGetCustomRequest } from "./helpers/api";
 import { getCachedSession } from "./helpers/utilities";
 import { createChannel, handleChannelRequests } from "./helpers/connext";
-import { ChannelWallet, getChannelWallet } from "./helpers/channelWallet";
 import custom from "./custom";
 
 const SContainer = styled.div`
@@ -142,12 +138,10 @@ interface IAppState {
   results: any[];
   displayRequest: any;
   channel: IConnextClient | null;
-  channelWallet: ChannelWallet | null;
 }
 
-const CHANNEL_WALLET = getChannelWallet();
-const DEFAULT_ADDRESS = CHANNEL_WALLET.address;
-const DEFAULT_ACCOUNTS = [DEFAULT_ADDRESS];
+const DEFAULT_ACCOUNTS = getAccounts();
+const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
 const INITIAL_STATE: IAppState = {
   loading: false,
@@ -170,7 +164,6 @@ const INITIAL_STATE: IAppState = {
   results: [],
   displayRequest: null,
   channel: null,
-  channelWallet: null,
 };
 
 class App extends React.Component<{}> {
@@ -218,17 +211,8 @@ class App extends React.Component<{}> {
 
   public createChannel = async () => {
     const { chainId } = this.state;
-    let { channelWallet } = this.state;
-
-    if (!CHANNEL_SUPPORTED_CHAIN_IDS.includes(chainId)) {
-      return;
-    }
 
     this.setState({ loading: true });
-
-    if (!channelWallet) {
-      channelWallet = getChannelWallet();
-    }
 
     let channel = null;
     try {
@@ -238,9 +222,8 @@ class App extends React.Component<{}> {
       this.setState({ loading: false });
       return;
     }
-    const address = channelWallet.address;
-    const accounts = [address];
-    this.setState({ loading: false, channel, channelWallet, address, accounts });
+
+    this.setState({ loading: false, channel });
   };
 
   public initWalletConnect = async () => {

@@ -1,14 +1,16 @@
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
+import { CF_PATH } from "@connext/types";
 import * as connext from "@connext/client";
-import { getChannelWallet } from "./channelWallet";
+
 import { prettyPrint, verifyPayload, getChainData } from "./utilities";
+import { getMnemonic } from "./wallet";
 
 export async function createChannel(chainId: number) {
   const network = getChainData(chainId).network.toLowerCase();
-  const channelWallet = getChannelWallet();
-  const channel = await connext.connect(network, {
-    xpub: channelWallet.xpub,
-    keyGen: (index: string) => channelWallet.keyGen(index),
-  });
+  const hdNode = fromExtendedKey(fromMnemonic(getMnemonic()).extendedKey).derivePath(CF_PATH);
+  const xpub = hdNode.neuter().extendedKey;
+  const keyGen = (index: string) => Promise.resolve(hdNode.derivePath(index).privateKey);
+  const channel = await connext.connect(network, { xpub, keyGen });
   return channel;
 }
 
