@@ -5,7 +5,7 @@ import { ellipseAddress } from "src/helpers/utilities";
 import { responsive } from "../styles";
 import Blockie from "./Blockie";
 import { getViewportDimensions } from "../helpers/utilities";
-import custom from "../custom";
+import { IChainData } from "src/helpers/types";
 
 const SSection = styled.div`
   width: 100%;
@@ -26,6 +26,7 @@ const SAddressDropdownWrapper = styled.div`
 `;
 
 interface IAccountDetailsProps {
+  chains: IChainData[];
   updateAddress?: any;
   updateChain?: any;
   accounts: string[];
@@ -35,7 +36,7 @@ interface IAccountDetailsProps {
 }
 
 const AccountDetails = (props: IAccountDetailsProps) => {
-  const { chainId, address, activeIndex, accounts, updateAddress, updateChain } = props;
+  const { chains, chainId, address, activeIndex, accounts, updateAddress, updateChain } = props;
   const windowWidth = getViewportDimensions().x;
   const maxWidth = 468;
   const maxChar = 12;
@@ -65,7 +66,7 @@ const AccountDetails = (props: IAccountDetailsProps) => {
         <h6>{"Network"}</h6>
         <Dropdown
           selected={chainId}
-          options={custom.chains}
+          options={chains}
           displayKey={"name"}
           targetKey={"chain_id"}
           onChange={updateChain}

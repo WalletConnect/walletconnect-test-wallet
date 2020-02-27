@@ -133,7 +133,24 @@ export interface IMethod {
   args: IMethodArgument[];
 }
 
-export interface ICustomSettings {
+export interface IRequestRenderParams {
+  label: string;
+  value: string;
+}
+
+export interface IRpcEngine {
+  filter: (payload: IJsonRpcRequest) => boolean;
+  router: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
+  render: (payload: IJsonRpcRequest) => IRequestRenderParams[];
+  signer: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
+}
+
+export interface IAppEvents {
+  init: (state: IAppState, setState: any) => Promise<void>;
+  update: (state: IAppState, setState: any) => Promise<void>;
+}
+
+export interface IAppConfig {
   name: string;
   logo: string;
   chainId: number;
@@ -148,10 +165,6 @@ export interface ICustomSettings {
     showPasteUri: boolean;
     showVersion: boolean;
   };
-  rpcController: {
-    condition: (payload: IJsonRpcRequest) => boolean;
-    handler: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
-  };
-  onInit: (state: IAppState, setState: any) => Promise<void>;
-  onUpdate: (state: IAppState, setState: any) => Promise<void>;
+  rpcEngine: IRpcEngine;
+  events: IAppEvents;
 }

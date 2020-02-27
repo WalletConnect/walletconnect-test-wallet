@@ -1,9 +1,11 @@
 import walletconnectLogo from "./assets/walletconnect-logo.png";
 import { MAINNET_CHAIN_ID, ETH_STANDARD_PATH } from "../helpers/constants";
 import supportedChains from "../helpers/chains";
-import { ICustomSettings } from "../helpers/types";
+import { IAppConfig } from "../helpers/types";
+import RpcEngine from "./rpcEngine";
+import ethereum from "src/config/rpcEngine/ethereum";
 
-const custom: ICustomSettings = {
+const appConfig: IAppConfig = {
   name: "WalletConnect",
   logo: walletconnectLogo,
   chainId: MAINNET_CHAIN_ID,
@@ -18,12 +20,11 @@ const custom: ICustomSettings = {
     showPasteUri: true,
     showVersion: true,
   },
-  rpcController: {
-    condition: payload => false,
-    handler: (payload, state, setState) => Promise.resolve(),
+  rpcEngine: new RpcEngine([ethereum]),
+  events: {
+    init: (state, setState) => Promise.resolve(),
+    update: (state, setState) => Promise.resolve(),
   },
-  onInit: (state, setState) => Promise.resolve(),
-  onUpdate: (state, setState) => Promise.resolve(),
 };
 
-export default custom;
+export default appConfig;

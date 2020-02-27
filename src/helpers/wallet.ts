@@ -2,7 +2,7 @@ import * as ethers from "ethers";
 import { getChainData } from "./utilities";
 import { setLocal, getLocal } from "./local";
 import { ENTROPY_KEY, MNEMONIC_KEY, DEFAULT_ACTIVE_INDEX, DEFAULT_CHAIN_ID } from "./constants";
-import custom from "../custom";
+import appConfig from "../config";
 
 let path: string | null = null;
 let entropy: string | null = null;
@@ -26,7 +26,7 @@ export async function getWallet(index?: number, chainId?: number): Promise<ether
   return _wallet;
 }
 
-export function getAccounts(count = custom.numberOfAccounts) {
+export function getAccounts(count = appConfig.numberOfAccounts) {
   const accounts = [];
   let wallet = null;
   for (let i = 0; i < count; i++) {
@@ -55,7 +55,7 @@ export function getData(key: string): string {
 }
 
 export function generatePath(index: number) {
-  path = `${custom.derivationPath}/${index}`;
+  path = `${appConfig.derivationPath}/${index}`;
   return path;
 }
 
