@@ -1,3 +1,6 @@
+import { IJsonRpcRequest } from "@walletconnect/types";
+import { IAppState } from "../App";
+
 export interface IAssetData {
   symbol: string;
   name: string;
@@ -128,6 +131,29 @@ export interface IMethod {
   signature: string;
   name: string;
   args: IMethodArgument[];
+}
+
+export interface ICustomSettings {
+  name: string;
+  logo: string;
+  chainId: number;
+  derivationPath: string;
+  numberOfAccounts: number;
+  colors: {
+    defaultColor: string;
+    backgroundColor: string;
+  };
+  chains: IChainData[];
+  styleOpts: {
+    showPasteUri: boolean;
+    showVersion: boolean;
+  };
+  rpcController: {
+    condition: (payload: IJsonRpcRequest) => boolean;
+    handler: (payload: IJsonRpcRequest, state: IAppState, setState: any) => Promise<void>;
+  };
+  onInit: (state: IAppState, setState: any) => Promise<void>;
+  onUpdate: (state: IAppState, setState: any) => Promise<void>;
 }
 
 export interface IStarkRegistryMap {
