@@ -2,8 +2,8 @@ import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import { IConnextClient, CF_PATH } from "@connext/types";
 import * as connext from "@connext/client";
 
-import { prettyPrint, verifyPayload, getChainData } from "./utilities";
-import { getMnemonic } from "./wallet";
+import { prettyPrint, verifyPayload, getChainData } from "../../helpers/utilities";
+import { getMnemonic } from "../../helpers/wallet";
 
 export let activeChannel: IConnextClient;
 

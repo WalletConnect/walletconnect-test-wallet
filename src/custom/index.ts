@@ -3,12 +3,11 @@ import { CF_PATH } from "@connext/types";
 
 import connextLogo from "./assets/connext-logo.svg";
 
-import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "./helpers/constants";
-import supportedChains from "./helpers/chains";
-import { ICustomSettings } from "./helpers/types";
+import { IAppState } from "../App";
+import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "../helpers/constants";
 import { handleChannelRequests, createChannel } from "./helpers/connext";
-
-import { IAppState } from "./App";
+import supportedChains from "../helpers/chains";
+import { ICustomSettings } from "../helpers/types";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
 
