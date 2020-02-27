@@ -206,7 +206,7 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
-    await custom.onInit(this.state, this.setState);
+    await custom.onInit(this.state, (newState: Partial<IAppState>) => this.setState(newState));
   };
 
   public initWalletConnect = async () => {
@@ -300,7 +300,9 @@ class App extends React.Component<{}> {
         }
 
         if (custom.rpcController.condition(payload)) {
-          await custom.rpcController.handler(payload, this.state, this.setState);
+          await custom.rpcController.handler(payload, this.state, (newState: Partial<IAppState>) =>
+            this.setState(newState),
+          );
         } else if (!signingMethods.includes(payload.method)) {
           const { chainId } = this.state;
           try {
@@ -374,7 +376,7 @@ class App extends React.Component<{}> {
       chainId: _chainId,
       address,
     });
-    await custom.onUpdate(this.state, this.setState);
+    await custom.onUpdate(this.state, (newState: Partial<IAppState>) => this.setState(newState));
   };
 
   public updateChain = async (chainId: number | string) => {
