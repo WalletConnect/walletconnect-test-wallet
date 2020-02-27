@@ -8,7 +8,7 @@ import Input from "./components/Input";
 import Header from "./components/Header";
 import Column from "./components/Column";
 import PeerMeta from "./components/PeerMeta";
-import DisplayRequest from "./components/DisplayRequest";
+import RequestDisplay from "./components/RequestDisplay";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
@@ -632,7 +632,7 @@ class App extends React.Component<{}> {
                   )}
                 </Column>
               ) : (
-                <DisplayRequest
+                <RequestDisplay
                   displayRequest={displayRequest}
                   peerMeta={peerMeta}
                   approveRequest={this.approveRequest}
