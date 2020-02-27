@@ -20,8 +20,9 @@ const custom: ICustomSettings = {
   },
   rpcController: {
     condition: payload => false,
-    handler: (payload, state, setState) => Promise.resolve(undefined),
+    handler: (payload, state, setState) => Promise.resolve(),
   },
+  onInit: (state, setState) => Promise.resolve(),
 };
 
 export default custom;

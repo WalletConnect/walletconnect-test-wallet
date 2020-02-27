@@ -206,6 +206,7 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
+    await custom.onInit(this.state, this.setState);
   };
 
   public initWalletConnect = async () => {
