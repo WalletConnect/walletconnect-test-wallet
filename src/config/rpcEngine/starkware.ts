@@ -6,6 +6,7 @@ import {
   starkwareDeposit,
   starkwareSignTransfer,
   starkwareSignCreateOrder,
+  starkwareGetStarkKey,
 } from "../helpers/starkware";
 import { IAppState } from "src/App";
 
@@ -21,7 +22,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
     state.connector.approveRequest({
       id: payload.id,
       result: {
-        accounts: await starkwareGetAccounts(),
+        accounts: starkwareGetAccounts(),
       },
     });
   } else {
@@ -32,8 +33,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
 }
 
 function renderStarkwareRequests(payload: any) {
-  // TODO: fix stark key
-  let params = [{ label: "StarkKey", value: "STARK_KEY_GOES_HERE" }];
+  let params = [{ label: "StarkKey", value: starkwareGetStarkKey() }];
 
   switch (payload.method) {
     case "stark_register":

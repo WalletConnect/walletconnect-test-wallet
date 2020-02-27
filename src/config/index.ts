@@ -36,8 +36,8 @@ const appConfig: IAppConfig = {
   rpcEngine: new RpcEngine([starkware, ethereum]),
   events: {
     init: async (state, setState) => {
-      await starkwareGenerateKeyPair();
-      const starkKey = await starkwareGetStarkKey();
+      starkwareGenerateKeyPair();
+      const starkKey = starkwareGetStarkKey();
       console.log("starkKey", starkKey);
     },
     update: (state, setState) => Promise.resolve(),

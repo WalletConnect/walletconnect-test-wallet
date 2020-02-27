@@ -17,34 +17,34 @@ export const starkwareMethods = [
 
 let starkwareKeyPair: starkwareCrypto.KeyPair | null = null;
 
-export async function starkwareGenerateKeyPair(): Promise<starkwareCrypto.KeyPair> {
-  const privateKey = (await getWallet()).privateKey;
+export function starkwareGenerateKeyPair(): starkwareCrypto.KeyPair {
+  const privateKey = getWallet().privateKey;
   starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
   return starkwareKeyPair;
 }
 
-export async function starkwareGetKeyPair(): Promise<starkwareCrypto.KeyPair> {
+export function starkwareGetKeyPair(): starkwareCrypto.KeyPair {
   let keyPair = starkwareKeyPair;
   if (!keyPair) {
-    keyPair = await starkwareGenerateKeyPair();
+    keyPair = starkwareGenerateKeyPair();
   }
   return keyPair;
 }
 
-export async function starkwareGetStarkKey(): Promise<string> {
-  const keyPair = await starkwareGetKeyPair();
+export function starkwareGetStarkKey(): string {
+  const keyPair = starkwareGetKeyPair();
   const publicKey = starkwareCrypto.getPublic(keyPair);
   const starkKey = starkwareCrypto.getStarkKey(publicKey);
   return starkKey;
 }
 
-export async function starkwareGetAccounts(): Promise<string[]> {
-  return [await starkwareGetStarkKey()];
+export function starkwareGetAccounts(): string[] {
+  return [starkwareGetStarkKey()];
 }
 
 export async function starkwareRegister() {
-  const wallet = await getWallet();
-  const starkKey = await starkwareGetStarkKey();
+  const wallet = getWallet();
+  const starkKey = starkwareGetStarkKey();
   const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
   const sig = await signMessage(msg);
   // TODO: send sig to registry contract
@@ -63,12 +63,12 @@ export async function starkwareDeposit(amount: string, token: string) {
 }
 
 export async function starkwareSign(msg: any) {
-  const keyPair = await starkwareGetKeyPair();
+  const keyPair = starkwareGetKeyPair();
   return starkwareCrypto.sign(keyPair, msg);
 }
 
 export async function starkwareVerify(msg: any, sig: any) {
-  const keyPair = await starkwareGetKeyPair();
+  const keyPair = starkwareGetKeyPair();
   return starkwareCrypto.verify(keyPair, msg, sig);
 }
 
