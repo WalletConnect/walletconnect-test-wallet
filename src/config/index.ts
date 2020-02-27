@@ -1,17 +1,19 @@
-import { IJsonRpcRequest } from "@walletconnect/types";
 import { CF_PATH } from "@connext/types";
 
 import connextLogo from "./assets/connext-logo.svg";
 
 import { IAppState } from "../App";
 import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID } from "../helpers/constants";
-import { handleChannelRequests, createChannel } from "./helpers/connext";
+import { createChannel } from "./helpers/connext";
 import supportedChains from "../helpers/chains";
-import { ICustomSettings } from "../helpers/types";
+import { IAppConfig } from "../helpers/types";
+import RpcEngine from "./rpcEngine";
+import ethereum from "src/config/rpcEngine/ethereum";
+import connext from "src/config/rpcEngine/connext";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
 
-const custom: ICustomSettings = {
+const appConfig: IAppConfig = {
   name: "Connext",
   logo: connextLogo,
   chainId: RINKEBY_CHAIN_ID,
@@ -26,31 +28,12 @@ const custom: ICustomSettings = {
     showPasteUri: true,
     showVersion: true,
   },
-  rpcController: {
-    condition: payload => payload.method.startsWith("chan_"),
-    handler: (payload, state, setState) => onRpcRequest(payload, state, setState),
+  rpcEngine: new RpcEngine([connext, ethereum]),
+  events: {
+    init: (state, setState) => onCreateChannel(state, setState),
+    update: (state, setState) => onCreateChannel(state, setState),
   },
-  onInit: (state, setState) => onCreateChannel(state, setState),
-  onUpdate: (state, setState) => onCreateChannel(state, setState),
 };
-
-async function onRpcRequest(payload: IJsonRpcRequest, state: IAppState, setState: any) {
-  if (!state.connector) {
-    return;
-  }
-  try {
-    const result = await handleChannelRequests(payload);
-    state.connector.approveRequest({
-      id: payload.id,
-      result,
-    });
-  } catch (e) {
-    state.connector.rejectRequest({
-      id: payload.id,
-      error: { message: e.message },
-    });
-  }
-}
 
 async function onCreateChannel(state: IAppState, setState: any) {
   const { chainId } = state;
@@ -68,4 +51,4 @@ async function onCreateChannel(state: IAppState, setState: any) {
   await setState({ loading: false });
 }
 
-export default custom;
+export default appConfig;
