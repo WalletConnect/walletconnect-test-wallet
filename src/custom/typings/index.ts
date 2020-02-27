@@ -1,3 +1,3 @@
-export interface IStarkRegistryMap {
+export interface IStarkwareRegistryMap {
   [chainId: number]: string;
 }

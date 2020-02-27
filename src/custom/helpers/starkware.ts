@@ -1,13 +1,13 @@
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getWallet, signMessage } from "../../helpers/wallet";
-import { IStarkRegistryMap } from "../typings";
+import { IStarkwareRegistryMap } from "../typings";
 
-export const starkRegistryMap: IStarkRegistryMap = {
+export const starkRegistryMap: IStarkwareRegistryMap = {
   3: "0x204eAF71D3f15CF6F9A024159228573EE4543bF9",
 };
 
-export const starkMethods = [
+export const starkwareMethods = [
   "stark_accounts",
   "stark_register",
   "stark_deposit",
@@ -15,45 +15,60 @@ export const starkMethods = [
   "stark_withdraw",
 ];
 
-let starkKeyPair: starkwareCrypto.KeyPair | null = null;
+let starkwareKeyPair: starkwareCrypto.KeyPair | null = null;
 
-export async function generateStarkwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
+export async function starkwareGenerateKeyPair(): Promise<starkwareCrypto.KeyPair> {
   const privateKey = (await getWallet()).privateKey;
-  starkKeyPair = starkwareCrypto.getKeyPair(privateKey);
-  return starkKeyPair;
+  starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
+  return starkwareKeyPair;
 }
 
-export async function getStakwareKeyPair(): Promise<starkwareCrypto.KeyPair> {
-  let keyPair = starkKeyPair;
+export async function starkwareGetKeyPair(): Promise<starkwareCrypto.KeyPair> {
+  let keyPair = starkwareKeyPair;
   if (!keyPair) {
-    keyPair = await generateStarkwareKeyPair();
+    keyPair = await starkwareGenerateKeyPair();
   }
   return keyPair;
 }
 
-export async function getStarkKey(): Promise<string> {
-  const keyPair = await getStakwareKeyPair();
+export async function starkwareGetStarkKey(): Promise<string> {
+  const keyPair = await starkwareGetKeyPair();
   const publicKey = starkwareCrypto.getPublic(keyPair);
   const starkKey = starkwareCrypto.getStarkKey(publicKey);
   return starkKey;
 }
 
+export async function starkwareGetAccounts(): Promise<string[]> {
+  return [await starkwareGetStarkKey()];
+}
+
 export async function starkwareRegister() {
   const wallet = await getWallet();
-  const starkKey = await getStarkKey();
+  const starkKey = await starkwareGetStarkKey();
   const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
   const sig = await signMessage(msg);
   // TODO: send sig to registry contract
-  return sig;
+  const txhash = `${sig}`;
+  const accounts = await starkwareGetAccounts();
+  return { accounts, txhash };
+}
+
+export async function starkwareDeposit(amount: string, token: string) {
+  // 1. receive stark_deposit with token and amount
+  // 2. verify token balance
+  // 3. call deposit on smart contract
+  // 4. return transaction hash
+  const txhash = "";
+  return { txhash };
 }
 
 export async function starkwareSign(msg: any) {
-  const keyPair = await getStakwareKeyPair();
+  const keyPair = await starkwareGetKeyPair();
   return starkwareCrypto.sign(keyPair, msg);
 }
 
 export async function starkwareVerify(msg: any, sig: any) {
-  const keyPair = await getStakwareKeyPair();
+  const keyPair = await starkwareGetKeyPair();
   return starkwareCrypto.verify(keyPair, msg, sig);
 }
 
@@ -63,7 +78,7 @@ export function starkwareGetRegisterMsg(etherKey: string, starkKey: string) {
   );
 }
 
-export function starkwareGetTransferMsg(
+export async function starkwareSignTransfer(
   amount: string,
   nonce: string,
   senderVaultId: string,
@@ -72,7 +87,7 @@ export function starkwareGetTransferMsg(
   receiverPublicKey: string,
   expirationTimestamp: string,
 ) {
-  return starkwareCrypto.getTransferMsg(
+  const msg = starkwareCrypto.getTransferMsg(
     amount,
     nonce,
     senderVaultId,
@@ -81,9 +96,11 @@ export function starkwareGetTransferMsg(
     receiverPublicKey,
     expirationTimestamp,
   );
+  const sig = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
+  return sig;
 }
 
-export function starkwareGetLimitOrderMsg(
+export async function starkwareSignCreateOrder(
   vaultSell: string,
   vaultBuy: string,
   amountSell: string,
@@ -93,7 +110,7 @@ export function starkwareGetLimitOrderMsg(
   nonce: string,
   expirationTimestamp: string,
 ) {
-  return starkwareCrypto.getLimitOrderMsg(
+  const msg = starkwareCrypto.getLimitOrderMsg(
     vaultSell,
     vaultBuy,
     amountSell,
@@ -103,8 +120,66 @@ export function starkwareGetLimitOrderMsg(
     nonce,
     expirationTimestamp,
   );
+  const sig = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
+  return sig;
 }
 
-export function starkwareDeserialize(serialized: string) {
-  return starkwareCrypto.deserializeMessage(serialized);
+export async function handleStarkwareMethods(payload: any, connector: any) {
+  const { id, method, params } = payload;
+  switch (method) {
+    case "stark_accounts":
+      connector.approveRequest({
+        id,
+        result: {
+          accounts: await starkwareGetAccounts(),
+        },
+      });
+      break;
+    case "stark_register":
+      // TODO: Display register screen
+      connector.approveRequest({
+        id,
+        result: await starkwareRegister(),
+      });
+      break;
+    case "stark_deposit":
+      // TODO: Display deposit screen
+      connector.approveRequest({
+        id,
+        result: await starkwareDeposit(params.amount, params.token),
+      });
+      break;
+    case "stark_transfer":
+      // TODO: Display deposit screen
+      connector.approveRequest({
+        id,
+        result: await starkwareSignTransfer(
+          params.amount,
+          params.nonce,
+          params.senderVaultId,
+          params.token,
+          params.receiverVaultId,
+          params.receiverPublicKey,
+          params.expirationTimestamp,
+        ),
+      });
+      break;
+    case "stark_createOrder":
+      connector.approveRequest({
+        id,
+        result: await starkwareSignCreateOrder(
+          params.vaultSell,
+          params.vaultBuy,
+          params.amountSell,
+          params.amountBuy,
+          params.tokenSell,
+          params.tokenBuy,
+          params.nonce,
+          params.expirationTimestamp,
+        ),
+      });
+      break;
+    default:
+      throw new Error(`Unknown Starkware RPC Method: ${method}`);
+  }
 }

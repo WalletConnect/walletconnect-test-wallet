@@ -7,9 +7,10 @@ import { ICustomSettings } from "../helpers/types";
 
 import {
   starkRegistryMap,
-  getStarkKey,
-  starkMethods,
-  generateStarkwareKeyPair,
+  starkwareGetStarkKey,
+  starkwareMethods,
+  starkwareGenerateKeyPair,
+  handleStarkwareMethods,
 } from "./helpers/starkware";
 
 export const STARKWARE_SUPPORTED_CHAIN_IDS = Object.keys(starkRegistryMap).map(
@@ -32,28 +33,17 @@ const custom: ICustomSettings = {
     showVersion: false,
   },
   rpcController: {
-    condition: payload => starkMethods.includes(payload.method),
+    condition: payload => starkwareMethods.includes(payload.method),
     handler: async (payload, state, setState) => {
       if (!state.connector) {
         return;
       }
-      switch (payload.method) {
-        case "stark_accounts":
-          state.connector.approveRequest({
-            id: payload.id,
-            result: {
-              accounts: [],
-            },
-          });
-          break;
-        default:
-          break;
-      }
+      await handleStarkwareMethods(payload, state.connector);
     },
   },
   onInit: async (state, setState) => {
-    await generateStarkwareKeyPair();
-    const starkKey = await getStarkKey();
+    await starkwareGenerateKeyPair();
+    const starkKey = await starkwareGetStarkKey();
     console.log("starkKey", starkKey);
   },
   onUpdate: (state, setState) => Promise.resolve(),
