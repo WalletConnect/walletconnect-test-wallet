@@ -2,7 +2,9 @@ import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getWallet, signMessage } from "../../helpers/wallet";
 import { IStarkwareRegistryMap } from "../typings";
+import * as ERC20TokenABI from "./contracts/ERC20TokenABI.json";
 import * as StarkExchangeABI from "./contracts/StarkExchangeABI.json";
+import { convertAmountToRawNumber } from "src/helpers/bignumber";
 
 export const starkRegistryMap: IStarkwareRegistryMap = {
   3: "0x204eAF71D3f15CF6F9A024159228573EE4543bF9",
@@ -17,6 +19,13 @@ export const starkwareMethods = [
 ];
 
 let starkwareKeyPair: starkwareCrypto.KeyPair | null = null;
+
+export function getERC20TokenDecimals(tokenAddress: string) {
+  const provider = getWallet().provider;
+  const tokenContract = new ethers.Contract(tokenAddress, ERC20TokenABI, provider);
+  const decimals = tokenContract.decimals();
+  return decimals;
+}
 
 export async function starkwareGetExchangeContract(): Promise<ethers.Contract> {
   const provider = getWallet().provider;
@@ -58,18 +67,26 @@ export async function starkwareRegister() {
   const starkKey = starkwareGetStarkKey();
   const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
   const sig = await signMessage(msg);
-  // TODO: send sig to registry contract
-  const txhash = `${sig}`;
+  const contract = await starkwareGetExchangeContract();
+  const { hash: txhash } = await contract.register(starkKey, sig);
   const accounts = await starkwareGetAccounts();
   return { accounts, txhash };
 }
 
-export async function starkwareDeposit(amount: string, token: string) {
-  // 1. receive stark_deposit with token and amount
-  // 2. verify token balance
-  // 3. call deposit on smart contract
-  // 4. return transaction hash
-  const txhash = "";
+export async function starkwareDeposit(amount: string, token: string, vaultId: string) {
+  const decimals = getERC20TokenDecimals(token);
+  const quantizedAmount = convertAmountToRawNumber(amount, decimals);
+  const contract = starkwareGetExchangeContract();
+  // TODO: research where to find vaultId
+  // @ts-ignore
+  const { hash: txhash } = await contract.deposit(token, vaultId, quantizedAmount);
+  return { txhash };
+}
+
+export async function starkwareWithdraw(token: string) {
+  const contract = starkwareGetExchangeContract();
+  // @ts-ignore
+  const { hash: txhash } = await contract.withdraw(token);
   return { txhash };
 }
 

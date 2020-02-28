@@ -7,6 +7,7 @@ import {
   starkwareSignTransfer,
   starkwareSignCreateOrder,
   starkwareGetStarkKey,
+  starkwareWithdraw,
 } from "../helpers/starkware";
 import { IAppState } from "src/App";
 
@@ -94,7 +95,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       // TODO: Display deposit screen
       connector.approveRequest({
         id,
-        result: await starkwareDeposit(params.amount, params.token),
+        result: await starkwareDeposit(params.amount, params.token, params.vaultdId),
       });
       break;
     case "stark_transfer":
@@ -125,6 +126,12 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
           params.nonce,
           params.expirationTimestamp,
         ),
+      });
+      break;
+    case "stark_withdraw":
+      connector.approveRequest({
+        id,
+        result: await starkwareWithdraw(params.token),
       });
       break;
     default:
