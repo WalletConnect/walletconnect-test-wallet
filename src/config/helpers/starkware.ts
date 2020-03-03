@@ -67,8 +67,8 @@ export async function starkwareRegister() {
   const starkKey = starkwareGetStarkKey();
   const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
   const sig = await signMessage(msg);
-  const contract = await starkwareGetExchangeContract();
-  const { hash: txhash } = await contract.register(starkKey, sig);
+  const exchangeContract = await starkwareGetExchangeContract();
+  const { hash: txhash } = await exchangeContract.register(starkKey, sig);
   const accounts = await starkwareGetAccounts();
   return { accounts, txhash };
 }
@@ -76,17 +76,17 @@ export async function starkwareRegister() {
 export async function starkwareDeposit(amount: string, token: string, vaultId: string) {
   const decimals = getERC20TokenDecimals(token);
   const quantizedAmount = convertAmountToRawNumber(amount, decimals);
-  const contract = starkwareGetExchangeContract();
+  const exchangeContract = starkwareGetExchangeContract();
   // TODO: research where to find vaultId
   // @ts-ignore
-  const { hash: txhash } = await contract.deposit(token, vaultId, quantizedAmount);
+  const { hash: txhash } = await exchangeContract.deposit(token, vaultId, quantizedAmount);
   return { txhash };
 }
 
 export async function starkwareWithdraw(token: string) {
-  const contract = starkwareGetExchangeContract();
+  const exchangeContract = starkwareGetExchangeContract();
   // @ts-ignore
-  const { hash: txhash } = await contract.withdraw(token);
+  const { hash: txhash } = await exchangeContract.withdraw(token);
   return { txhash };
 }
 
