@@ -1,14 +1,5 @@
 import { IRpcEngine } from "../../helpers/types";
-import {
-  starkwareMethods,
-  starkwareGetAccounts,
-  starkwareRegister,
-  starkwareDeposit,
-  starkwareSignTransfer,
-  starkwareSignCreateOrder,
-  starkwareGetStarkKey,
-  starkwareWithdraw,
-} from "../helpers/starkware";
+import { starkwareMethods, starkwareGetStarkKey, starkwareRpc } from "../helpers/starkware";
 import { IAppState } from "src/App";
 
 function filterStarkwareRequests(payload: any) {
@@ -22,9 +13,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
   if (payload.method === "stark_accounts") {
     state.connector.approveRequest({
       id: payload.id,
-      result: {
-        accounts: starkwareGetAccounts(),
-      },
+      result: starkwareRpc.accounts(),
     });
   } else {
     const requests = state.requests;
@@ -88,21 +77,21 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       // TODO: Display register screen
       connector.approveRequest({
         id,
-        result: await starkwareRegister(),
+        result: await starkwareRpc.register(),
       });
       break;
     case "stark_deposit":
       // TODO: Display deposit screen
       connector.approveRequest({
         id,
-        result: await starkwareDeposit(params.amount, params.token, params.vaultdId),
+        result: await starkwareRpc.deposit(params.amount, params.token, params.vaultdId),
       });
       break;
     case "stark_transfer":
       // TODO: Display deposit screen
       connector.approveRequest({
         id,
-        result: await starkwareSignTransfer(
+        result: await starkwareRpc.transfer(
           params.amount,
           params.nonce,
           params.senderVaultId,
@@ -116,7 +105,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_createOrder":
       connector.approveRequest({
         id,
-        result: await starkwareSignCreateOrder(
+        result: await starkwareRpc.createOrder(
           params.vaultSell,
           params.vaultBuy,
           params.amountSell,
@@ -131,7 +120,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_withdraw":
       connector.approveRequest({
         id,
-        result: await starkwareWithdraw(params.token),
+        result: await starkwareRpc.withdraw(params.token),
       });
       break;
     default:

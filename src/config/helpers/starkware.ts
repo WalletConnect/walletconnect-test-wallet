@@ -62,6 +62,29 @@ export function starkwareGetAccounts(): string[] {
   return [starkwareGetStarkKey()];
 }
 
+export async function starkwareSign(msg: any) {
+  const keyPair = starkwareGetKeyPair();
+  return starkwareCrypto.sign(keyPair, msg);
+}
+
+export async function starkwareVerify(msg: any, sig: any) {
+  const keyPair = starkwareGetKeyPair();
+  return starkwareCrypto.verify(keyPair, msg, sig);
+}
+
+export function starkwareGetRegisterMsg(etherKey: string, starkKey: string) {
+  return ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [etherKey, starkKey]),
+  );
+}
+
+// ------------------------- JSON-RPC Methods ------------------------- //
+
+export async function starkwareAccounts() {
+  const accounts = starkwareGetAccounts();
+  return { accounts };
+}
+
 export async function starkwareRegister() {
   const wallet = getWallet();
   const starkKey = starkwareGetStarkKey();
@@ -90,22 +113,6 @@ export async function starkwareWithdraw(token: string) {
   return { txhash };
 }
 
-export async function starkwareSign(msg: any) {
-  const keyPair = starkwareGetKeyPair();
-  return starkwareCrypto.sign(keyPair, msg);
-}
-
-export async function starkwareVerify(msg: any, sig: any) {
-  const keyPair = starkwareGetKeyPair();
-  return starkwareCrypto.verify(keyPair, msg, sig);
-}
-
-export function starkwareGetRegisterMsg(etherKey: string, starkKey: string) {
-  return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [etherKey, starkKey]),
-  );
-}
-
 export async function starkwareSignTransfer(
   amount: string,
   nonce: string,
@@ -124,8 +131,8 @@ export async function starkwareSignTransfer(
     receiverPublicKey,
     expirationTimestamp,
   );
-  const sig = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
-  return sig;
+  const signature = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
+  return { signature };
 }
 
 export async function starkwareSignCreateOrder(
@@ -148,6 +155,15 @@ export async function starkwareSignCreateOrder(
     nonce,
     expirationTimestamp,
   );
-  const sig = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
-  return sig;
+  const signature = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
+  return { signature };
 }
+
+export const starkwareRpc = {
+  accounts: starkwareAccounts,
+  register: starkwareRegister,
+  deposit: starkwareDeposit,
+  transfer: starkwareSignTransfer,
+  createOrder: starkwareSignCreateOrder,
+  withdraw: starkwareWithdraw,
+};
