@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
-import { getWallet, signMessage } from "../../helpers/wallet";
+import { getWallet } from "../../helpers/wallet";
 import { IStarkwareRegistryMap } from "../typings";
 import ERC20TokenABI from "./contracts/ERC20TokenABI.json";
 import StarkExchangeABI from "./contracts/StarkExchangeABI.json";
