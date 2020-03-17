@@ -67,9 +67,9 @@ export async function starkwareSign(msg: any) {
   return starkwareCrypto.sign(keyPair, msg);
 }
 
-export async function starkwareVerify(msg: any, sig: any) {
+export async function starkwareVerify(msg: any, signature: any) {
   const keyPair = starkwareGetKeyPair();
-  return starkwareCrypto.verify(keyPair, msg, sig);
+  return starkwareCrypto.verify(keyPair, msg, signature);
 }
 
 export function starkwareGetRegisterMsg(etherKey: string, starkKey: string) {
@@ -85,15 +85,14 @@ export async function starkwareAccounts() {
   return { accounts };
 }
 
-export async function starkwareRegister() {
-  const wallet = getWallet();
+export async function starkwareRegister(signature: string) {
+  // const wallet = getWallet();
   const starkKey = starkwareGetStarkKey();
-  const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
-  const sig = await signMessage(msg);
+  // const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
+  // const signature = await signMessage(msg);
   const exchangeContract = await starkwareGetExchangeContract();
-  const { hash: txhash } = await exchangeContract.register(starkKey, sig);
-  const accounts = await starkwareGetAccounts();
-  return { accounts, txhash };
+  const { hash: txhash } = await exchangeContract.register(starkKey, signature);
+  return { txhash };
 }
 
 export async function starkwareDeposit(amount: string, token: string, vaultId: string) {

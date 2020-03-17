@@ -13,7 +13,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
   if (payload.method === "stark_accounts") {
     state.connector.approveRequest({
       id: payload.id,
-      result: starkwareRpc.accounts(),
+      result: await starkwareRpc.accounts(),
     });
   } else {
     const requests = state.requests;
@@ -27,7 +27,7 @@ function renderStarkwareRequests(payload: any) {
 
   switch (payload.method) {
     case "stark_register":
-      params = [...params];
+      params = [...params, { label: "Signature", value: payload.params.signature }];
       break;
 
     case "stark_deposit":
@@ -77,7 +77,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       // TODO: Display register screen
       connector.approveRequest({
         id,
-        result: await starkwareRpc.register(),
+        result: await starkwareRpc.register(params.signature),
       });
       break;
     case "stark_deposit":
