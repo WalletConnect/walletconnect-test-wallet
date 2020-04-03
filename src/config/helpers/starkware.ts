@@ -1,14 +1,9 @@
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getWallet } from "../../helpers/wallet";
-import { IStarkwareRegistryMap } from "../typings";
 import ERC20TokenABI from "./contracts/ERC20TokenABI.json";
 import StarkExchangeABI from "./contracts/StarkExchangeABI.json";
 import { convertAmountToRawNumber } from "src/helpers/bignumber";
-
-export const starkRegistryMap: IStarkwareRegistryMap = {
-  3: "0x204eAF71D3f15CF6F9A024159228573EE4543bF9",
-};
 
 export const starkwareMethods = [
   "stark_accounts",
@@ -20,20 +15,13 @@ export const starkwareMethods = [
 
 let starkwareKeyPair: starkwareCrypto.KeyPair | null = null;
 
-export function getERC20TokenDecimals(tokenAddress: string) {
+export function getERC20TokenContract(contractAddress: string) {
   const provider = getWallet().provider;
-  const tokenContract = new ethers.Contract(tokenAddress, ERC20TokenABI, provider);
-  const decimals = tokenContract.decimals();
-  return decimals;
+  return new ethers.Contract(contractAddress, ERC20TokenABI, provider);
 }
 
-export async function starkwareGetExchangeContract(): Promise<ethers.Contract> {
+export function starkwareGetExchangeContract(contractAddress: string) {
   const provider = getWallet().provider;
-  const { chainId } = await provider.getNetwork();
-  const contractAddress = starkRegistryMap[chainId];
-  if (!contractAddress) {
-    throw new Error(`No StarkExchange Contract found for chainId: ${chainId}`);
-  }
   return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
 }
 
@@ -85,28 +73,31 @@ export async function starkwareAccounts() {
   return { accounts };
 }
 
-export async function starkwareRegister(signature: string) {
-  // const wallet = getWallet();
+export async function starkwareRegister(signature: string, contractAddress: string) {
   const starkKey = starkwareGetStarkKey();
-  // const msg = starkwareGetRegisterMsg(wallet.address, starkKey);
-  // const signature = await signMessage(msg);
-  const exchangeContract = await starkwareGetExchangeContract();
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const { hash: txhash } = await exchangeContract.register(starkKey, signature);
   return { txhash };
 }
 
-export async function starkwareDeposit(amount: string, token: string, vaultId: string) {
-  const decimals = getERC20TokenDecimals(token);
+export async function starkwareDeposit(
+  amount: string,
+  token: string,
+  vaultId: string,
+  contractAddress: string,
+) {
+  const tokenContract = getERC20TokenContract(token);
+  const decimals = await tokenContract.decimals();
   const quantizedAmount = convertAmountToRawNumber(amount, decimals);
-  const exchangeContract = starkwareGetExchangeContract();
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
   // TODO: research where to find vaultId
   // @ts-ignore
   const { hash: txhash } = await exchangeContract.deposit(token, vaultId, quantizedAmount);
   return { txhash };
 }
 
-export async function starkwareWithdraw(token: string) {
-  const exchangeContract = starkwareGetExchangeContract();
+export async function starkwareWithdraw(token: string, contractAddress: string) {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
   // @ts-ignore
   const { hash: txhash } = await exchangeContract.withdraw(token);
   return { txhash };

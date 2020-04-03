@@ -1,6 +1,5 @@
 import starkwareLogo from "./assets/starkware-logo.svg";
 
-import { convertStringToNumber } from "../helpers/bignumber";
 import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "../helpers/constants";
 import supportedChains from "../helpers/chains";
 import { IAppConfig } from "../helpers/types";
@@ -8,15 +7,9 @@ import RpcEngine from "./rpcEngine";
 import ethereum from "src/config/rpcEngine/ethereum";
 import starkware from "src/config/rpcEngine/starkware";
 
-import {
-  starkRegistryMap,
-  starkwareGetStarkKey,
-  starkwareGenerateKeyPair,
-} from "./helpers/starkware";
+import { starkwareGetStarkKey, starkwareGenerateKeyPair } from "./helpers/starkware";
 
-export const STARKWARE_SUPPORTED_CHAIN_IDS = Object.keys(starkRegistryMap).map(
-  convertStringToNumber,
-);
+export const STARKWARE_SUPPORTED_CHAIN_IDS = [1, 3, 4];
 
 const appConfig: IAppConfig = {
   name: "StarkWare",

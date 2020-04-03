@@ -77,14 +77,19 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       // TODO: Display register screen
       connector.approveRequest({
         id,
-        result: await starkwareRpc.register(params.signature),
+        result: await starkwareRpc.register(params.signature, params.contractAddress),
       });
       break;
     case "stark_deposit":
       // TODO: Display deposit screen
       connector.approveRequest({
         id,
-        result: await starkwareRpc.deposit(params.amount, params.token, params.vaultdId),
+        result: await starkwareRpc.deposit(
+          params.amount,
+          params.token,
+          params.vaultdId,
+          params.contractAddress,
+        ),
       });
       break;
     case "stark_transfer":
@@ -120,7 +125,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_withdraw":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.withdraw(params.token),
+        result: await starkwareRpc.withdraw(params.token, params.contractAddress),
       });
       break;
     default:
