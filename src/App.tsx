@@ -12,8 +12,8 @@ import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
-import { getAccounts, initWallet, updateWallet } from "./helpers/wallet";
 import { getCachedSession } from "./helpers/utilities";
+import { controllers } from "./controllers";
 import appConfig from "./config";
 
 const SContainer = styled.div`
@@ -126,10 +126,10 @@ export interface IAppState {
   payload: any;
 }
 
-const DEFAULT_ACCOUNTS = getAccounts();
-const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
+export const DEFAULT_ACCOUNTS = controllers.wallet.getAccounts();
+export const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
-const INITIAL_STATE: IAppState = {
+export const INITIAL_STATE: IAppState = {
   loading: false,
   scanner: false,
   connector: null,
@@ -161,16 +161,16 @@ class App extends React.Component<{}> {
     };
   }
   public componentDidMount() {
-    this.initWallet();
+    this.init();
   }
 
-  public initWallet = async () => {
+  public init = async () => {
     let { activeIndex, chainId } = this.state;
 
     const session = getCachedSession();
 
     if (!session) {
-      await initWallet(activeIndex, chainId);
+      await controllers.wallet.init(activeIndex, chainId);
     } else {
       const connector = new WalletConnect({ session });
 
@@ -181,7 +181,7 @@ class App extends React.Component<{}> {
       activeIndex = accounts.indexOf(address);
       chainId = connector.chainId;
 
-      await initWallet(activeIndex, chainId);
+      await controllers.wallet.init(activeIndex, chainId);
 
       await this.setState({
         connected,
@@ -255,7 +255,7 @@ class App extends React.Component<{}> {
 
   public resetApp = async () => {
     await this.setState({ ...INITIAL_STATE });
-    this.initWallet();
+    this.init();
   };
 
   public subscribeToEvents = () => {
@@ -317,7 +317,7 @@ class App extends React.Component<{}> {
         const { chainId, accounts } = connector;
         const index = 0;
         const address = accounts[index];
-        updateWallet(index, chainId);
+        controllers.wallet.update(index, chainId);
         this.setState({
           connected: true,
           address,
@@ -347,7 +347,7 @@ class App extends React.Component<{}> {
       activeIndex: newActiveIndex,
       chainId: newChainId,
     });
-    await updateWallet(newActiveIndex, newChainId);
+    await controllers.wallet.update(newActiveIndex, newChainId);
     await appConfig.events.update(this.state, this.bindedSetState);
   };
 

@@ -3,7 +3,7 @@ import { MAINNET_CHAIN_ID, ETH_STANDARD_PATH } from "../helpers/constants";
 import supportedChains from "../helpers/chains";
 import { IAppConfig } from "../helpers/types";
 import RpcEngine from "./rpcEngine";
-import ethereum from "src/config/rpcEngine/ethereum";
+import ethereum from "./rpcEngine/ethereum";
 
 const appConfig: IAppConfig = {
   name: "WalletConnect",
