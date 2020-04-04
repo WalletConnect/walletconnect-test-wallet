@@ -18,6 +18,10 @@ export function isWalletActive() {
   return null;
 }
 
+export function getWalletIndex() {
+  return activeIndex;
+}
+
 export function getWallet(index?: number, chainId?: number): ethers.Wallet {
   let _wallet = wallet;
   if (!_wallet || activeIndex === index || activeChainId === chainId) {

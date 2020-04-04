@@ -9,7 +9,8 @@
     "ordered-imports": false,
     "jsx-no-lambda": false,
     "jsx-boolean-value": false,
-    "no-console": false
+    "no-console": false,
+    "interface-name": false
   },
   "linterOptions": {
     "exclude": [

@@ -1,5 +1,5 @@
 import { IRpcEngine } from "../../helpers/types";
-import { starkwareMethods, starkwareGetStarkKey, starkwareRpc } from "../helpers/starkware";
+import { starkwareMethods, starkwareGetStarkPubicKey, starkwareRpc } from "../helpers/starkware";
 import { IAppState } from "src/App";
 
 function filterStarkwareRequests(payload: any) {
@@ -10,10 +10,10 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
   if (!state.connector) {
     return;
   }
-  if (payload.method === "stark_accounts") {
+  if (payload.method === "stark_account") {
     state.connector.approveRequest({
       id: payload.id,
-      result: await starkwareRpc.accounts(),
+      result: await starkwareRpc.account(payload.params.contractAddress, payload.params.index),
     });
   } else {
     const requests = state.requests;
@@ -23,7 +23,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
 }
 
 function renderStarkwareRequests(payload: any) {
-  let params = [{ label: "StarkKey", value: starkwareGetStarkKey() }];
+  let params = [{ label: "StarkPublicKey", value: starkwareGetStarkPubicKey() }];
 
   switch (payload.method) {
     case "stark_register":

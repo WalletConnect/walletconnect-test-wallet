@@ -1,53 +1,63 @@
+import { ec } from "elliptic";
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
-import { getWallet } from "../../helpers/wallet";
-import ERC20TokenABI from "./contracts/ERC20TokenABI.json";
+import { getWallet, getWalletIndex } from "../../helpers/wallet";
 import StarkExchangeABI from "./contracts/StarkExchangeABI.json";
-import { convertAmountToRawNumber } from "src/helpers/bignumber";
+import {
+  StarkAccountResult,
+  StarkRegisterResult,
+  StarkDepositResult,
+  StarkDepositCancelResult,
+  Token,
+  OrderParams,
+  StarkWithdrawalResult,
+  StarkCreateOrderResult,
+  StarkTransferResult,
+  StarkFullWithdrawalResult,
+  StarkFreezeResult,
+  StarkVerifyEscapeResult,
+  StarkDepositReclaimResult,
+} from "../typings";
 
 export const starkwareMethods = [
-  "stark_accounts",
+  "stark_account",
   "stark_register",
   "stark_deposit",
   "stark_sign",
   "stark_withdraw",
 ];
 
-let starkwareKeyPair: starkwareCrypto.KeyPair | null = null;
-
-export function getERC20TokenContract(contractAddress: string) {
-  const provider = getWallet().provider;
-  return new ethers.Contract(contractAddress, ERC20TokenABI, provider);
+interface IGeneratedStarkKeyPairs {
+  [index: number]: starkwareCrypto.KeyPair;
 }
+
+export const generateStarkKeyPairs: IGeneratedStarkKeyPairs = {};
 
 export function starkwareGetExchangeContract(contractAddress: string) {
   const provider = getWallet().provider;
   return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
 }
 
-export function starkwareGenerateKeyPair(): starkwareCrypto.KeyPair {
-  const privateKey = getWallet().privateKey;
-  starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
+export function starkwareFormatSignature(signature: ec.Signature) {
+  return "0x" + signature.r.toString(16) + signature.s.toString(16);
+}
+
+export function starkwareGetKeyPair(_index?: number): starkwareCrypto.KeyPair {
+  const index: number = typeof _index !== "undefined" ? _index : getWalletIndex();
+  const match = generateStarkKeyPairs[index];
+  if (match) {
+    return match;
+  }
+  const privateKey = getWallet(index).privateKey;
+  const starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
   return starkwareKeyPair;
 }
 
-export function starkwareGetKeyPair(): starkwareCrypto.KeyPair {
-  let keyPair = starkwareKeyPair;
-  if (!keyPair) {
-    keyPair = starkwareGenerateKeyPair();
-  }
-  return keyPair;
-}
-
-export function starkwareGetStarkKey(): string {
-  const keyPair = starkwareGetKeyPair();
+export function starkwareGetStarkPubicKey(index?: number): string {
+  const keyPair = starkwareGetKeyPair(index);
   const publicKey = starkwareCrypto.getPublic(keyPair);
-  const starkKey = starkwareCrypto.getStarkKey(publicKey);
-  return starkKey;
-}
-
-export function starkwareGetAccounts(): string[] {
-  return [starkwareGetStarkKey()];
+  const starkPublicKey = starkwareCrypto.getStarkKey(publicKey);
+  return starkPublicKey;
 }
 
 export async function starkwareSign(msg: any) {
@@ -60,81 +70,108 @@ export async function starkwareVerify(msg: any, signature: any) {
   return starkwareCrypto.verify(keyPair, msg, signature);
 }
 
-export function starkwareGetRegisterMsg(etherKey: string, starkKey: string) {
+export function starkwareGetRegisterMsg(ethereumAddress: string, starkPublicKey: string) {
   return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [etherKey, starkKey]),
+    ethers.utils.defaultAbiCoder.encode(["address", "uint256"], [ethereumAddress, starkPublicKey]),
   );
 }
 
 // ------------------------- JSON-RPC Methods ------------------------- //
 
-export async function starkwareAccounts() {
-  const accounts = starkwareGetAccounts();
-  return { accounts };
+export async function starkwareAccount(
+  contractAddress: string,
+  index: number,
+): Promise<StarkAccountResult> {
+  const starkPublicKey = starkwareGetStarkPubicKey(index);
+  return { starkPublicKey };
 }
 
-export async function starkwareRegister(signature: string, contractAddress: string) {
-  const starkKey = starkwareGetStarkKey();
+export async function starkwareRegister(
+  contractAddress: string,
+  starkPublicKey: string,
+  operatorSignature: string,
+): Promise<StarkRegisterResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const { hash: txhash } = await exchangeContract.register(starkKey, signature);
+  const { hash: txhash } = await exchangeContract.register(starkPublicKey, operatorSignature);
   return { txhash };
 }
 
 export async function starkwareDeposit(
-  amount: string,
-  token: string,
-  vaultId: string,
   contractAddress: string,
-) {
-  const tokenContract = getERC20TokenContract(token);
-  const decimals = await tokenContract.decimals();
-  const quantizedAmount = convertAmountToRawNumber(amount, decimals);
+  starkPublicKey: string,
+  quantizedAmount: string,
+  token: Token,
+  vaultId: string,
+): Promise<StarkDepositResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  // TODO: research where to find vaultId
-  // @ts-ignore
-  const { hash: txhash } = await exchangeContract.deposit(token, vaultId, quantizedAmount);
+  const tokenId = token.data as any;
+  const { hash: txhash } = await exchangeContract.deposit(tokenId, vaultId, quantizedAmount);
   return { txhash };
 }
 
-export async function starkwareWithdraw(token: string, contractAddress: string) {
+export async function starkwareDepositCancel(
+  contractAddress: string,
+  starkPublicKey: string,
+  token: Token,
+  vaultId: string,
+): Promise<StarkDepositCancelResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  // @ts-ignore
-  const { hash: txhash } = await exchangeContract.withdraw(token);
+  const tokenId = token.data as any;
+  const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
   return { txhash };
 }
 
-export async function starkwareSignTransfer(
+export async function starkwareDepositReclaim(
+  contractAddress: string,
+  starkPublicKey: string,
+  token: Token,
+  vaultId: string,
+): Promise<StarkDepositReclaimResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const tokenId = token.data as any;
+  const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
+  return { txhash };
+}
+
+export async function starkwareTransfer(
   amount: string,
   nonce: string,
   senderVaultId: string,
-  token: string,
+  token: Token,
   receiverVaultId: string,
   receiverPublicKey: string,
   expirationTimestamp: string,
-) {
+): Promise<StarkTransferResult> {
+  const tokenId = token.data as any;
   const msg = starkwareCrypto.getTransferMsg(
     amount,
     nonce,
     senderVaultId,
-    token,
+    tokenId,
     receiverVaultId,
     receiverPublicKey,
     expirationTimestamp,
   );
-  const signature = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
-  return { signature };
+  const keyPair = starkwareGetKeyPair();
+  const signature = starkwareCrypto.sign(keyPair, msg);
+  const starkSignature = starkwareFormatSignature(signature);
+  return { starkSignature };
 }
 
-export async function starkwareSignCreateOrder(
-  vaultSell: string,
-  vaultBuy: string,
-  amountSell: string,
-  amountBuy: string,
-  tokenSell: string,
-  tokenBuy: string,
+export async function starkwareCreateOrder(
+  contractAddress: string,
+  starkPublicKey: string,
+  sell: OrderParams,
+  buy: OrderParams,
   nonce: string,
   expirationTimestamp: string,
-) {
+): Promise<StarkCreateOrderResult> {
+  const vaultSell = sell.vaultID;
+  const vaultBuy = buy.vaultID;
+  const amountSell = sell.quantizedAmount;
+  const amountBuy = buy.quantizedAmount;
+  const tokenSell = sell.token.data as any;
+  const tokenBuy = buy.token.data as any;
   const msg = starkwareCrypto.getLimitOrderMsg(
     vaultSell,
     vaultBuy,
@@ -145,15 +182,58 @@ export async function starkwareSignCreateOrder(
     nonce,
     expirationTimestamp,
   );
-  const signature = starkwareCrypto.sign(await starkwareGetKeyPair(), msg);
-  return { signature };
+  const keyPair = starkwareGetKeyPair();
+  const signature = starkwareCrypto.sign(keyPair, msg);
+  const starkSignature = starkwareFormatSignature(signature);
+  return { starkSignature };
+}
+
+export async function starkwareWithdrawal(
+  contractAddress: string,
+  token: Token,
+): Promise<StarkWithdrawalResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const { hash: txhash } = await exchangeContract.withdrawal(token);
+  return { txhash };
+}
+
+export async function starkwareFullWithdrawal(
+  contractAddress: string,
+  vaultId: string,
+): Promise<StarkFullWithdrawalResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const { hash: txhash } = await exchangeContract.fullWithdrawal(vaultId);
+  return { txhash };
+}
+
+export async function starkwareFreeze(
+  contractAddress: string,
+  vaultId: string,
+): Promise<StarkFreezeResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const { hash: txhash } = await exchangeContract.freeze(vaultId);
+  return { txhash };
+}
+
+export async function starkwareVerifyEscape(
+  contractAddress: string,
+  proof: string[],
+): Promise<StarkVerifyEscapeResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const { hash: txhash } = await exchangeContract.verifyEscape(proof);
+  return { txhash };
 }
 
 export const starkwareRpc = {
-  accounts: starkwareAccounts,
+  account: starkwareAccount,
   register: starkwareRegister,
   deposit: starkwareDeposit,
-  transfer: starkwareSignTransfer,
-  createOrder: starkwareSignCreateOrder,
-  withdraw: starkwareWithdraw,
+  depositCancel: starkwareDepositCancel,
+  depositReclaim: starkwareDepositReclaim,
+  transfer: starkwareTransfer,
+  createOrder: starkwareCreateOrder,
+  withdrawal: starkwareWithdrawal,
+  fullWithdrawal: starkwareFullWithdrawal,
+  freeze: starkwareFreeze,
+  verifyEscape: starkwareVerifyEscape,
 };

@@ -7,7 +7,7 @@ import RpcEngine from "./rpcEngine";
 import ethereum from "src/config/rpcEngine/ethereum";
 import starkware from "src/config/rpcEngine/starkware";
 
-import { starkwareGetStarkKey, starkwareGenerateKeyPair } from "./helpers/starkware";
+import { starkwareGetStarkPubicKey } from "./helpers/starkware";
 
 export const STARKWARE_SUPPORTED_CHAIN_IDS = [1, 3, 4];
 
@@ -29,9 +29,8 @@ const appConfig: IAppConfig = {
   rpcEngine: new RpcEngine([starkware, ethereum]),
   events: {
     init: async (state, setState) => {
-      starkwareGenerateKeyPair();
-      const starkKey = starkwareGetStarkKey();
-      console.log("starkKey", starkKey);
+      const starkPublicKey = starkwareGetStarkPubicKey();
+      console.log("starkPublicKey", starkPublicKey);
     },
     update: (state, setState) => Promise.resolve(),
   },
