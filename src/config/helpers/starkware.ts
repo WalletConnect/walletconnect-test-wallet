@@ -1,7 +1,7 @@
 import { ec } from "elliptic";
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
-import { getWallet, getWalletIndex } from "../../helpers/wallet";
+import { controllers } from "../../controllers";
 import StarkExchangeABI from "./contracts/StarkExchangeABI.json";
 import {
   StarkAccountResult,
@@ -35,7 +35,7 @@ interface IGeneratedStarkKeyPairs {
 export const generateStarkKeyPairs: IGeneratedStarkKeyPairs = {};
 
 export function starkwareGetExchangeContract(contractAddress: string) {
-  const provider = getWallet().provider;
+  const provider = controllers.wallet.getWallet().provider;
   return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
 }
 
@@ -44,12 +44,12 @@ export function starkwareFormatSignature(signature: ec.Signature) {
 }
 
 export function starkwareGetKeyPair(_index?: number): starkwareCrypto.KeyPair {
-  const index: number = typeof _index !== "undefined" ? _index : getWalletIndex();
+  const index: number = typeof _index !== "undefined" ? _index : controllers.wallet.getIndex();
   const match = generateStarkKeyPairs[index];
   if (match) {
     return match;
   }
-  const privateKey = getWallet(index).privateKey;
+  const privateKey = controllers.wallet.getWallet(index).privateKey;
   const starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
   return starkwareKeyPair;
 }

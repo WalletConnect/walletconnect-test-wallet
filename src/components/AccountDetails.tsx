@@ -1,11 +1,10 @@
 import * as React from "react";
 import styled from "styled-components";
 import Dropdown from "../components/Dropdown";
-import { ellipseAddress } from "src/helpers/utilities";
+import { IChainData } from "../helpers/types";
+import { ellipseAddress, getViewportDimensions } from "../helpers/utilities";
 import { responsive } from "../styles";
 import Blockie from "./Blockie";
-import { getViewportDimensions } from "../helpers/utilities";
-import { IChainData } from "src/helpers/types";
 
 const SSection = styled.div`
   width: 100%;

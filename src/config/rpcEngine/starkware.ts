@@ -1,6 +1,6 @@
 import { IRpcEngine } from "../../helpers/types";
 import { starkwareMethods, starkwareGetStarkPubicKey, starkwareRpc } from "../helpers/starkware";
-import { IAppState } from "src/App";
+import { IAppState } from "../../App";
 
 function filterStarkwareRequests(payload: any) {
   return starkwareMethods.includes(payload.method);

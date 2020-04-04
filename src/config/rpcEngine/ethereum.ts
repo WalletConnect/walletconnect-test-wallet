@@ -1,17 +1,10 @@
 import { signingMethods, convertHexToNumber } from "@walletconnect/utils";
 
 import { IAppState } from "../../App";
-import {
-  isWalletActive,
-  initWallet,
-  signPersonalMessage,
-  signMessage,
-  signTransaction,
-  sendTransaction,
-} from "../../helpers/wallet";
 import { apiGetCustomRequest } from "../../helpers/api";
 import { convertHexToUtf8IfPossible } from "../../helpers/utilities";
 import { IRequestRenderParams, IRpcEngine } from "../../helpers/types";
+import { controllers } from "../../controllers";
 
 export function filterEthereumRequests(payload: any) {
   return (
@@ -119,8 +112,8 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
   let result = null;
 
   if (connector) {
-    if (!isWalletActive()) {
-      await initWallet(activeIndex, chainId);
+    if (!controllers.wallet.isActive()) {
+      await controllers.wallet.init(activeIndex, chainId);
     }
 
     let transaction = null;
@@ -132,7 +125,7 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
         transaction = payload.params[0];
         addressRequested = transaction.from;
         if (address.toLowerCase() === addressRequested.toLowerCase()) {
-          result = await sendTransaction(transaction);
+          result = await controllers.wallet.sendTransaction(transaction);
         } else {
           errorMsg = "Address requested does not match active account";
         }
@@ -141,7 +134,7 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
         transaction = payload.params[0];
         addressRequested = transaction.from;
         if (address.toLowerCase() === addressRequested.toLowerCase()) {
-          result = await signTransaction(transaction);
+          result = await controllers.wallet.signTransaction(transaction);
         } else {
           errorMsg = "Address requested does not match active account";
         }
@@ -150,7 +143,7 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
         dataToSign = payload.params[1];
         addressRequested = payload.params[0];
         if (address.toLowerCase() === addressRequested.toLowerCase()) {
-          result = await signMessage(dataToSign);
+          result = await controllers.wallet.signMessage(dataToSign);
         } else {
           errorMsg = "Address requested does not match active account";
         }
@@ -159,7 +152,7 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
         dataToSign = payload.params[0];
         addressRequested = payload.params[1];
         if (address.toLowerCase() === addressRequested.toLowerCase()) {
-          result = await signPersonalMessage(dataToSign);
+          result = await controllers.wallet.signPersonalMessage(dataToSign);
         } else {
           errorMsg = "Address requested does not match active account";
         }
@@ -178,7 +171,7 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
       if (errorMsg) {
         message = errorMsg;
       }
-      if (!isWalletActive()) {
+      if (!controllers.wallet.isActive()) {
         message = "No Active Account";
       }
       connector.rejectRequest({

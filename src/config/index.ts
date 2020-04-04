@@ -4,8 +4,8 @@ import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "../helpers/constants";
 import supportedChains from "../helpers/chains";
 import { IAppConfig } from "../helpers/types";
 import RpcEngine from "./rpcEngine";
-import ethereum from "src/config/rpcEngine/ethereum";
-import starkware from "src/config/rpcEngine/starkware";
+import ethereum from "./rpcEngine/ethereum";
+import starkware from "./rpcEngine/starkware";
 
 import { starkwareGetStarkPubicKey } from "./helpers/starkware";
 
