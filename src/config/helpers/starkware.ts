@@ -17,6 +17,7 @@ import {
   StarkFreezeResult,
   StarkVerifyEscapeResult,
   StarkDepositReclaimResult,
+  TransferParams,
 } from "../typings";
 
 export const starkwareMethods = [
@@ -134,17 +135,20 @@ export async function starkwareDepositReclaim(
 }
 
 export async function starkwareTransfer(
-  amount: string,
-  nonce: string,
-  senderVaultId: string,
+  contractAddress: string,
+  from: TransferParams,
+  to: TransferParams,
   token: Token,
-  receiverVaultId: string,
-  receiverPublicKey: string,
+  quantizedAmount: string,
+  nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkTransferResult> {
   const tokenId = token.data as any;
+  const senderVaultId = from.vaultID;
+  const receiverVaultId = to.vaultID;
+  const receiverPublicKey = to.starkPublicKey;
   const msg = starkwareCrypto.getTransferMsg(
-    amount,
+    quantizedAmount,
     nonce,
     senderVaultId,
     tokenId,

@@ -74,35 +74,59 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
   const { id, method, params } = payload;
   switch (method) {
     case "stark_register":
-      // TODO: Display register screen
       connector.approveRequest({
         id,
-        result: await starkwareRpc.register(params.signature, params.contractAddress),
+        result: await starkwareRpc.register(
+          params.contractAddress,
+          params.StarkPublicKey,
+          params.operatorSignature,
+        ),
       });
       break;
     case "stark_deposit":
-      // TODO: Display deposit screen
       connector.approveRequest({
         id,
         result: await starkwareRpc.deposit(
-          params.amount,
-          params.token,
-          params.vaultdId,
           params.contractAddress,
+          params.StarkPublicKey,
+          params.quantizedAmount,
+          params.token,
+          params.vaultId,
+        ),
+      });
+      break;
+    case "stark_depositCancel":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.depositCancel(
+          params.contractAddress,
+          params.StarkPublicKey,
+          params.token,
+          params.vaultId,
+        ),
+      });
+      break;
+    case "stark_depositReclaim":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.depositReclaim(
+          params.contractAddress,
+          params.StarkPublicKey,
+          params.token,
+          params.vaultId,
         ),
       });
       break;
     case "stark_transfer":
-      // TODO: Display deposit screen
       connector.approveRequest({
         id,
         result: await starkwareRpc.transfer(
-          params.amount,
-          params.nonce,
-          params.senderVaultId,
+          params.contractAddress,
+          params.from,
+          params.to,
           params.token,
-          params.receiverVaultId,
-          params.receiverPublicKey,
+          params.quantizedAmount,
+          params.nonce,
           params.expirationTimestamp,
         ),
       });
@@ -111,21 +135,37 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       connector.approveRequest({
         id,
         result: await starkwareRpc.createOrder(
-          params.vaultSell,
-          params.vaultBuy,
-          params.amountSell,
-          params.amountBuy,
-          params.tokenSell,
-          params.tokenBuy,
+          params.contractAddress,
+          params.starkPublicKey,
+          params.sell,
+          params.buy,
           params.nonce,
           params.expirationTimestamp,
         ),
       });
       break;
-    case "stark_withdraw":
+    case "stark_withdrawal":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.withdraw(params.token, params.contractAddress),
+        result: await starkwareRpc.withdrawal(params.contractAddress, params.token),
+      });
+      break;
+    case "stark_fullWithdrawal":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.fullWithdrawal(params.contractAddress, params.vaultId),
+      });
+      break;
+    case "stark_freeze":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.freeze(params.contractAddress, params.vaultId),
+      });
+      break;
+    case "stark_verifyEscape":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.verifyEscape(params.contractAddress, params.proof),
       });
       break;
     default:
