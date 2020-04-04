@@ -8,8 +8,8 @@ import { createChannel } from "./helpers/connext";
 import supportedChains from "../helpers/chains";
 import { IAppConfig } from "../helpers/types";
 import RpcEngine from "./rpcEngine";
-import ethereum from "src/config/rpcEngine/ethereum";
-import connext from "src/config/rpcEngine/connext";
+import ethereum from "./rpcEngine/ethereum";
+import connext from "./rpcEngine/connext";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
 
