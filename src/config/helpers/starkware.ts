@@ -18,14 +18,24 @@ import {
   StarkVerifyEscapeResult,
   StarkDepositReclaimResult,
   TransferParams,
+  ERC20TokenData,
+  ERC721TokenData,
+  ETHTokenData,
 } from "../typings";
+import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
 
 export const starkwareMethods = [
   "stark_account",
   "stark_register",
   "stark_deposit",
-  "stark_sign",
-  "stark_withdraw",
+  "stark_depositCancel",
+  "stark_depositReclaim",
+  "stark_transfer",
+  "stark_createOrder",
+  "stark_withdrawal",
+  "stark_fullWithdrawal",
+  "stark_freeze",
+  "stark_verifyEscape",
 ];
 
 interface IGeneratedStarkKeyPairs {
@@ -41,6 +51,58 @@ export function starkwareGetExchangeContract(contractAddress: string) {
 
 export function starkwareFormatSignature(signature: ec.Signature) {
   return "0x" + signature.r.toString(16) + signature.s.toString(16);
+}
+
+export function starkwareFormatLabelPrefix(label: string, labelPrefix?: string) {
+  return labelPrefix ? `${labelPrefix} ${label}` : `${label}`;
+}
+
+export function starkwareFormatTokenLabel(token: Token, labelPrefix?: string) {
+  const label = starkwareFormatLabelPrefix("Asset", labelPrefix);
+  if (token.type === "ETH") {
+    return [{ label, value: "Ether" }];
+  } else if (token.type === "ERC20") {
+    return [
+      { label, value: "ERC20 Token" },
+      {
+        label: starkwareFormatLabelPrefix("Token Address", labelPrefix),
+        value: (token.data as ERC20TokenData).tokenAddress,
+      },
+    ];
+  } else if (token.type === "ERC721") {
+    return [
+      { label, value: "ERC721 NFT" },
+      {
+        label: starkwareFormatLabelPrefix("Token ID", labelPrefix),
+        value: (token.data as ERC721TokenData).tokenId,
+      },
+    ];
+  } else {
+    return [{ label, value: "Unknown" }];
+  }
+}
+
+export function starkwareFormatTokenAmount(quantizedAmount: string, token: Token) {
+  let amount = quantizedAmount;
+  const quantum = (token.data as ERC20TokenData | ETHTokenData).quantum || "0";
+  if (quantum) {
+    amount = convertAmountFromRawNumber(quantizedAmount, convertStringToNumber(quantum));
+  }
+  return amount;
+}
+
+export function starkwareFormatTokenAmountLabel(
+  quantizedAmount: string,
+  token: Token,
+  labelPrefix?: string,
+) {
+  return [
+    ...starkwareFormatTokenLabel(token),
+    {
+      label: starkwareFormatLabelPrefix("Amount", labelPrefix),
+      value: starkwareFormatTokenAmount(quantizedAmount, token),
+    },
+  ];
 }
 
 export function starkwareGetKeyPair(_index?: number): starkwareCrypto.KeyPair {

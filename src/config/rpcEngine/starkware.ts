@@ -1,5 +1,11 @@
 import { IRpcEngine } from "../../helpers/types";
-import { starkwareMethods, starkwareGetStarkPubicKey, starkwareRpc } from "../helpers/starkware";
+import {
+  starkwareMethods,
+  starkwareFormatTokenLabel,
+  starkwareGetStarkPubicKey,
+  starkwareRpc,
+  starkwareFormatTokenAmountLabel,
+} from "../helpers/starkware";
 import { IAppState } from "../../App";
 
 function filterStarkwareRequests(payload: any) {
@@ -10,60 +16,118 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
   if (!state.connector) {
     return;
   }
-  if (payload.method === "stark_account") {
-    state.connector.approveRequest({
-      id: payload.id,
-      result: await starkwareRpc.account(payload.params.contractAddress, payload.params.index),
-    });
-  } else {
-    const requests = state.requests;
-    requests.push(payload);
-    await setState({ requests });
+  const requests = state.requests;
+  const { id, method, params } = payload;
+  switch (method) {
+    case "stark_account":
+      state.connector.approveRequest({
+        id,
+        result: await starkwareRpc.account(params.contractAddress, params.index),
+      });
+      break;
+    default:
+      requests.push(payload);
+      await setState({ requests });
+      break;
   }
 }
 
 function renderStarkwareRequests(payload: any) {
-  let params = [{ label: "StarkPublicKey", value: starkwareGetStarkPubicKey() }];
+  const { params, method } = payload;
+  let renderParams = [
+    { label: "Method", value: payload.method },
+    {
+      label: "StarkPublicKey",
+      value: params.starkPublicKey || starkwareGetStarkPubicKey(),
+    },
+  ];
 
-  switch (payload.method) {
+  if (params.contractAddress) {
+    renderParams = [
+      ...renderParams,
+      {
+        label: "Contract Address",
+        value: params.contractAddress,
+      },
+    ];
+  }
+
+  switch (method) {
     case "stark_register":
-      params = [...params, { label: "Signature", value: payload.params.signature }];
+      renderParams = [
+        ...renderParams,
+        { label: "Operator Signature", value: params.operatorSignature },
+      ];
       break;
 
     case "stark_deposit":
-      params = [
-        ...params,
-        { label: "Token", value: payload.params.token },
-        { label: "Amount", value: payload.params.amount },
+      renderParams = [
+        ...renderParams,
+        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        {
+          label: "Vault ID",
+          value: params.vaultId,
+        },
+      ];
+      break;
+    case "stark_depositCancel":
+      renderParams = [
+        ...renderParams,
+        ...starkwareFormatTokenLabel(params.token),
+        {
+          label: "Vault ID",
+          value: params.vaultId,
+        },
+      ];
+      break;
+    case "stark_depositReclaim":
+      renderParams = [
+        ...renderParams,
+        ...starkwareFormatTokenLabel(params.token),
+        {
+          label: "Vault ID",
+          value: params.vaultId,
+        },
       ];
       break;
     case "stark_transfer":
-      params = [
-        ...params,
-        { label: "amount", value: payload.params.amount },
-        { label: "nonce", value: payload.params.nonce },
-        { label: "senderVaultId", value: payload.params.senderVaultId },
-        { label: "token", value: payload.params.token },
-        { label: "receiverVaultId", value: payload.params.receiverVaultId },
-        { label: "receiverPublicKey", value: payload.params.receiverPublicKey },
-        { label: "expirationTimestamp", value: payload.params.expirationTimestamp },
+      renderParams = [
+        ...renderParams,
+        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        { label: "Sender Vault ID", value: params.from.vaultId },
+        { label: "Receiver Vault ID", value: params.to.vaultId },
+        { label: "Receiver StarkPublicKey", value: params.to.starkPublicKey },
+        { label: "Nonce", value: params.nonce },
+        { label: "Expiration Timestamp", value: params.expirationTimestamp },
       ];
+      break;
+    case "stark_createOrder":
+      renderParams = [
+        ...renderParams,
+        { label: "Sell Vault ID", value: params.sell.vaultId },
+        ...starkwareFormatTokenAmountLabel(params.sell.quantizedAmount, params.sell.token, "Sell"),
+        { label: "Buy Vault ID", value: params.buy.vaultId },
+        ...starkwareFormatTokenAmountLabel(params.buy.quantizedAmount, params.buy.token, "Buy"),
+        { label: "Nonce", value: params.nonce },
+        { label: "Expiration Timestamp", value: params.expirationTimestamp },
+      ];
+      break;
+    case "stark_withdrawal":
+      renderParams = [...renderParams, ...starkwareFormatTokenLabel(params.token)];
+      break;
+    case "stark_fullWithdrawal":
+      renderParams = [...renderParams, { label: "Vault ID", value: params.vaultId }];
+      break;
+    case "stark_freeze":
+      renderParams = [...renderParams, { label: "Vault ID", value: params.vaultId }];
+      break;
+    case "stark_verifyEscape":
+      renderParams = [...renderParams, { label: "Proof", value: params.proof }];
       break;
     default:
-      params = [
-        ...params,
-        { label: "vaultSell", value: payload.params.vaultSell },
-        { label: "vaultBuy", value: payload.params.vaultBuy },
-        { label: "amountSell", value: payload.params.amountSell },
-        { label: "amountBuy", value: payload.params.amountBuy },
-        { label: "tokenSell", value: payload.params.tokenSell },
-        { label: "tokenBuy", value: payload.params.tokenBuy },
-        { label: "nonce", value: payload.params.nonce },
-        { label: "expirationTimestamp", value: payload.params.expirationTimestamp },
-      ];
       break;
   }
-  return params;
+  return renderParams;
 }
 
 async function signStarkwareRequests(payload: any, state: IAppState, setState: any) {
