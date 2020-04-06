@@ -8,8 +8,6 @@ import {
   StarkRegisterResult,
   StarkDepositResult,
   StarkDepositCancelResult,
-  Token,
-  OrderParams,
   StarkWithdrawalResult,
   StarkCreateOrderResult,
   StarkTransferResult,
@@ -17,10 +15,6 @@ import {
   StarkFreezeResult,
   StarkVerifyEscapeResult,
   StarkDepositReclaimResult,
-  TransferParams,
-  ERC20TokenData,
-  ERC721TokenData,
-  ETHTokenData,
 } from "../typings";
 import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
 
@@ -57,7 +51,7 @@ export function starkwareFormatLabelPrefix(label: string, labelPrefix?: string) 
   return labelPrefix ? `${labelPrefix} ${label}` : `${label}`;
 }
 
-export function starkwareFormatTokenLabel(token: Token, labelPrefix?: string) {
+export function starkwareFormatTokenLabel(token: starkwareCrypto.Token, labelPrefix?: string) {
   const label = starkwareFormatLabelPrefix("Asset", labelPrefix);
   if (token.type === "ETH") {
     return [{ label, value: "Ether" }];
@@ -66,7 +60,7 @@ export function starkwareFormatTokenLabel(token: Token, labelPrefix?: string) {
       { label, value: "ERC20 Token" },
       {
         label: starkwareFormatLabelPrefix("Token Address", labelPrefix),
-        value: (token.data as ERC20TokenData).tokenAddress,
+        value: (token.data as starkwareCrypto.ERC20TokenData).tokenAddress,
       },
     ];
   } else if (token.type === "ERC721") {
@@ -74,7 +68,7 @@ export function starkwareFormatTokenLabel(token: Token, labelPrefix?: string) {
       { label, value: "ERC721 NFT" },
       {
         label: starkwareFormatLabelPrefix("Token ID", labelPrefix),
-        value: (token.data as ERC721TokenData).tokenId,
+        value: (token.data as starkwareCrypto.ERC721TokenData).tokenId,
       },
     ];
   } else {
@@ -82,9 +76,10 @@ export function starkwareFormatTokenLabel(token: Token, labelPrefix?: string) {
   }
 }
 
-export function starkwareFormatTokenAmount(quantizedAmount: string, token: Token) {
+export function starkwareFormatTokenAmount(quantizedAmount: string, token: starkwareCrypto.Token) {
   let amount = quantizedAmount;
-  const quantum = (token.data as ERC20TokenData | ETHTokenData).quantum || "0";
+  const quantum =
+    (token.data as starkwareCrypto.ERC20TokenData | starkwareCrypto.ETHTokenData).quantum || "0";
   if (quantum) {
     amount = convertAmountFromRawNumber(quantizedAmount, convertStringToNumber(quantum));
   }
@@ -93,7 +88,7 @@ export function starkwareFormatTokenAmount(quantizedAmount: string, token: Token
 
 export function starkwareFormatTokenAmountLabel(
   quantizedAmount: string,
-  token: Token,
+  token: starkwareCrypto.Token,
   labelPrefix?: string,
 ) {
   return [
@@ -163,11 +158,11 @@ export async function starkwareDeposit(
   contractAddress: string,
   starkPublicKey: string,
   quantizedAmount: string,
-  token: Token,
+  token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const tokenId = token.data as any;
+  const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.deposit(tokenId, vaultId, quantizedAmount);
   return { txhash };
 }
@@ -175,11 +170,11 @@ export async function starkwareDeposit(
 export async function starkwareDepositCancel(
   contractAddress: string,
   starkPublicKey: string,
-  token: Token,
+  token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositCancelResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const tokenId = token.data as any;
+  const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
   return { txhash };
 }
@@ -187,25 +182,24 @@ export async function starkwareDepositCancel(
 export async function starkwareDepositReclaim(
   contractAddress: string,
   starkPublicKey: string,
-  token: Token,
+  token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositReclaimResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const tokenId = token.data as any;
+  const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
   return { txhash };
 }
 
 export async function starkwareTransfer(
   contractAddress: string,
-  from: TransferParams,
-  to: TransferParams,
-  token: Token,
+  from: starkwareCrypto.TransferParams,
+  to: starkwareCrypto.TransferParams,
+  token: starkwareCrypto.Token,
   quantizedAmount: string,
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkTransferResult> {
-  const tokenId = token.data as any;
   const senderVaultId = from.vaultID;
   const receiverVaultId = to.vaultID;
   const receiverPublicKey = to.starkPublicKey;
@@ -213,7 +207,7 @@ export async function starkwareTransfer(
     quantizedAmount,
     nonce,
     senderVaultId,
-    tokenId,
+    token,
     receiverVaultId,
     receiverPublicKey,
     expirationTimestamp,
@@ -227,8 +221,8 @@ export async function starkwareTransfer(
 export async function starkwareCreateOrder(
   contractAddress: string,
   starkPublicKey: string,
-  sell: OrderParams,
-  buy: OrderParams,
+  sell: starkwareCrypto.OrderParams,
+  buy: starkwareCrypto.OrderParams,
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkCreateOrderResult> {
@@ -236,8 +230,8 @@ export async function starkwareCreateOrder(
   const vaultBuy = buy.vaultID;
   const amountSell = sell.quantizedAmount;
   const amountBuy = buy.quantizedAmount;
-  const tokenSell = sell.token.data as any;
-  const tokenBuy = buy.token.data as any;
+  const tokenSell = sell.token;
+  const tokenBuy = buy.token;
   const msg = starkwareCrypto.getLimitOrderMsg(
     vaultSell,
     vaultBuy,
@@ -256,7 +250,7 @@ export async function starkwareCreateOrder(
 
 export async function starkwareWithdrawal(
   contractAddress: string,
-  token: Token,
+  token: starkwareCrypto.Token,
 ): Promise<StarkWithdrawalResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const { hash: txhash } = await exchangeContract.withdrawal(token);
