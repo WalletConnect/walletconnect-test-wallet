@@ -65,7 +65,7 @@ function renderStarkwareRequests(payload: any) {
         ...renderParams,
         ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
         {
-          label: "Vault ID",
+          label: "Vault Id",
           value: params.vaultId,
         },
       ];
@@ -75,7 +75,7 @@ function renderStarkwareRequests(payload: any) {
         ...renderParams,
         ...starkwareFormatTokenLabel(params.token),
         {
-          label: "Vault ID",
+          label: "Vault Id",
           value: params.vaultId,
         },
       ];
@@ -85,7 +85,7 @@ function renderStarkwareRequests(payload: any) {
         ...renderParams,
         ...starkwareFormatTokenLabel(params.token),
         {
-          label: "Vault ID",
+          label: "Vault Id",
           value: params.vaultId,
         },
       ];
@@ -94,8 +94,8 @@ function renderStarkwareRequests(payload: any) {
       renderParams = [
         ...renderParams,
         ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
-        { label: "Sender Vault ID", value: params.from.vaultId },
-        { label: "Receiver Vault ID", value: params.to.vaultId },
+        { label: "Sender Vault Id", value: params.from.vaultId },
+        { label: "Receiver Vault Id", value: params.to.vaultId },
         { label: "Receiver StarkPublicKey", value: params.to.starkPublicKey },
         { label: "Nonce", value: params.nonce },
         { label: "Expiration Timestamp", value: params.expirationTimestamp },
@@ -104,9 +104,9 @@ function renderStarkwareRequests(payload: any) {
     case "stark_createOrder":
       renderParams = [
         ...renderParams,
-        { label: "Sell Vault ID", value: params.sell.vaultId },
+        { label: "Sell Vault Id", value: params.sell.vaultId },
         ...starkwareFormatTokenAmountLabel(params.sell.quantizedAmount, params.sell.token, "Sell"),
-        { label: "Buy Vault ID", value: params.buy.vaultId },
+        { label: "Buy Vault Id", value: params.buy.vaultId },
         ...starkwareFormatTokenAmountLabel(params.buy.quantizedAmount, params.buy.token, "Buy"),
         { label: "Nonce", value: params.nonce },
         { label: "Expiration Timestamp", value: params.expirationTimestamp },
@@ -116,13 +116,23 @@ function renderStarkwareRequests(payload: any) {
       renderParams = [...renderParams, ...starkwareFormatTokenLabel(params.token)];
       break;
     case "stark_fullWithdrawal":
-      renderParams = [...renderParams, { label: "Vault ID", value: params.vaultId }];
+      renderParams = [...renderParams, { label: "Vault Id", value: params.vaultId }];
       break;
     case "stark_freeze":
-      renderParams = [...renderParams, { label: "Vault ID", value: params.vaultId }];
+      renderParams = [...renderParams, { label: "Vault Id", value: params.vaultId }];
       break;
     case "stark_verifyEscape":
       renderParams = [...renderParams, { label: "Proof", value: params.proof }];
+      break;
+    case "stark_escape":
+      renderParams = [
+        ...renderParams,
+        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        {
+          label: "Vault Id",
+          value: params.vaultId,
+        },
+      ];
       break;
     default:
       break;
@@ -230,6 +240,18 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
       connector.approveRequest({
         id,
         result: await starkwareRpc.verifyEscape(params.contractAddress, params.proof),
+      });
+      break;
+    case "stark_escape":
+      connector.approveRequest({
+        id,
+        result: await starkwareRpc.escape(
+          params.contractAddress,
+          params.starkPublicKey,
+          params.vaultId,
+          params.token,
+          params.quantizedAmount,
+        ),
       });
       break;
     default:

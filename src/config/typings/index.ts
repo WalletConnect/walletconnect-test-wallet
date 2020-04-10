@@ -41,3 +41,7 @@ export interface StarkFreezeResult {
 export interface StarkVerifyEscapeResult {
   txhash: string;
 }
+
+export interface StarkEscapeResult {
+  txhash: string;
+}

@@ -8,13 +8,14 @@ import {
   StarkRegisterResult,
   StarkDepositResult,
   StarkDepositCancelResult,
-  StarkWithdrawalResult,
-  StarkCreateOrderResult,
+  StarkDepositReclaimResult,
   StarkTransferResult,
+  StarkCreateOrderResult,
+  StarkWithdrawalResult,
   StarkFullWithdrawalResult,
   StarkFreezeResult,
   StarkVerifyEscapeResult,
-  StarkDepositReclaimResult,
+  StarkEscapeResult,
 } from "../typings";
 import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
 
@@ -30,6 +31,7 @@ export const starkwareMethods = [
   "stark_fullWithdrawal",
   "stark_freeze",
   "stark_verifyEscape",
+  "stark_escape",
 ];
 
 interface IGeneratedStarkKeyPairs {
@@ -187,7 +189,7 @@ export async function starkwareDepositReclaim(
 ): Promise<StarkDepositReclaimResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const tokenId = starkwareCrypto.hashTokenId(token);
-  const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
+  const { hash: txhash } = await exchangeContract.depositReclaim(tokenId, vaultId);
   return { txhash };
 }
 
@@ -200,8 +202,8 @@ export async function starkwareTransfer(
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkTransferResult> {
-  const senderVaultId = from.vaultID;
-  const receiverVaultId = to.vaultID;
+  const senderVaultId = from.vaultId;
+  const receiverVaultId = to.vaultId;
   const receiverPublicKey = to.starkPublicKey;
   const msg = starkwareCrypto.getTransferMsg(
     quantizedAmount,
@@ -226,8 +228,8 @@ export async function starkwareCreateOrder(
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkCreateOrderResult> {
-  const vaultSell = sell.vaultID;
-  const vaultBuy = buy.vaultID;
+  const vaultSell = sell.vaultId;
+  const vaultBuy = buy.vaultId;
   const amountSell = sell.quantizedAmount;
   const amountBuy = buy.quantizedAmount;
   const tokenSell = sell.token;
@@ -253,7 +255,8 @@ export async function starkwareWithdrawal(
   token: starkwareCrypto.Token,
 ): Promise<StarkWithdrawalResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const { hash: txhash } = await exchangeContract.withdrawal(token);
+  const tokenId = starkwareCrypto.hashTokenId(token);
+  const { hash: txhash } = await exchangeContract.withdraw(tokenId);
   return { txhash };
 }
 
@@ -262,7 +265,7 @@ export async function starkwareFullWithdrawal(
   vaultId: string,
 ): Promise<StarkFullWithdrawalResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const { hash: txhash } = await exchangeContract.fullWithdrawal(vaultId);
+  const { hash: txhash } = await exchangeContract.fullWithdrawalRequest(vaultId);
   return { txhash };
 }
 
@@ -271,7 +274,7 @@ export async function starkwareFreeze(
   vaultId: string,
 ): Promise<StarkFreezeResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
-  const { hash: txhash } = await exchangeContract.freeze(vaultId);
+  const { hash: txhash } = await exchangeContract.freezeRequest(vaultId);
   return { txhash };
 }
 
@@ -281,6 +284,24 @@ export async function starkwareVerifyEscape(
 ): Promise<StarkVerifyEscapeResult> {
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const { hash: txhash } = await exchangeContract.verifyEscape(proof);
+  return { txhash };
+}
+
+export async function starkwareEscape(
+  contractAddress: string,
+  starkPublicKey: string,
+  vaultId: string,
+  token: starkwareCrypto.Token,
+  quantizedAmount: string,
+): Promise<StarkEscapeResult> {
+  const exchangeContract = starkwareGetExchangeContract(contractAddress);
+  const tokenId = starkwareCrypto.hashTokenId(token);
+  const { hash: txhash } = await exchangeContract.escape(
+    starkPublicKey,
+    vaultId,
+    tokenId,
+    quantizedAmount,
+  );
   return { txhash };
 }
 
@@ -296,4 +317,5 @@ export const starkwareRpc = {
   fullWithdrawal: starkwareFullWithdrawal,
   freeze: starkwareFreeze,
   verifyEscape: starkwareVerifyEscape,
+  escape: starkwareEscape,
 };
