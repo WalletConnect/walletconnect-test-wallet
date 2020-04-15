@@ -6,7 +6,6 @@ import {
   MNEMONIC_KEY,
   DEFAULT_ACTIVE_INDEX,
   DEFAULT_CHAIN_ID,
-  ETH_STANDARD_PATH,
 } from "../helpers/constants";
 import { getAppConfig } from "../config";
 
@@ -73,8 +72,7 @@ export class WalletController {
   }
 
   public getPath(index: number = this.activeIndex) {
-    const derivationPath = getAppConfig()?.derivationPath || ETH_STANDARD_PATH;
-    this.path = `${derivationPath}/${index}`;
+    this.path = `${getAppConfig().derivationPath}/${index}`;
     return this.path;
   }
 

@@ -13,7 +13,7 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
 import { getCachedSession } from "./helpers/utilities";
-import { controllers } from "./controllers";
+import { getAppControllers } from "./controllers";
 import { getAppConfig } from "./config";
 
 const SContainer = styled.div`
@@ -49,6 +49,7 @@ const SContent = styled.div`
 const SLogo = styled.div`
   padding: 10px 0;
   display: flex;
+  max-height: 100px;
   & img {
     width: 100%;
   }
@@ -126,7 +127,7 @@ export interface IAppState {
   payload: any;
 }
 
-export const DEFAULT_ACCOUNTS = controllers.wallet.getAccounts();
+export const DEFAULT_ACCOUNTS = getAppControllers().wallet.getAccounts();
 export const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
 export const INITIAL_STATE: IAppState = {
@@ -170,7 +171,7 @@ class App extends React.Component<{}> {
     const session = getCachedSession();
 
     if (!session) {
-      await controllers.wallet.init(activeIndex, chainId);
+      await getAppControllers().wallet.init(activeIndex, chainId);
     } else {
       const connector = new WalletConnect({ session });
 
@@ -181,7 +182,7 @@ class App extends React.Component<{}> {
       activeIndex = accounts.indexOf(address);
       chainId = connector.chainId;
 
-      await controllers.wallet.init(activeIndex, chainId);
+      await getAppControllers().wallet.init(activeIndex, chainId);
 
       await this.setState({
         connected,
@@ -317,7 +318,7 @@ class App extends React.Component<{}> {
         const { chainId, accounts } = connector;
         const index = 0;
         const address = accounts[index];
-        controllers.wallet.update(index, chainId);
+        getAppControllers().wallet.update(index, chainId);
         this.setState({
           connected: true,
           address,
@@ -347,7 +348,7 @@ class App extends React.Component<{}> {
       activeIndex: newActiveIndex,
       chainId: newChainId,
     });
-    await controllers.wallet.update(newActiveIndex, newChainId);
+    await getAppControllers().wallet.update(newActiveIndex, newChainId);
     await getAppConfig().events.update(this.state, this.bindedSetState);
   };
 
