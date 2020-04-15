@@ -10,12 +10,20 @@ import {
 import appConfig from "../config";
 
 export class WalletController {
-  public path: string | null = null;
-  public entropy: string | null = null;
-  public mnemonic: string | null = null;
+  public path: string;
+  public entropy: string;
+  public mnemonic: string;
+  public wallet: ethers.Wallet;
+
   public activeIndex: number = DEFAULT_ACTIVE_INDEX;
   public activeChainId: number = DEFAULT_CHAIN_ID;
-  public wallet: ethers.Wallet | null = null;
+
+  constructor() {
+    this.path = this.getPath();
+    this.entropy = this.getEntropy();
+    this.mnemonic = this.getMnemonic();
+    this.wallet = this.init();
+  }
 
   public isActive() {
     if (!this.wallet) {
@@ -63,7 +71,7 @@ export class WalletController {
     return value;
   }
 
-  public generatePath(index: number) {
+  public getPath(index: number = this.activeIndex) {
     this.path = `${appConfig.derivationPath}/${index}`;
     return this.path;
   }
@@ -79,7 +87,7 @@ export class WalletController {
   }
 
   public generateWallet(index: number) {
-    this.wallet = ethers.Wallet.fromMnemonic(this.getMnemonic(), this.generatePath(index));
+    this.wallet = ethers.Wallet.fromMnemonic(this.getMnemonic(), this.getPath(index));
     return this.wallet;
   }
 
