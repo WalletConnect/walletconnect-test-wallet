@@ -539,7 +539,7 @@ class App extends React.Component<{}> {
                 <RequestDisplay
                   payload={payload}
                   peerMeta={peerMeta}
-                  renderPayload={getAppConfig().rpcEngine.render}
+                  renderPayload={(payload: any) => getAppConfig().rpcEngine.render(payload)}
                   approveRequest={this.approveRequest}
                   rejectRequest={this.rejectRequest}
                 />
