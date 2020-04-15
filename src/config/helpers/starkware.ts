@@ -1,7 +1,7 @@
 import { ec } from "elliptic";
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
-import { controllers } from "../../controllers";
+import { getAppControllers } from "../../controllers";
 import StarkExchangeABI from "./contracts/StarkExchangeABI.json";
 import {
   StarkAccountResult,
@@ -45,7 +45,7 @@ const generateStarkKeyPairs: IGeneratedStarkKeyPairs =
 let activeKeyPair: starkwareCrypto.KeyPair;
 
 export function starkwareGetExchangeContract(contractAddress: string) {
-  const provider = controllers.wallet.getWallet().provider;
+  const provider = getAppControllers().wallet.getWallet().provider;
   return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
 }
 
@@ -118,7 +118,7 @@ export function starkwareGetKeyPair(path?: string): starkwareCrypto.KeyPair {
   if (match) {
     return match;
   }
-  activeKeyPair = starkwareCrypto.getKeyPairFromPath(controllers.wallet.mnemonic, path);
+  activeKeyPair = starkwareCrypto.getKeyPairFromPath(getAppControllers().wallet.mnemonic, path);
   generateStarkKeyPairs[path] = activeKeyPair;
   setLocal(STARKWARE_ACCOUNT_MAPPING_KEY, generateStarkKeyPairs);
   return activeKeyPair;

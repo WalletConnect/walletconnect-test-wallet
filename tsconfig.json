@@ -20,7 +20,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true // TODO: remove temporary fix
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",

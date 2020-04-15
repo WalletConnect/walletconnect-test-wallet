@@ -7,8 +7,6 @@ import RpcEngine from "./rpcEngine";
 import ethereum from "./rpcEngine/ethereum";
 import starkware from "./rpcEngine/starkware";
 
-import { starkwareGetStarkPublicKey } from "./helpers/starkware";
-
 export const STARKWARE_SUPPORTED_CHAIN_IDS = [1, 3, 4];
 
 const appConfig: IAppConfig = {
