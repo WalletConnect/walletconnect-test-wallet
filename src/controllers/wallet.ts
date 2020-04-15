@@ -7,7 +7,7 @@ import {
   DEFAULT_ACTIVE_INDEX,
   DEFAULT_CHAIN_ID,
 } from "../helpers/constants";
-import appConfig from "../config";
+import { getAppConfig } from "../config";
 
 export class WalletController {
   public path: string;
@@ -43,7 +43,7 @@ export class WalletController {
     return this.wallet;
   }
 
-  public getAccounts(count = appConfig.numberOfAccounts) {
+  public getAccounts(count = getAppConfig().numberOfAccounts) {
     const accounts = [];
     let wallet = null;
     for (let i = 0; i < count; i++) {
@@ -72,7 +72,7 @@ export class WalletController {
   }
 
   public getPath(index: number = this.activeIndex) {
-    this.path = `${appConfig.derivationPath}/${index}`;
+    this.path = `${getAppConfig().derivationPath}/${index}`;
     return this.path;
   }
 

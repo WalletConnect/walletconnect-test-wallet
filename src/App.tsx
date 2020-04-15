@@ -13,8 +13,8 @@ import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
 import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
 import { getCachedSession } from "./helpers/utilities";
-import { controllers } from "./controllers";
-import appConfig from "./config";
+import { getAppControllers } from "./controllers";
+import { getAppConfig } from "./config";
 
 const SContainer = styled.div`
   display: flex;
@@ -49,6 +49,7 @@ const SContent = styled.div`
 const SLogo = styled.div`
   padding: 10px 0;
   display: flex;
+  max-height: 100px;
   & img {
     width: 100%;
   }
@@ -126,7 +127,7 @@ export interface IAppState {
   payload: any;
 }
 
-export const DEFAULT_ACCOUNTS = controllers.wallet.getAccounts();
+export const DEFAULT_ACCOUNTS = getAppControllers().wallet.getAccounts();
 export const DEFAULT_ADDRESS = DEFAULT_ACCOUNTS[DEFAULT_ACTIVE_INDEX];
 
 export const INITIAL_STATE: IAppState = {
@@ -142,7 +143,7 @@ export const INITIAL_STATE: IAppState = {
     ssl: false,
   },
   connected: false,
-  chainId: appConfig.chainId || DEFAULT_CHAIN_ID,
+  chainId: getAppConfig().chainId || DEFAULT_CHAIN_ID,
   accounts: DEFAULT_ACCOUNTS,
   address: DEFAULT_ADDRESS,
   activeIndex: DEFAULT_ACTIVE_INDEX,
@@ -170,7 +171,7 @@ class App extends React.Component<{}> {
     const session = getCachedSession();
 
     if (!session) {
-      await controllers.wallet.init(activeIndex, chainId);
+      await getAppControllers().wallet.init(activeIndex, chainId);
     } else {
       const connector = new WalletConnect({ session });
 
@@ -181,7 +182,7 @@ class App extends React.Component<{}> {
       activeIndex = accounts.indexOf(address);
       chainId = connector.chainId;
 
-      await controllers.wallet.init(activeIndex, chainId);
+      await getAppControllers().wallet.init(activeIndex, chainId);
 
       await this.setState({
         connected,
@@ -195,7 +196,7 @@ class App extends React.Component<{}> {
 
       this.subscribeToEvents();
     }
-    await appConfig.events.init(this.state, this.bindedSetState);
+    await getAppConfig().events.init(this.state, this.bindedSetState);
   };
 
   public bindedSetState = (newState: Partial<IAppState>) => this.setState(newState);
@@ -290,7 +291,7 @@ class App extends React.Component<{}> {
           throw error;
         }
 
-        await appConfig.rpcEngine.router(payload, this.state, this.bindedSetState);
+        await getAppConfig().rpcEngine.router(payload, this.state, this.bindedSetState);
       });
 
       connector.on("connect", (error, payload) => {
@@ -317,7 +318,7 @@ class App extends React.Component<{}> {
         const { chainId, accounts } = connector;
         const index = 0;
         const address = accounts[index];
-        controllers.wallet.update(index, chainId);
+        getAppControllers().wallet.update(index, chainId);
         this.setState({
           connected: true,
           address,
@@ -347,8 +348,8 @@ class App extends React.Component<{}> {
       activeIndex: newActiveIndex,
       chainId: newChainId,
     });
-    await controllers.wallet.update(newActiveIndex, newChainId);
-    await appConfig.events.update(this.state, this.bindedSetState);
+    await getAppControllers().wallet.update(newActiveIndex, newChainId);
+    await getAppConfig().events.update(this.state, this.bindedSetState);
   };
 
   public updateChain = async (chainId: number | string) => {
@@ -417,7 +418,7 @@ class App extends React.Component<{}> {
     const { connector, payload } = this.state;
 
     try {
-      await appConfig.rpcEngine.signer(payload, this.state, this.bindedSetState);
+      await getAppConfig().rpcEngine.signer(payload, this.state, this.bindedSetState);
     } catch (error) {
       console.error(error);
       if (connector) {
@@ -468,7 +469,7 @@ class App extends React.Component<{}> {
           <SContent>
             <Card maxWidth={400}>
               <SLogo>
-                <img src={appConfig.logo} alt={appConfig.name} />
+                <img src={getAppConfig().logo} alt={getAppConfig().name} />
               </SLogo>
               {!connected ? (
                 peerMeta && peerMeta.name ? (
@@ -482,7 +483,7 @@ class App extends React.Component<{}> {
                 ) : (
                   <Column>
                     <AccountDetails
-                      chains={appConfig.chains}
+                      chains={getAppConfig().chains}
                       address={address}
                       activeIndex={activeIndex}
                       chainId={chainId}
@@ -492,7 +493,7 @@ class App extends React.Component<{}> {
                     />
                     <SActionsColumn>
                       <SButton onClick={this.toggleScanner}>{`Scan`}</SButton>
-                      {appConfig.styleOpts.showPasteUri && (
+                      {getAppConfig().styleOpts.showPasteUri && (
                         <>
                           <p>{"OR"}</p>
                           <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
@@ -504,7 +505,7 @@ class App extends React.Component<{}> {
               ) : !payload ? (
                 <Column>
                   <AccountDetails
-                    chains={appConfig.chains}
+                    chains={getAppConfig().chains}
                     address={address}
                     activeIndex={activeIndex}
                     chainId={chainId}
@@ -538,6 +539,7 @@ class App extends React.Component<{}> {
                 <RequestDisplay
                   payload={payload}
                   peerMeta={peerMeta}
+                  renderPayload={getAppConfig().rpcEngine.render}
                   approveRequest={this.approveRequest}
                   rejectRequest={this.rejectRequest}
                 />
@@ -553,7 +555,7 @@ class App extends React.Component<{}> {
             />
           )}
         </SContainer>
-        {appConfig.styleOpts.showVersion && (
+        {getAppConfig().styleOpts.showVersion && (
           <SVersionNumber>{`v${process.env.REACT_APP_VERSION}`} </SVersionNumber>
         )}
       </React.Fragment>
