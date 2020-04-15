@@ -33,4 +33,6 @@ const appConfig: IAppConfig = {
   },
 };
 
-export default appConfig;
+export function getAppConfig(): IAppConfig {
+  return appConfig;
+}
