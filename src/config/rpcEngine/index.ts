@@ -28,7 +28,6 @@ class RpcEngine implements IRpcEngine {
   }
 
   private getEngine(payload: any) {
-    console.log("this.engines", this.engines);
     const match = this.engines.filter(engine => engine.filter(payload));
     if (!match || !match.length) {
       throw new Error(`No RPC Engine found to handle payload with method ${payload.method}`);
