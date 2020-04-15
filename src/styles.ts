@@ -1,4 +1,4 @@
-import appConfig from "./config";
+import { getAppConfig } from "./config";
 
 export const baseColors = {
   white: "255, 255, 255",
@@ -19,7 +19,7 @@ export const baseColors = {
 
 export const colors = {
   ...baseColors,
-  ...appConfig.colors,
+  ...getAppConfig().colors,
 };
 
 export const fonts = {
