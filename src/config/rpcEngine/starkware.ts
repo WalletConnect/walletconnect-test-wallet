@@ -2,7 +2,7 @@ import { IRpcEngine } from "../../helpers/types";
 import {
   starkwareMethods,
   starkwareFormatTokenLabel,
-  starkwareGetStarkPubicKey,
+  starkwareGetStarkPublicKey,
   starkwareRpc,
   starkwareFormatTokenAmountLabel,
 } from "../helpers/starkware";
@@ -22,7 +22,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
     case "stark_account":
       state.connector.approveRequest({
         id,
-        result: await starkwareRpc.account(params.contractAddress, params.index),
+        result: await starkwareRpc.account(params.path),
       });
       break;
     default:
@@ -38,7 +38,7 @@ function renderStarkwareRequests(payload: any) {
     { label: "Method", value: payload.method },
     {
       label: "StarkPublicKey",
-      value: params.starkPublicKey || starkwareGetStarkPubicKey(),
+      value: params.starkPublicKey || starkwareGetStarkPublicKey(),
     },
   ];
 

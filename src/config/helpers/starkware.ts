@@ -18,6 +18,7 @@ import {
   StarkEscapeResult,
 } from "../typings";
 import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
+import { getLocal, setLocal } from "src/helpers/local";
 
 export const starkwareMethods = [
   "stark_account",
@@ -35,10 +36,13 @@ export const starkwareMethods = [
 ];
 
 interface IGeneratedStarkKeyPairs {
-  [index: number]: starkwareCrypto.KeyPair;
+  [path: string]: starkwareCrypto.KeyPair;
 }
+const STARKWARE_ACCOUNT_MAPPING_KEY = "STARKWARE_ACCOUNT_MAPPING";
+const generateStarkKeyPairs: IGeneratedStarkKeyPairs =
+  getLocal(STARKWARE_ACCOUNT_MAPPING_KEY) || {};
 
-export const generateStarkKeyPairs: IGeneratedStarkKeyPairs = {};
+let activeKeyPair: starkwareCrypto.KeyPair;
 
 export function starkwareGetExchangeContract(contractAddress: string) {
   const provider = controllers.wallet.getWallet().provider;
@@ -102,19 +106,26 @@ export function starkwareFormatTokenAmountLabel(
   ];
 }
 
-export function starkwareGetKeyPair(_index?: number): starkwareCrypto.KeyPair {
-  const index: number = typeof _index !== "undefined" ? _index : controllers.wallet.getIndex();
-  const match = generateStarkKeyPairs[index];
+export function starkwareGetKeyPair(path?: string): starkwareCrypto.KeyPair {
+  if (!path) {
+    if (activeKeyPair) {
+      return activeKeyPair;
+    } else {
+      throw new Error("No Active Starkware KeyPair");
+    }
+  }
+  const match = generateStarkKeyPairs[path];
   if (match) {
     return match;
   }
-  const privateKey = controllers.wallet.getWallet(index).privateKey;
-  const starkwareKeyPair = starkwareCrypto.getKeyPair(privateKey);
-  return starkwareKeyPair;
+  activeKeyPair = starkwareCrypto.getKeyPairFromPath(controllers.wallet.mnemonic, path);
+  generateStarkKeyPairs[path] = activeKeyPair;
+  setLocal(STARKWARE_ACCOUNT_MAPPING_KEY, generateStarkKeyPairs);
+  return activeKeyPair;
 }
 
-export function starkwareGetStarkPubicKey(index?: number): string {
-  const keyPair = starkwareGetKeyPair(index);
+export function starkwareGetStarkPublicKey(path?: string): string {
+  const keyPair = starkwareGetKeyPair(path);
   const publicKey = starkwareCrypto.getPublic(keyPair);
   const starkPublicKey = starkwareCrypto.getStarkKey(publicKey);
   return starkPublicKey;
@@ -136,13 +147,14 @@ export function starkwareGetRegisterMsg(ethereumAddress: string, starkPublicKey:
   );
 }
 
+export function starkwareAssertStarkPublicKey(starkPublicKey: string) {
+  starkwareAssertStarkPublicKey(starkPublicKey);
+}
+
 // ------------------------- JSON-RPC Methods ------------------------- //
 
-export async function starkwareAccount(
-  contractAddress: string,
-  index: number,
-): Promise<StarkAccountResult> {
-  const starkPublicKey = starkwareGetStarkPubicKey(index);
+export async function starkwareAccount(path: string): Promise<StarkAccountResult> {
+  const starkPublicKey = starkwareGetStarkPublicKey(path);
   return { starkPublicKey };
 }
 
@@ -163,6 +175,7 @@ export async function starkwareDeposit(
   token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositResult> {
+  starkwareAssertStarkPublicKey(starkPublicKey);
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.deposit(tokenId, vaultId, quantizedAmount);
@@ -175,6 +188,7 @@ export async function starkwareDepositCancel(
   token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositCancelResult> {
+  starkwareAssertStarkPublicKey(starkPublicKey);
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.depositCancel(tokenId, vaultId);
@@ -187,6 +201,7 @@ export async function starkwareDepositReclaim(
   token: starkwareCrypto.Token,
   vaultId: string,
 ): Promise<StarkDepositReclaimResult> {
+  starkwareAssertStarkPublicKey(starkPublicKey);
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.depositReclaim(tokenId, vaultId);
@@ -202,6 +217,7 @@ export async function starkwareTransfer(
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkTransferResult> {
+  starkwareAssertStarkPublicKey(from.starkPublicKey);
   const senderVaultId = from.vaultId;
   const receiverVaultId = to.vaultId;
   const receiverPublicKey = to.starkPublicKey;
@@ -228,6 +244,7 @@ export async function starkwareCreateOrder(
   nonce: string,
   expirationTimestamp: string,
 ): Promise<StarkCreateOrderResult> {
+  starkwareAssertStarkPublicKey(starkPublicKey);
   const vaultSell = sell.vaultId;
   const vaultBuy = buy.vaultId;
   const amountSell = sell.quantizedAmount;
@@ -294,6 +311,7 @@ export async function starkwareEscape(
   token: starkwareCrypto.Token,
   quantizedAmount: string,
 ): Promise<StarkEscapeResult> {
+  starkwareAssertStarkPublicKey(starkPublicKey);
   const exchangeContract = starkwareGetExchangeContract(contractAddress);
   const tokenId = starkwareCrypto.hashTokenId(token);
   const { hash: txhash } = await exchangeContract.escape(
