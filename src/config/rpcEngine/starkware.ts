@@ -1,11 +1,7 @@
 import { IRpcEngine } from "../../helpers/types";
-import {
-  starkwareFormatTokenLabel,
-  starkwareGetStarkPublicKey,
-  starkwareRpc,
-  starkwareFormatTokenAmountLabel,
-} from "../helpers/starkware";
+
 import { IAppState } from "../../App";
+import { getAppControllers } from "src/controllers";
 
 function filterStarkwareRequests(payload: any) {
   return payload.method.startsWith("stark_");
@@ -21,7 +17,7 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
     case "stark_account":
       state.connector.approveRequest({
         id,
-        result: await starkwareRpc.account(params.path),
+        result: await getAppControllers().starkware.account(params.path),
       });
       break;
     default:
@@ -37,7 +33,7 @@ function renderStarkwareRequests(payload: any) {
     { label: "Method", value: payload.method },
     {
       label: "StarkPublicKey",
-      value: params.starkPublicKey || starkwareGetStarkPublicKey(),
+      value: params.starkPublicKey || getAppControllers().starkware.getStarkPublicKey(),
     },
   ];
 
@@ -62,7 +58,10 @@ function renderStarkwareRequests(payload: any) {
     case "stark_deposit":
       renderParams = [
         ...renderParams,
-        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        ...getAppControllers().starkware.formatTokenAmountLabel(
+          params.quantizedAmount,
+          params.token,
+        ),
         {
           label: "Vault Id",
           value: params.vaultId,
@@ -72,7 +71,7 @@ function renderStarkwareRequests(payload: any) {
     case "stark_depositCancel":
       renderParams = [
         ...renderParams,
-        ...starkwareFormatTokenLabel(params.token),
+        ...getAppControllers().starkware.formatTokenLabel(params.token),
         {
           label: "Vault Id",
           value: params.vaultId,
@@ -82,7 +81,7 @@ function renderStarkwareRequests(payload: any) {
     case "stark_depositReclaim":
       renderParams = [
         ...renderParams,
-        ...starkwareFormatTokenLabel(params.token),
+        ...getAppControllers().starkware.formatTokenLabel(params.token),
         {
           label: "Vault Id",
           value: params.vaultId,
@@ -92,7 +91,10 @@ function renderStarkwareRequests(payload: any) {
     case "stark_transfer":
       renderParams = [
         ...renderParams,
-        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        ...getAppControllers().starkware.formatTokenAmountLabel(
+          params.quantizedAmount,
+          params.token,
+        ),
         { label: "Sender Vault Id", value: params.from.vaultId },
         { label: "Receiver Vault Id", value: params.to.vaultId },
         { label: "Receiver StarkPublicKey", value: params.to.starkPublicKey },
@@ -104,15 +106,26 @@ function renderStarkwareRequests(payload: any) {
       renderParams = [
         ...renderParams,
         { label: "Sell Vault Id", value: params.sell.vaultId },
-        ...starkwareFormatTokenAmountLabel(params.sell.quantizedAmount, params.sell.token, "Sell"),
+        ...getAppControllers().starkware.formatTokenAmountLabel(
+          params.sell.quantizedAmount,
+          params.sell.token,
+          "Sell",
+        ),
         { label: "Buy Vault Id", value: params.buy.vaultId },
-        ...starkwareFormatTokenAmountLabel(params.buy.quantizedAmount, params.buy.token, "Buy"),
+        ...getAppControllers().starkware.formatTokenAmountLabel(
+          params.buy.quantizedAmount,
+          params.buy.token,
+          "Buy",
+        ),
         { label: "Nonce", value: params.nonce },
         { label: "Expiration Timestamp", value: params.expirationTimestamp },
       ];
       break;
     case "stark_withdrawal":
-      renderParams = [...renderParams, ...starkwareFormatTokenLabel(params.token)];
+      renderParams = [
+        ...renderParams,
+        ...getAppControllers().starkware.formatTokenLabel(params.token),
+      ];
       break;
     case "stark_fullWithdrawal":
       renderParams = [...renderParams, { label: "Vault Id", value: params.vaultId }];
@@ -126,7 +139,10 @@ function renderStarkwareRequests(payload: any) {
     case "stark_escape":
       renderParams = [
         ...renderParams,
-        ...starkwareFormatTokenAmountLabel(params.quantizedAmount, params.token),
+        ...getAppControllers().starkware.formatTokenAmountLabel(
+          params.quantizedAmount,
+          params.token,
+        ),
         {
           label: "Vault Id",
           value: params.vaultId,
@@ -149,7 +165,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_register":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.register(
+        result: await getAppControllers().starkware.register(
           params.contractAddress,
           params.StarkPublicKey,
           params.operatorSignature,
@@ -159,7 +175,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_deposit":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.deposit(
+        result: await getAppControllers().starkware.deposit(
           params.contractAddress,
           params.StarkPublicKey,
           params.quantizedAmount,
@@ -171,7 +187,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_depositCancel":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.depositCancel(
+        result: await getAppControllers().starkware.depositCancel(
           params.contractAddress,
           params.StarkPublicKey,
           params.token,
@@ -182,7 +198,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_depositReclaim":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.depositReclaim(
+        result: await getAppControllers().starkware.depositReclaim(
           params.contractAddress,
           params.StarkPublicKey,
           params.token,
@@ -193,7 +209,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_transfer":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.transfer(
+        result: await getAppControllers().starkware.transfer(
           params.contractAddress,
           params.from,
           params.to,
@@ -207,7 +223,7 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_createOrder":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.createOrder(
+        result: await getAppControllers().starkware.createOrder(
           params.contractAddress,
           params.starkPublicKey,
           params.sell,
@@ -220,31 +236,40 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     case "stark_withdrawal":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.withdrawal(params.contractAddress, params.token),
+        result: await getAppControllers().starkware.withdrawal(
+          params.contractAddress,
+          params.token,
+        ),
       });
       break;
     case "stark_fullWithdrawal":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.fullWithdrawal(params.contractAddress, params.vaultId),
+        result: await getAppControllers().starkware.fullWithdrawal(
+          params.contractAddress,
+          params.vaultId,
+        ),
       });
       break;
     case "stark_freeze":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.freeze(params.contractAddress, params.vaultId),
+        result: await getAppControllers().starkware.freeze(params.contractAddress, params.vaultId),
       });
       break;
     case "stark_verifyEscape":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.verifyEscape(params.contractAddress, params.proof),
+        result: await getAppControllers().starkware.verifyEscape(
+          params.contractAddress,
+          params.proof,
+        ),
       });
       break;
     case "stark_escape":
       connector.approveRequest({
         id,
-        result: await starkwareRpc.escape(
+        result: await getAppControllers().starkware.escape(
           params.contractAddress,
           params.starkPublicKey,
           params.vaultId,
