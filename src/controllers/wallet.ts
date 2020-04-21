@@ -6,7 +6,7 @@ import {
   MNEMONIC_KEY,
   DEFAULT_ACTIVE_INDEX,
   DEFAULT_CHAIN_ID,
-} from "../helpers/constants";
+} from "../constants/default";
 import { getAppConfig } from "../config";
 
 export class WalletController {

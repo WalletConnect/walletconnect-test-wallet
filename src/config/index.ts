@@ -1,9 +1,7 @@
 import walletconnectLogo from "./assets/walletconnect-logo.png";
-import { MAINNET_CHAIN_ID, ETH_STANDARD_PATH } from "../helpers/constants";
-import supportedChains from "../helpers/chains";
+import { SUPPORTED_CHAINS, MAINNET_CHAIN_ID, ETH_STANDARD_PATH } from "../constants";
 import { IAppConfig } from "../helpers/types";
-import RpcEngine from "./rpcEngine";
-import ethereum from "./rpcEngine/ethereum";
+import { getRpcEngine } from "../engines";
 
 const appConfig: IAppConfig = {
   name: "WalletConnect",
@@ -15,12 +13,12 @@ const appConfig: IAppConfig = {
     defaultColor: "12, 12, 13",
     backgroundColor: "40, 44, 52",
   },
-  chains: supportedChains,
+  chains: SUPPORTED_CHAINS,
   styleOpts: {
     showPasteUri: true,
     showVersion: true,
   },
-  rpcEngine: new RpcEngine([ethereum]),
+  rpcEngine: getRpcEngine(),
   events: {
     init: (state, setState) => Promise.resolve(),
     update: (state, setState) => Promise.resolve(),
