@@ -11,7 +11,7 @@ import RequestDisplay from "./components/RequestDisplay";
 import RequestButton from "./components/RequestButton";
 import AccountDetails from "./components/AccountDetails";
 import QRCodeScanner, { IQRCodeValidateResponse } from "./components/QRCodeScanner";
-import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./helpers/constants";
+import { DEFAULT_CHAIN_ID, DEFAULT_ACTIVE_INDEX } from "./constants/default";
 import { getCachedSession } from "./helpers/utilities";
 import { getAppControllers } from "./controllers";
 import { getAppConfig } from "./config";
@@ -228,7 +228,7 @@ class App extends React.Component<{}> {
   };
 
   public approveSession = () => {
-    console.log("[approveSession]");
+    console.log("ACTION", "approveSession");
     const { connector, chainId, address } = this.state;
     if (connector) {
       connector.approveSession({ chainId, accounts: [address] });
@@ -237,7 +237,7 @@ class App extends React.Component<{}> {
   };
 
   public rejectSession = () => {
-    console.log("[rejectSession]");
+    console.log("ACTION", "rejectSession");
     const { connector } = this.state;
     if (connector) {
       connector.rejectSession();
@@ -246,7 +246,7 @@ class App extends React.Component<{}> {
   };
 
   public killSession = () => {
-    console.log("[killSession]");
+    console.log("ACTION", "killSession");
     const { connector } = this.state;
     if (connector) {
       connector.killSession();
@@ -260,12 +260,12 @@ class App extends React.Component<{}> {
   };
 
   public subscribeToEvents = () => {
-    console.log("[subscribeToEvents]");
+    console.log("ACTION", "subscribeToEvents");
     const { connector } = this.state;
 
     if (connector) {
       connector.on("session_request", (error, payload) => {
-        console.log(`connector.on("session_request")`);
+        console.log("EVENT", "session_request");
 
         if (error) {
           throw error;
@@ -276,7 +276,7 @@ class App extends React.Component<{}> {
       });
 
       connector.on("session_update", error => {
-        console.log(`connector.on("session_update")`);
+        console.log("EVENT", "session_update");
 
         if (error) {
           throw error;
@@ -285,7 +285,8 @@ class App extends React.Component<{}> {
 
       connector.on("call_request", async (error, payload) => {
         // tslint:disable-next-line
-        console.log(`connector.on("call_request")`, "payload.method", payload.method);
+        console.log("EVENT", "call_request", "method", payload.method);
+        console.log("EVENT", "call_request", "params", payload.params);
 
         if (error) {
           throw error;
@@ -295,7 +296,7 @@ class App extends React.Component<{}> {
       });
 
       connector.on("connect", (error, payload) => {
-        console.log(`connector.on("connect")`);
+        console.log("EVENT", "connect");
 
         if (error) {
           throw error;
@@ -305,7 +306,7 @@ class App extends React.Component<{}> {
       });
 
       connector.on("disconnect", (error, payload) => {
-        console.log(`connector.on("disconnect")`);
+        console.log("EVENT", "disconnect");
 
         if (error) {
           throw error;
@@ -361,7 +362,7 @@ class App extends React.Component<{}> {
   };
 
   public toggleScanner = () => {
-    console.log("[toggleScanner]");
+    console.log("ACTION", "toggleScanner");
     this.setState({ scanner: !this.state.scanner });
   };
 

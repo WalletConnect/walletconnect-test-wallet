@@ -1,10 +1,10 @@
 import { signingMethods, convertHexToNumber } from "@walletconnect/utils";
 
-import { IAppState } from "../../App";
-import { apiGetCustomRequest } from "../../helpers/api";
-import { convertHexToUtf8IfPossible } from "../../helpers/utilities";
-import { IRequestRenderParams, IRpcEngine } from "../../helpers/types";
-import { getAppControllers } from "../../controllers";
+import { IAppState } from "../App";
+import { apiGetCustomRequest } from "../helpers/api";
+import { convertHexToUtf8IfPossible } from "../helpers/utilities";
+import { IRequestRenderParams, IRpcEngine } from "../helpers/types";
+import { getAppControllers } from "../controllers";
 
 export function filterEthereumRequests(payload: any) {
   return (

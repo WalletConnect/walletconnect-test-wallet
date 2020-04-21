@@ -1,5 +1,5 @@
-import { IAppState } from "../../App";
-import { IRpcEngine } from "../../helpers/types";
+import { IAppState } from "../App";
+import { IRpcEngine } from "../helpers/types";
 import { handleChannelRequests } from "../helpers/connext";
 
 function filterConnextRequests(payload: any) {
