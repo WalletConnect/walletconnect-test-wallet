@@ -9,10 +9,9 @@ interface IAppControllers {
 let controllers: IAppControllers | undefined;
 
 export function setupAppControllers(): IAppControllers {
-  controllers = {
-    wallet: new WalletController(),
-    starkware: new StarkwareController(),
-  };
+  const wallet = new WalletController();
+  const starkware = new StarkwareController(wallet);
+  controllers = { wallet, starkware };
   return controllers;
 }
 

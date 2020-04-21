@@ -1,7 +1,6 @@
 import BN from "bn.js";
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
-import { getAppControllers } from ".";
 import StarkExchangeABI from "../contracts/StarkExchangeABI.json";
 import {
   StarkAccountResult,
@@ -19,6 +18,7 @@ import {
 } from "../config/typings";
 import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
 import { getLocal, setLocal } from "src/helpers/local";
+import { WalletController } from "./wallet";
 
 interface IStarkwareAccountMapping {
   [path: string]: starkwareCrypto.KeyPair;
@@ -34,6 +34,8 @@ export class StarkwareController {
   public accountMappingKey = "STARKWARE_ACCOUNT_MAPPING";
   public activeKeyPair: starkwareCrypto.KeyPair | undefined;
   public accountMapping: IStarkwareAccountMapping = getLocal(this.accountMappingKey) || {};
+
+  constructor(private readonly walletController: WalletController) {}
 
   public async account(path: string): Promise<StarkAccountResult> {
     const starkPublicKey = this.getStarkPublicKey(path);
@@ -203,7 +205,7 @@ export class StarkwareController {
   }
 
   public getExchangeContract(contractAddress: string) {
-    const provider = getAppControllers().wallet.getWallet().provider;
+    const provider = this.walletController.getWallet().provider;
     return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
   }
 
@@ -272,10 +274,7 @@ export class StarkwareController {
     if (match) {
       return match;
     }
-    const activeKeyPair = starkwareCrypto.getKeyPairFromPath(
-      getAppControllers().wallet.mnemonic,
-      path,
-    );
+    const activeKeyPair = starkwareCrypto.getKeyPairFromPath(this.walletController.mnemonic, path);
     this.setActiveKeyPair(path, activeKeyPair);
     return activeKeyPair;
   }
