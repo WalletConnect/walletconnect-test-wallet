@@ -1,4 +1,4 @@
-import { ec } from "elliptic";
+import BN from "bn.js";
 import * as ethers from "ethers";
 import * as starkwareCrypto from "starkware-crypto";
 import { getAppControllers } from ".";
@@ -22,6 +22,12 @@ import { getLocal, setLocal } from "src/helpers/local";
 
 interface IStarkwareAccountMapping {
   [path: string]: starkwareCrypto.KeyPair;
+}
+
+interface Signature {
+  r: BN;
+  s: BN;
+  recoveryParam: number | null;
 }
 
 export class StarkwareController {
@@ -201,7 +207,7 @@ export class StarkwareController {
     return new ethers.Contract(contractAddress, StarkExchangeABI, provider);
   }
 
-  public formatSignature(signature: ec.Signature) {
+  public formatSignature(signature: Signature) {
     return "0x" + signature.r.toString(16) + signature.s.toString(16);
   }
 
