@@ -1,6 +1,5 @@
 import { IRpcEngine } from "../../helpers/types";
 import {
-  starkwareMethods,
   starkwareFormatTokenLabel,
   starkwareGetStarkPublicKey,
   starkwareRpc,
@@ -9,7 +8,7 @@ import {
 import { IAppState } from "../../App";
 
 function filterStarkwareRequests(payload: any) {
-  return starkwareMethods.includes(payload.method);
+  return payload.method.startsWith("stark_");
 }
 
 async function routeStarkwareRequests(payload: any, state: IAppState, setState: any) {

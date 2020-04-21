@@ -20,21 +20,6 @@ import {
 import { convertAmountFromRawNumber, convertStringToNumber } from "src/helpers/bignumber";
 import { getLocal, setLocal } from "src/helpers/local";
 
-export const starkwareMethods = [
-  "stark_account",
-  "stark_register",
-  "stark_deposit",
-  "stark_depositCancel",
-  "stark_depositReclaim",
-  "stark_transfer",
-  "stark_createOrder",
-  "stark_withdrawal",
-  "stark_fullWithdrawal",
-  "stark_freeze",
-  "stark_verifyEscape",
-  "stark_escape",
-];
-
 interface IGeneratedStarkKeyPairs {
   [path: string]: starkwareCrypto.KeyPair;
 }
