@@ -1,17 +1,29 @@
-import { WalletController } from "./wallet";
-import { StarkwareController } from "./starkware";
+import StarkwareController from "starkware-controller";
+
+import { WalletController, getWalletController } from "./wallet";
+import { StoreController, getStoreController } from "./store";
+import { getStarkwareController } from "./starkware";
 
 interface IAppControllers {
+  store: StoreController;
   wallet: WalletController;
   starkware: StarkwareController;
 }
 
 let controllers: IAppControllers | undefined;
 
+export function updateAppController(name: string, controller: any) {
+  if (!controllers) {
+    return;
+  }
+  controllers[name] = controller;
+}
+
 export function setupAppControllers(): IAppControllers {
-  const wallet = new WalletController();
-  const starkware = new StarkwareController(wallet);
-  controllers = { wallet, starkware };
+  const wallet = getWalletController();
+  const store = getStoreController();
+  const starkware = getStarkwareController(wallet, store);
+  controllers = { store, wallet, starkware };
   return controllers;
 }
 

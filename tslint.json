@@ -10,7 +10,8 @@
     "jsx-no-lambda": false,
     "jsx-boolean-value": false,
     "no-console": false,
-    "interface-name": false
+    "interface-name": false,
+    "max-classes-per-file": false
   },
   "linterOptions": {
     "exclude": [

@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import { Provider } from "ethers/providers";
 import { getChainData } from "../helpers/utilities";
 import { setLocal, getLocal } from "../helpers/local";
 import {
@@ -8,6 +9,7 @@ import {
   DEFAULT_CHAIN_ID,
 } from "../constants/default";
 import { getAppConfig } from "../config";
+import { getAppControllers } from ".";
 
 export class WalletController {
   public path: string;
@@ -23,6 +25,10 @@ export class WalletController {
     this.entropy = this.getEntropy();
     this.mnemonic = this.getMnemonic();
     this.wallet = this.init();
+  }
+
+  get provider(): Provider {
+    return this.wallet.provider;
   }
 
   public isActive() {
@@ -109,6 +115,7 @@ export class WalletController {
     const rpcUrl = getChainData(chainId).rpc_url;
     this.wallet = this.generateWallet(index);
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    getAppControllers().starkware.setProvider(provider);
     this.wallet.connect(provider);
     return this.wallet;
   }
@@ -176,4 +183,8 @@ export class WalletController {
     }
     return null;
   }
+}
+
+export function getWalletController() {
+  return new WalletController();
 }
