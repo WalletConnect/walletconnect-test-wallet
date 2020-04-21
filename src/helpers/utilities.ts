@@ -1,7 +1,7 @@
 import { convertHexToUtf8 } from "@walletconnect/utils";
 import { utils } from "ethers";
 import { IChainData } from "./types";
-import supportedChains from "./chains";
+import { SUPPORTED_CHAINS } from "../constants";
 
 export function capitalize(string: string): string {
   return string
@@ -106,7 +106,7 @@ export function payloadId(): number {
 }
 
 export function getChainData(chainId: number): IChainData {
-  const chainData = supportedChains.filter((chain: any) => chain.chain_id === chainId)[0];
+  const chainData = SUPPORTED_CHAINS.filter((chain: any) => chain.chain_id === chainId)[0];
 
   if (!chainData) {
     throw new Error("ChainId missing or not supported");

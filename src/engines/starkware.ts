@@ -1,6 +1,6 @@
-import { IRpcEngine } from "../../helpers/types";
+import { IRpcEngine } from "../helpers/types";
 
-import { IAppState } from "../../App";
+import { IAppState } from "../App";
 import { getAppControllers } from "src/controllers";
 
 function filterStarkwareRequests(payload: any) {

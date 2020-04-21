@@ -1,11 +1,8 @@
 import starkwareLogo from "./assets/starkware-logo.svg";
 
-import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID } from "../helpers/constants";
-import supportedChains from "../helpers/chains";
+import { ETH_STANDARD_PATH, ROPSTEN_CHAIN_ID, SUPPORTED_CHAINS } from "../constants";
 import { IAppConfig } from "../helpers/types";
-import RpcEngine from "./rpcEngine";
-import ethereum from "./rpcEngine/ethereum";
-import starkware from "./rpcEngine/starkware";
+import { getRpcEngine } from "src/engines";
 
 export const STARKWARE_SUPPORTED_CHAIN_IDS = [1, 3, 4];
 
@@ -19,12 +16,12 @@ const appConfig: IAppConfig = {
     defaultColor: "40, 40, 110",
     backgroundColor: "25, 24, 46",
   },
-  chains: supportedChains.filter(x => STARKWARE_SUPPORTED_CHAIN_IDS.includes(x.chain_id)),
+  chains: SUPPORTED_CHAINS.filter(x => STARKWARE_SUPPORTED_CHAIN_IDS.includes(x.chain_id)),
   styleOpts: {
     showPasteUri: false,
     showVersion: false,
   },
-  rpcEngine: new RpcEngine([starkware, ethereum]),
+  rpcEngine: getRpcEngine(),
   events: {
     init: (state, setState) => Promise.resolve(),
     update: (state, setState) => Promise.resolve(),

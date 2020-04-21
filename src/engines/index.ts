@@ -1,5 +1,7 @@
-import { IRpcEngine } from "../../helpers/types";
-import { IAppState } from "../../App";
+import { IRpcEngine } from "../helpers/types";
+import { IAppState } from "../App";
+import ethereum from "./ethereum";
+import starkware from "./starkware";
 
 class RpcEngine implements IRpcEngine {
   public engines: IRpcEngine[];
@@ -36,4 +38,6 @@ class RpcEngine implements IRpcEngine {
   }
 }
 
-export default RpcEngine;
+export function getRpcEngine() {
+  return new RpcEngine([ethereum, starkware]);
+}
