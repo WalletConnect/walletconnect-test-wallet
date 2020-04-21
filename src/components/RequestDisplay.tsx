@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import Column from "./Column";
 import Button from "./Button";
-import { IRequestRenderParams } from "src/helpers/types";
+import { IRequestRenderParams } from "../helpers/types";
 
 const SRequestValues = styled.div`
   font-family: monospace;
