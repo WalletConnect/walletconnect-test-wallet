@@ -40,8 +40,8 @@
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
-    "starkware-controller": "^1.1.0",
-    "starkware-crypto": "^1.5.0",
+    "starkware-controller": "^1.2.0",
+    "starkware-crypto": "^1.6.0",
     "styled-components": "^4.4.1"
   },
   "devDependencies": {

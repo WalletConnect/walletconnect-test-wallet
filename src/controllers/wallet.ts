@@ -105,18 +105,21 @@ export class WalletController {
     return this.getData(MNEMONIC_KEY);
   }
 
-  public init(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
+  public init(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID): ethers.Wallet {
     return this.update(index, chainId);
   }
 
-  public update(index: number, chainId: number) {
+  public update(index: number, chainId: number): ethers.Wallet {
+    const firstUpdate = typeof this.wallet === "undefined";
     this.activeIndex = index;
     this.activeChainId = chainId;
     const rpcUrl = getChainData(chainId).rpc_url;
     this.wallet = this.generateWallet(index);
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-    getAppControllers().starkware.setProvider(provider);
     this.wallet.connect(provider);
+    if (!firstUpdate) {
+      getAppControllers().starkware.setProvider(provider);
+    }
     return this.wallet;
   }
 

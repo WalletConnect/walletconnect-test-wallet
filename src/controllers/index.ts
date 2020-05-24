@@ -12,13 +12,6 @@ interface IAppControllers {
 
 let controllers: IAppControllers | undefined;
 
-export function updateAppController(name: string, controller: any) {
-  if (!controllers) {
-    return;
-  }
-  controllers[name] = controller;
-}
-
 export function setupAppControllers(): IAppControllers {
   const wallet = getWalletController();
   const store = getStoreController();
