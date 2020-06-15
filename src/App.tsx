@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import WalletConnect from "@walletconnect/browser";
+import WalletConnect from "@walletconnect/client";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
