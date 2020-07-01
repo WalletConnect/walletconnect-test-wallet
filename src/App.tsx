@@ -31,7 +31,7 @@ const SVersionNumber = styled.div`
   position: absolute;
   font-size: 12px;
   bottom: 6%;
-  right: -24px;
+  right: 0;
   opacity: 0.3;
   transform: rotate(-90deg);
 `;
