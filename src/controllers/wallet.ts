@@ -82,7 +82,7 @@ export class WalletController {
   }
 
   public generateMnemonic() {
-    this.mnemonic = ethers.utils.HDNode.entropyToMnemonic(this.getEntropy());
+    this.mnemonic = ethers.utils.entropyToMnemonic(this.getEntropy());
     return this.mnemonic;
   }
 
@@ -145,7 +145,7 @@ export class WalletController {
       if (data && data.from) {
         delete data.from;
       }
-      const result = await this.wallet.sign(data);
+      const result = await this.wallet.signMessage(data);
       return result;
     } else {
       console.error("No Active Account");

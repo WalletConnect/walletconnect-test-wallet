@@ -32,7 +32,7 @@
     "bignumber.js": "^9.0.0",
     "bn.js": "^5.1.1",
     "elliptic": "^6.5.2",
-    "ethers": "^4.0.42",
+    "ethers": "^5.0.3",
     "hash.js": "^1.1.7",
     "prop-types": "^15.7.2",
     "qr-image": "^3.2.0",
