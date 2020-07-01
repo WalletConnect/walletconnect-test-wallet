@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-test-wallet",
-  "version": "1.0.1",
+  "version": "1.0.11",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -26,13 +26,13 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/client": "1.0.1",
-    "@walletconnect/utils": "1.0.1",
+    "@walletconnect/client": "1.0.11",
+    "@walletconnect/utils": "1.0.11",
     "axios": "^0.19.1",
     "bignumber.js": "^9.0.0",
     "bn.js": "^4.11.8",
     "elliptic": "^6.5.2",
-    "ethers": "^4.0.46",
+    "ethers": "^5.0.3",
     "hash.js": "^1.1.7",
     "prop-types": "^15.7.2",
     "qr-image": "^3.2.0",
@@ -41,8 +41,8 @@
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
-    "starkware-controller": "^1.2.0",
-    "starkware-crypto": "^1.6.0",
+    "starkware-controller": "^1.3.0",
+    "starkware-crypto": "^1.7.0",
     "styled-components": "^4.4.1"
   },
   "devDependencies": {

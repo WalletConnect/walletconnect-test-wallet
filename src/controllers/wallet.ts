@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { Provider } from "ethers/providers";
 import { getChainData } from "../helpers/utilities";
 import { setLocal, getLocal } from "../helpers/local";
 import {
@@ -27,7 +26,7 @@ export class WalletController {
     this.wallet = this.init();
   }
 
-  get provider(): Provider {
+  get provider(): ethers.providers.Provider {
     return this.wallet.provider;
   }
 
@@ -88,7 +87,7 @@ export class WalletController {
   }
 
   public generateMnemonic() {
-    this.mnemonic = ethers.utils.HDNode.entropyToMnemonic(this.getEntropy());
+    this.mnemonic = ethers.utils.entropyToMnemonic(this.getEntropy());
     return this.mnemonic;
   }
 
@@ -155,7 +154,7 @@ export class WalletController {
       if (data && data.from) {
         delete data.from;
       }
-      const result = await this.wallet.sign(data);
+      const result = await this.wallet.signMessage(data);
       return result;
     } else {
       console.error("No Active Account");

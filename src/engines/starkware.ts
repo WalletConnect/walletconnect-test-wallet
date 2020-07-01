@@ -19,7 +19,11 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
     case "stark_account":
       state.connector.approveRequest({
         id,
-        result: await getAppControllers().starkware.account(params.path),
+        result: await getAppControllers().starkware.account(
+          params.layer,
+          params.application,
+          params.index,
+        ),
       });
       break;
     default:
