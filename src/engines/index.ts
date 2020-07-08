@@ -10,30 +10,22 @@ class RpcEngine implements IRpcEngine {
   }
 
   public filter(payload: any) {
-    console.log("[filter]", "payload.method", payload.method);
     const engine = this.getEngine(payload);
-    console.log("[filter]", "engine", engine);
     return engine.filter(payload);
   }
 
   public router(payload: any, state: IAppState, setState: any) {
-    console.log("[router]", "payload.method", payload.method);
     const engine = this.getEngine(payload);
-    console.log("[router]", "engine", engine);
     return engine.router(payload, state, setState);
   }
 
   public render(payload: any) {
-    console.log("[render]", "payload.method", payload.method);
     const engine = this.getEngine(payload);
-    console.log("[render]", "engine", engine);
     return engine.render(payload);
   }
 
   public signer(payload: any, state: IAppState, setState: any) {
-    console.log("[signer]", "payload.method", payload.method);
     const engine = this.getEngine(payload);
-    console.log("[signer]", "engine", engine);
     return engine.signer(payload, state, setState);
   }
 
