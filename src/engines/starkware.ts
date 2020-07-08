@@ -14,17 +14,9 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
     return;
   }
   const requests = state.requests;
-  const { id, method, params } = payload;
-  switch (method) {
+  switch (payload.method) {
     case "stark_account":
-      state.connector.approveRequest({
-        id,
-        result: await getAppControllers().starkware.account(
-          params.layer,
-          params.application,
-          params.index,
-        ),
-      });
+      state.connector.approveRequest(await getAppControllers().starkware.resolve(payload));
       break;
     default:
       requests.push(payload);

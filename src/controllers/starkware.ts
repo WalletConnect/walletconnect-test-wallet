@@ -7,5 +7,6 @@ export function getStarkwareController(
   walletController: WalletController,
   storeController: StoreController,
 ) {
+  console.log(walletController.wallet);
   return new StarkwareController(walletController.wallet, storeController);
 }
