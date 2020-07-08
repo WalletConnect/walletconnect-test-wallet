@@ -26,7 +26,7 @@ const SActiveAccount = styled.div`
   font-weight: 500;
 `;
 
-const SActiveChain = styled(SActiveAccount)`
+const SActiveChain = styled(SActiveAccount as any)`
   flex-direction: column;
   text-align: left;
   align-items: flex-start;

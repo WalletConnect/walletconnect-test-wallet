@@ -30,6 +30,7 @@
     "@walletconnect/utils": "^1.0.13",
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
+    "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.1",
     "elliptic": "^6.5.3",
     "ethers": "^5.0.5",

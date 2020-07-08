@@ -58,7 +58,7 @@ const SLoader = styled.div<ILoaderStyleProps>`
 `;
 
 const Loader = (props: ILoaderStyleProps) => (
-  <SLoader size={props.size} color={props.color} background={props.background} {...props} />
+  <SLoader {...props} size={props.size} color={props.color} background={props.background} />
 );
 
 Loader.defaultProps = {

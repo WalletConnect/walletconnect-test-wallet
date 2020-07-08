@@ -49,7 +49,7 @@ class QRCodeDisplay extends React.Component<IQRCodeDisplayProps, IQRCodeDisplayS
   public render() {
     const { img } = this.state;
     return img ? (
-      <SQRCodeDisplay dangerouslySetInnerHTML={{ __html: img }} {...this.props} />
+      <SQRCodeDisplay {...this.props} dangerouslySetInnerHTML={{ __html: img }} />
     ) : null;
   }
 }
