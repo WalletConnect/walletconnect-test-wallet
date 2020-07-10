@@ -44,7 +44,7 @@
     "react-scripts-ts": "^4.0.8",
     "starkware-controller": "^1.4.1",
     "starkware-crypto": "^1.8.0",
-    "styled-components": "^4.4.1"
+    "styled-components": "^5.1.1"
   },
   "devDependencies": {
     "@types/bn.js": "^4.11.6",
@@ -56,7 +56,7 @@
     "@types/react": "^16.9.21",
     "@types/react-dom": "^16.9.4",
     "@types/react-qr-reader": "^2.1.2",
-    "@types/styled-components": "^4.4.2",
+    "@types/styled-components": "^5.1.1",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
     "eslint-config-prettier": "^6.10.0",
