@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import WalletConnect from "@walletconnect/browser";
+import WalletConnect from "@walletconnect/client";
 import Button from "./components/Button";
 import Card from "./components/Card";
 import Input from "./components/Input";
@@ -31,7 +31,7 @@ const SVersionNumber = styled.div`
   position: absolute;
   font-size: 12px;
   bottom: 6%;
-  right: -24px;
+  right: 0;
   opacity: 0.3;
   transform: rotate(-90deg);
 `;
@@ -66,7 +66,7 @@ const SActions = styled.div`
   }
 `;
 
-const SActionsColumn = styled(SActions)`
+const SActionsColumn = styled(SActions as any)`
   flex-direction: row;
   align-items: center;
 

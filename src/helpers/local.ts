@@ -4,14 +4,14 @@ if (typeof window !== "undefined" && typeof window.localStorage !== "undefined")
   local = window.localStorage;
 }
 
-export const setLocal = (key: string, data: any) => {
+export function setLocal(key: string, data: any) {
   const jsonData = JSON.stringify(data);
   if (local) {
     local.setItem(key, jsonData);
   }
-};
+}
 
-export const getLocal = (key: string) => {
+export function getLocal(key: string) {
   let data = null;
   let raw = null;
   if (local) {
@@ -25,16 +25,16 @@ export const getLocal = (key: string) => {
     }
   }
   return data;
-};
+}
 
-export const removeLocal = (key: string) => {
+export function removeLocal(key: string) {
   if (local) {
     local.removeItem(key);
   }
-};
+}
 
-export const updateLocal = (key: string, data: any) => {
+export function updateLocal(key: string, data: any) {
   const localData = getLocal(key) || {};
   const mergedData = { ...localData, ...data };
   setLocal(key, mergedData);
-};
+}

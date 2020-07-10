@@ -1,4 +1,4 @@
-import * as ethers from "ethers";
+import { Wallet, providers, utils } from "ethers";
 import { getChainData } from "../helpers/utilities";
 import { setLocal, getLocal } from "../helpers/local";
 import {
@@ -13,7 +13,7 @@ export class WalletController {
   public path: string;
   public entropy: string;
   public mnemonic: string;
-  public wallet: ethers.Wallet;
+  public wallet: Wallet;
 
   public activeIndex: number = DEFAULT_ACTIVE_INDEX;
   public activeChainId: number = DEFAULT_CHAIN_ID;
@@ -23,6 +23,10 @@ export class WalletController {
     this.entropy = this.getEntropy();
     this.mnemonic = this.getMnemonic();
     this.wallet = this.init();
+  }
+
+  get provider(): providers.Provider {
+    return this.wallet.provider;
   }
 
   public isActive() {
@@ -36,7 +40,7 @@ export class WalletController {
     return this.activeIndex;
   }
 
-  public getWallet(index?: number, chainId?: number): ethers.Wallet {
+  public getWallet(index?: number, chainId?: number): Wallet {
     if (!this.wallet || this.activeIndex === index || this.activeChainId === chainId) {
       return this.init(index, chainId);
     }
@@ -77,17 +81,17 @@ export class WalletController {
   }
 
   public generateEntropy(): string {
-    this.entropy = ethers.utils.hexlify(ethers.utils.randomBytes(16));
+    this.entropy = utils.hexlify(utils.randomBytes(16));
     return this.entropy;
   }
 
   public generateMnemonic() {
-    this.mnemonic = ethers.utils.HDNode.entropyToMnemonic(this.getEntropy());
+    this.mnemonic = utils.entropyToMnemonic(this.getEntropy());
     return this.mnemonic;
   }
 
   public generateWallet(index: number) {
-    this.wallet = ethers.Wallet.fromMnemonic(this.getMnemonic(), this.getPath(index));
+    this.wallet = Wallet.fromMnemonic(this.getMnemonic(), this.getPath(index));
     return this.wallet;
   }
 
@@ -99,17 +103,21 @@ export class WalletController {
     return this.getData(MNEMONIC_KEY);
   }
 
-  public init(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID) {
+  public init(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID): Wallet {
     return this.update(index, chainId);
   }
 
-  public update(index: number, chainId: number) {
+  public update(index: number, chainId: number): Wallet {
+    const firstUpdate = typeof this.wallet === "undefined";
     this.activeIndex = index;
     this.activeChainId = chainId;
     const rpcUrl = getChainData(chainId).rpc_url;
     this.wallet = this.generateWallet(index);
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    const provider = new providers.JsonRpcProvider(rpcUrl);
     this.wallet.connect(provider);
+    if (!firstUpdate) {
+      // update another controller if necessary here
+    }
     return this.wallet;
   }
 
@@ -126,7 +134,7 @@ export class WalletController {
         delete transaction.from;
       }
 
-      // ethers.js expects gasLimit instead
+      // js expects gasLimit instead
       if ("gas" in transaction) {
         transaction.gasLimit = transaction.gas;
         delete transaction.gas;
@@ -145,7 +153,7 @@ export class WalletController {
       if (data && data.from) {
         delete data.from;
       }
-      const result = await this.wallet.sign(data);
+      const result = await this.wallet.signMessage(data);
       return result;
     } else {
       console.error("No Active Account");
@@ -155,9 +163,9 @@ export class WalletController {
 
   public async signMessage(data: any) {
     if (this.wallet) {
-      const signingKey = new ethers.utils.SigningKey(this.wallet.privateKey);
-      const sigParams = await signingKey.signDigest(ethers.utils.arrayify(data));
-      const result = await ethers.utils.joinSignature(sigParams);
+      const signingKey = new utils.SigningKey(this.wallet.privateKey);
+      const sigParams = await signingKey.signDigest(utils.arrayify(data));
+      const result = await utils.joinSignature(sigParams);
       return result;
     } else {
       console.error("No Active Account");
@@ -168,7 +176,7 @@ export class WalletController {
   public async signPersonalMessage(message: any) {
     if (this.wallet) {
       const result = await this.wallet.signMessage(
-        ethers.utils.isHexString(message) ? ethers.utils.arrayify(message) : message,
+        utils.isHexString(message) ? utils.arrayify(message) : message,
       );
       return result;
     } else {
@@ -176,4 +184,8 @@ export class WalletController {
     }
     return null;
   }
+}
+
+export function getWalletController() {
+  return new WalletController();
 }

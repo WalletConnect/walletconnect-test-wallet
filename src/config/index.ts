@@ -1,10 +1,13 @@
-import { CF_PATH } from "@connext/types";
-
 import connextLogo from "./assets/connext-logo.svg";
 
-import { RINKEBY_CHAIN_ID, MAINNET_CHAIN_ID , SUPPORTED_CHAINS} from "../constants";
+import {
+  RINKEBY_CHAIN_ID,
+  MAINNET_CHAIN_ID,
+  SUPPORTED_CHAINS,
+  ETH_STANDARD_PATH,
+} from "../constants";
 import { IAppConfig } from "../helpers/types";
-=import { onCreateChannelEvent } from "../helpers/connext";
+import { onCreateChannelEvent } from "../helpers/connext";
 import { getRpcEngine } from "../engines";
 
 export const CHANNEL_SUPPORTED_CHAIN_IDS = [MAINNET_CHAIN_ID, RINKEBY_CHAIN_ID];
@@ -13,7 +16,7 @@ const appConfig: IAppConfig = {
   name: "Connext",
   logo: connextLogo,
   chainId: RINKEBY_CHAIN_ID,
-  derivationPath: CF_PATH,
+  derivationPath: ETH_STANDARD_PATH,
   numberOfAccounts: 1,
   colors: {
     defaultColor: "12, 12, 13",

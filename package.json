@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-test-wallet",
-  "version": "1.0.0-beta.47",
+  "version": "1.0.14",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -26,14 +26,16 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@connext/client": "4.1.0",
-    "@connext/types": "4.1.0",
-    "@walletconnect/browser": "1.0.0-beta.47",
-    "axios": "^0.19.1",
+    "@connext/client": "7.0.0-alpha.18",
+    "@connext/types": "7.0.0-alpha.18",
+    "@walletconnect/client": "^1.0.14",
+    "@walletconnect/utils": "^1.0.14",
+    "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
+    "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.1",
-    "elliptic": "^6.5.2",
-    "ethers": "^4.0.42",
+    "elliptic": "^6.5.3",
+    "ethers": "^5.0.5",
     "hash.js": "^1.1.7",
     "prop-types": "^15.7.2",
     "qr-image": "^3.2.0",

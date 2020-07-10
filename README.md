@@ -1,4 +1,21 @@
 # walletconnect-test-wallet
 
-Test Browser Wallet to Test WalletConnect integration
-**[NOT A SECURE WALLET - DO NOT STORE FUNDS]**
+Test Wallet (Web)
+
+## Develop
+
+```bash
+npm run start
+```
+
+## Test
+
+```bash
+npm run test
+```
+
+## Build
+
+```bash
+npm run build
+```

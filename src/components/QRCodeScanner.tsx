@@ -48,7 +48,7 @@ const SFirstLine = styled.div`
   border: 1px solid rgb(255, 255, 255);
 `;
 
-const SSecondLine = styled(SFirstLine)`
+const SSecondLine = styled(SFirstLine as any)`
   transform: rotate(90deg);
 `;
 
