@@ -26,7 +26,7 @@ const SCard = styled.div<ICardStyleProps>`
 
 const Card = (props: ICardProps) => {
   return (
-    <SCard maxWidth={props.maxWidth} {...props}>
+    <SCard {...props} maxWidth={props.maxWidth}>
       {props.children}
     </SCard>
   );
