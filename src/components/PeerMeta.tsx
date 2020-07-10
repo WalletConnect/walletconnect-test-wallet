@@ -11,7 +11,7 @@ const SCenter = styled.div`
   text-align: center;
 `;
 
-const SName = styled(SCenter)`
+const SName = styled(SCenter as any)`
   font-weight: bold;
 `;
 

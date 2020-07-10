@@ -66,7 +66,7 @@ const SActions = styled.div`
   }
 `;
 
-const SActionsColumn = styled(SActions)`
+const SActionsColumn = styled(SActions as any)`
   flex-direction: row;
   align-items: center;
 

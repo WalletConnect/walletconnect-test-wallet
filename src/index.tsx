@@ -9,13 +9,6 @@ const GlobalStyle = createGlobalStyle`
   ${globalStyle}
 `;
 
-declare global {
-  // tslint:disable-next-line
-  interface Window {
-    blockies: any;
-  }
-}
-
 ReactDOM.render(
   <>
     <GlobalStyle />

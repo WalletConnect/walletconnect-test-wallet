@@ -1,15 +1,17 @@
-import { WalletController } from "./wallet";
+import { WalletController, getWalletController } from "./wallet";
+import { StoreController, getStoreController } from "./store";
 
 interface IAppControllers {
+  store: StoreController;
   wallet: WalletController;
 }
 
 let controllers: IAppControllers | undefined;
 
 export function setupAppControllers(): IAppControllers {
-  controllers = {
-    wallet: new WalletController(),
-  };
+  const wallet = getWalletController();
+  const store = getStoreController();
+  controllers = { store, wallet };
   return controllers;
 }
 
