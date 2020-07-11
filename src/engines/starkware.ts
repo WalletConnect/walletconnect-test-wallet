@@ -16,7 +16,8 @@ async function routeStarkwareRequests(payload: any, state: IAppState, setState: 
   const requests = state.requests;
   switch (payload.method) {
     case "stark_account":
-      state.connector.approveRequest(await getAppControllers().starkware.resolve(payload));
+      signStarkwareRequests(payload, state, setState);
+      await setState({});
       break;
     default:
       requests.push(payload);
@@ -138,8 +139,22 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
     return;
   }
 
-  const response = await getAppControllers().starkware.resolve(payload);
-  await state.connector.approveRequest(response);
+  try {
+    console.log("[signStarkwareRequests]", "payload", payload);
+
+    const response = await getAppControllers().starkware.resolve(payload);
+    console.log("[signStarkwareRequests]", "response", response);
+    state.connector.approveRequest(response);
+  } catch (error) {
+    console.error(error);
+    state.connector.rejectRequest({
+      id: payload.id,
+      error: {
+        message: error.message,
+      },
+    });
+  }
+  await setState({});
 }
 
 const starkware: IRpcEngine = {

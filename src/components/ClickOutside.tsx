@@ -42,7 +42,7 @@ class ClickOutside extends React.Component<IClickOutsideProps> {
   public render() {
     const { children, onClickOutside, ...props } = this.props;
     return (
-      <div {...props} ref={c => (this.element = c)}>
+      <div {...props} ref={(c) => (this.element = c)}>
         {children}
       </div>
     );
