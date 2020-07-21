@@ -26,13 +26,13 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/client": "^1.0.14",
-    "@walletconnect/utils": "^1.0.14",
+    "@walletconnect/client": "^1.0.18",
+    "@walletconnect/utils": "^1.0.18",
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.1",
-    "ethers": "^5.0.5",
+    "ethers": "^5.0.7",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -45,7 +45,7 @@
     "@types/jest": "^24.0.25",
     "@types/node": "^13.1.6",
     "@types/prop-types": "^15.7.3",
-    "@types/react": "^16.9.21",
+    "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.4",
     "@types/react-qr-reader": "^2.1.2",
     "@types/styled-components": "^5.1.1",
@@ -60,7 +60,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "prettier": "^1.19.1",
-    "typescript": "^3.7.4"
+    "typescript": "^3.9.7"
   },
   "browserslist": [
     ">0.2%",
