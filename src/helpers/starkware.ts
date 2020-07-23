@@ -1,11 +1,11 @@
 import BN from "bn.js";
-import * as starkwareController from "starkware-controller";
+import * as starkwareWallet from "starkware-wallet";
 
 export function formatLabelPrefix(label: string, labelPrefix?: string) {
   return labelPrefix ? `${labelPrefix} ${label}` : `${label}`;
 }
 
-export function formatTokenLabel(token: starkwareController.Token, labelPrefix?: string) {
+export function formatTokenLabel(token: starkwareWallet.Token, labelPrefix?: string) {
   const label = formatLabelPrefix("Asset", labelPrefix);
   if (token.type === "ETH") {
     return [{ label, value: "Ether" }];
@@ -14,7 +14,7 @@ export function formatTokenLabel(token: starkwareController.Token, labelPrefix?:
       { label, value: "ERC20 Token" },
       {
         label: formatLabelPrefix("Token Address", labelPrefix),
-        value: (token.data as starkwareController.ERC20TokenData).tokenAddress,
+        value: (token.data as starkwareWallet.ERC20TokenData).tokenAddress,
       },
     ];
   } else if (token.type === "ERC721") {
@@ -22,7 +22,7 @@ export function formatTokenLabel(token: starkwareController.Token, labelPrefix?:
       { label, value: "ERC721 NFT" },
       {
         label: formatLabelPrefix("Token ID", labelPrefix),
-        value: (token.data as starkwareController.ERC721TokenData).tokenId,
+        value: (token.data as starkwareWallet.ERC721TokenData).tokenId,
       },
     ];
   } else {
@@ -30,20 +30,19 @@ export function formatTokenLabel(token: starkwareController.Token, labelPrefix?:
   }
 }
 
-export function formatTokenAmount(quantizedAmount: string, token: starkwareController.Token) {
+export function formatTokenAmount(quantizedAmount: string, token: starkwareWallet.Token) {
   let amount = quantizedAmount;
   const quantum =
-    (token.data as starkwareController.ERC20TokenData | starkwareController.ETHTokenData).quantum ||
-    "0";
+    (token.data as starkwareWallet.ERC20TokenData | starkwareWallet.ETHTokenData).quantum || "0";
   if (quantum) {
-    amount = new BN(amount).div(new BN("10").pow(new BN(quantum))).toString();
+    amount = new BN(amount).mul(new BN(quantum)).toString();
   }
   return amount;
 }
 
 export function formatTokenAmountLabel(
   quantizedAmount: string,
-  token: starkwareController.Token,
+  token: starkwareWallet.Token,
   labelPrefix?: string,
 ) {
   return [
