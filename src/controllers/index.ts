@@ -1,4 +1,4 @@
-import StarkwareController from "starkware-controller";
+import StarkwareController from "starkware-wallet";
 
 import { WalletController, getWalletController } from "./wallet";
 import { StoreController, getStoreController } from "./store";

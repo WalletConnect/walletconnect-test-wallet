@@ -38,7 +38,7 @@
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
-    "starkware-wallet": "^1.0.0",
+    "starkware-wallet": "^1.0.1",
     "styled-components": "^5.1.1"
   },
   "devDependencies": {

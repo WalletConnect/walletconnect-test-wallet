@@ -32,7 +32,7 @@ function renderStarkwareRequests(payload: any) {
     { label: "Method", value: payload.method },
     {
       label: "StarkPublicKey",
-      value: params.starkPublicKey || getAppControllers().starkware.getStarkPublicKey(),
+      value: params.starkPublicKey || getAppControllers().starkware.controller.starkPublicKey,
     },
   ];
 
