@@ -140,11 +140,8 @@ async function signStarkwareRequests(payload: any, state: IAppState, setState: a
   }
 
   try {
-    console.log("[signStarkwareRequests]", "payload", payload);
-
     const response = await getAppControllers().starkware.resolve(payload);
     if ("result" in response) {
-      console.log("[signStarkwareRequests]", "response", response);
       state.connector.approveRequest(response);
     } else {
       state.connector.rejectRequest(response);
