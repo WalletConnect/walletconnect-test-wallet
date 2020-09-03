@@ -157,6 +157,15 @@ export async function signEthereumRequests(payload: any, state: IAppState, setSt
           errorMsg = "Address requested does not match active account";
         }
         break;
+      case "eth_signTypedData":
+        dataToSign = payload.params[1];
+        addressRequested = payload.params[0];
+        if (address.toLowerCase() === addressRequested.toLowerCase()) {
+          result = await getAppControllers().wallet.signTypedData(dataToSign);
+        } else {
+          errorMsg = "Address requested does not match active account";
+        }
+        break;
       default:
         break;
     }

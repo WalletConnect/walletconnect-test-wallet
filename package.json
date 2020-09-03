@@ -33,6 +33,7 @@
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.1",
     "elliptic": "^6.5.3",
+    "eth-sig-util": "^2.5.3",
     "ethers": "^5.0.5",
     "hash.js": "^1.1.7",
     "prop-types": "^15.7.2",
