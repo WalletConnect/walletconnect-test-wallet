@@ -1,6 +1,22 @@
 import { IChainData } from "../helpers/types";
 
 export const SUPPORTED_CHAINS: IChainData[] = [
+    {
+    name: "Eraswap testnet",
+    short_name: "esn",
+    chain: "ESN",
+    network: "testnet",
+    chain_id: 5196,
+    network_id: 5196,
+    rpc_url: "https://testnet.eraswap.network",
+    native_currency: {
+      symbol: "ES",
+      name: "Eraswap",
+      decimals: "18",
+      contractAddress: "",
+      balance: "",
+    },
+  },
   {
     name: "Ethereum Mainnet",
     short_name: "eth",
