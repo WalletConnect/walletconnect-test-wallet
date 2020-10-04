@@ -1,4 +1,5 @@
 import * as ethers from "ethers";
+import { signTypedData_v4 } from "eth-sig-util";
 import { getChainData } from "../helpers/utilities";
 import { setLocal, getLocal } from "../helpers/local";
 import {
@@ -178,6 +179,19 @@ export class WalletController {
       const result = await this.wallet.signMessage(
         ethers.utils.isHexString(message) ? ethers.utils.arrayify(message) : message,
       );
+      return result;
+    } else {
+      console.error("No Active Account");
+    }
+    return null;
+  }
+
+  public async signTypedData(data: any) {
+    if (this.wallet) {
+      const result = signTypedData_v4(
+        Buffer.from(this.wallet.privateKey.slice(2), "hex"),
+        {data: JSON.parse(data)}
+      )
       return result;
     } else {
       console.error("No Active Account");
