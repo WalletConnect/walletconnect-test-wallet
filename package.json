@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-test-wallet",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -26,35 +26,28 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/client": "^1.2.0",
-    "@walletconnect/utils": "^1.2.0",
+    "@walletconnect/client": "^1.2.2",
+    "@walletconnect/utils": "^1.2.2",
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.1",
-    "elliptic": "^6.5.3",
-    "ethers": "^5.0.5",
-    "hash.js": "^1.1.7",
+    "ethers": "^5.0.15",
     "prop-types": "^15.7.2",
-    "qr-image": "^3.2.0",
     "react": "^16.12.0",
-    "react-blockies": "^1.4.1",
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
     "styled-components": "^5.1.1"
   },
   "devDependencies": {
-    "@types/bn.js": "^4.11.6",
-    "@types/elliptic": "^6.4.12",
     "@types/jest": "^24.0.25",
     "@types/node": "^13.1.6",
     "@types/prop-types": "^15.7.3",
-    "@types/qr-image": "^3.2.1",
-    "@types/react": "^16.9.21",
+    "@types/react": "^16.9.46",
     "@types/react-dom": "^16.9.4",
     "@types/react-qr-reader": "^2.1.2",
-    "@types/styled-components": "^5.1.1",
+    "@types/styled-components": "^5.1.2",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
     "eslint-config-prettier": "^6.10.0",
@@ -66,7 +59,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "prettier": "^1.19.1",
-    "typescript": "^3.7.4"
+    "typescript": "^3.9.7"
   },
   "browserslist": [
     ">0.2%",

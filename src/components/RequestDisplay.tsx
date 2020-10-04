@@ -43,6 +43,9 @@ class RequestDisplay extends React.Component<any, any> {
     const { payload, peerMeta, approveRequest, rejectRequest, renderPayload } = this.props;
 
     const params: IRequestRenderParams[] = renderPayload(payload);
+    console.log("RENDER", "method", payload.method);
+    console.log("RENDER", "params", payload.params);
+    console.log("RENDER", "formatted", params);
     return (
       <Column>
         <h6>{"Request From"}</h6>

@@ -1,5 +1,4 @@
 import { convertHexToUtf8 } from "@walletconnect/utils";
-import { utils } from "ethers";
 import { IChainData } from "./types";
 import { SUPPORTED_CHAINS } from "../constants";
 
@@ -192,10 +191,6 @@ export function verifyFields(params: any[], keys: any[]) {
     );
   }
   return;
-}
-
-export function toWei(value: string): string {
-  return utils.parseEther(value).toString();
 }
 
 export function getCachedSession(): any {
