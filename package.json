@@ -1,6 +1,6 @@
 {
   "name": "walletconnect-test-wallet",
-  "version": "1.2.2",
+  "version": "1.3.0-rc.0",
   "private": true,
   "keywords": [
     "walletconnect",
@@ -13,7 +13,6 @@
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
     "lint": "eslint -c './.eslintrc' --fix './src/**/*{.ts,.tsx}'"
@@ -26,8 +25,8 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
-    "@walletconnect/client": "^1.2.2",
-    "@walletconnect/utils": "^1.2.2",
+    "@walletconnect/client": "^1.3.0-rc.0",
+    "@walletconnect/utils": "^1.3.0-rc.0",
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "blockies-ts": "^1.0.0",
