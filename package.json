@@ -13,6 +13,7 @@
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
     "lint": "eslint -c './.eslintrc' --fix './src/**/*{.ts,.tsx}'"
