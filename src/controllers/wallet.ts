@@ -154,7 +154,9 @@ export class WalletController {
       if (data && data.from) {
         delete data.from;
       }
-      const result = await this.wallet.signMessage(data);
+      data.gasLimit = data.gas
+      delete data.gas
+      const result = await this.wallet.signTransaction(data);
       return result;
     } else {
       console.error("No Active Account");
