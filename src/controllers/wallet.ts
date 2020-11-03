@@ -188,10 +188,9 @@ export class WalletController {
 
   public async signTypedData(data: any) {
     if (this.wallet) {
-      const result = signTypedData_v4(
-        Buffer.from(this.wallet.privateKey.slice(2), "hex"),
-        {data: JSON.parse(data)}
-      )
+      const result = signTypedData_v4(Buffer.from(this.wallet.privateKey.slice(2), "hex"), {
+        data: JSON.parse(data),
+      });
       return result;
     } else {
       console.error("No Active Account");
