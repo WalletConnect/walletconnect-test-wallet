@@ -113,6 +113,10 @@ export function getChainData(chainId: number): IChainData {
 
   const API_KEY = process.env.REACT_APP_INFURA_PROJECT_ID;
 
+  if (!API_KEY) {
+    throw new Error("Environment variable REACT_APP_INFURA_PROJECT_ID is not set");
+  }
+
   if (
     chainData.rpc_url.includes("infura.io") &&
     chainData.rpc_url.includes("%API_KEY%") &&

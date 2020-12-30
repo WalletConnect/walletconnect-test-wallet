@@ -69,7 +69,7 @@ export function renderEthereumRequests(payload: any): IRequestRenderParams[] {
         },
         {
           label: "Value",
-          value: convertHexToNumber(payload.params[0].value),
+          value: payload.params[0].value ? convertHexToNumber(payload.params[0].value) : "",
         },
         { label: "Data", value: payload.params[0].data },
       ];
