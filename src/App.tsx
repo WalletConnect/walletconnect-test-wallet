@@ -404,7 +404,18 @@ class App extends React.Component<{}> {
 
   public onQRCodeClose = () => this.toggleScanner();
 
-  public openRequest = (request: any) => this.setState({ payload: request });
+  public openRequest = async (request: any) => {
+    const payload = Object.assign({}, request);
+
+    const params = payload.params[0];
+    if (request.method === "eth_sendTransaction") {
+      payload.params[0] = await getAppControllers().wallet.populateTransaction(params);
+    }
+
+    this.setState({
+      payload,
+    });
+  };
 
   public closeRequest = async () => {
     const { requests, payload } = this.state;

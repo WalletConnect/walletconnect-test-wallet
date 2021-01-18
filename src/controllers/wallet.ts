@@ -113,13 +113,37 @@ export class WalletController {
     this.activeIndex = index;
     this.activeChainId = chainId;
     const rpcUrl = getChainData(chainId).rpc_url;
-    this.wallet = this.generateWallet(index);
+    const wallet = this.generateWallet(index);
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-    this.wallet.connect(provider);
+    this.wallet = wallet.connect(provider);
     if (!firstUpdate) {
       // update another controller if necessary here
     }
     return this.wallet;
+  }
+
+  public async populateTransaction(transaction: any) {
+    let tx = Object.assign({}, transaction);
+    if (this.wallet) {
+      if (tx.gas) {
+        tx.gasLimit = tx.gas;
+        delete tx.gas;
+      }
+      if (tx.from) {
+        tx.from = ethers.utils.getAddress(tx.from);
+      }
+
+      try {
+        tx = await this.wallet.populateTransaction(tx);
+        tx.gasLimit = ethers.BigNumber.from(tx.gasLimit).toHexString();
+        tx.gasPrice = ethers.BigNumber.from(tx.gasPrice).toHexString();
+        tx.nonce = ethers.BigNumber.from(tx.nonce).toHexString();
+      } catch (err) {
+        console.error("Error populating transaction", tx, err);
+      }
+    }
+
+    return tx;
   }
 
   public async sendTransaction(transaction: any) {
@@ -154,8 +178,8 @@ export class WalletController {
       if (data && data.from) {
         delete data.from;
       }
-      data.gasLimit = data.gas
-      delete data.gas
+      data.gasLimit = data.gas;
+      delete data.gas;
       const result = await this.wallet.signTransaction(data);
       return result;
     } else {
