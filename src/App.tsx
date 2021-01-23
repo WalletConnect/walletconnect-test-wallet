@@ -201,7 +201,7 @@ class App extends React.Component<{}> {
 
   public bindedSetState = (newState: Partial<IAppState>) => this.setState(newState);
 
-  public initWalletConnect = async () => {
+  public connect = async () => {
     const { uri } = this.state;
 
     this.setState({ loading: true });
@@ -384,7 +384,7 @@ class App extends React.Component<{}> {
     const uri = typeof data === "string" ? data : "";
     if (uri) {
       await this.setState({ uri });
-      await this.initWalletConnect();
+      await this.connect();
       this.toggleScanner();
     }
   };
@@ -394,7 +394,7 @@ class App extends React.Component<{}> {
     const uri = typeof data === "string" ? data : "";
     if (uri) {
       await this.setState({ uri });
-      await this.initWalletConnect();
+      await this.connect();
     }
   };
 

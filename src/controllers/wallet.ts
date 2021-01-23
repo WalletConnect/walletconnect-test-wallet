@@ -188,19 +188,7 @@ export class WalletController {
     return null;
   }
 
-  public async signMessage(data: any) {
-    if (this.wallet) {
-      const signingKey = new ethers.utils.SigningKey(this.wallet.privateKey);
-      const sigParams = await signingKey.signDigest(ethers.utils.arrayify(data));
-      const result = await ethers.utils.joinSignature(sigParams);
-      return result;
-    } else {
-      console.error("No Active Account");
-    }
-    return null;
-  }
-
-  public async signPersonalMessage(message: any) {
+  public async signMessage(message: any) {
     if (this.wallet) {
       const result = await this.wallet.signMessage(
         ethers.utils.isHexString(message) ? ethers.utils.arrayify(message) : message,
