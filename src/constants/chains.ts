@@ -225,4 +225,20 @@ export const SUPPORTED_CHAINS: IChainData[] = [
       balance: "",
     },
   },
+  {
+    name: "Eraswap Mainnet Network",
+    short_name: "ESN",
+    chain: "ESN",
+    network: "mainnet",
+    chain_id: 5197,
+    network_id: 5197,
+    rpc_url: "https://rpc-mumbai.mainnet.eraswap.network",
+    native_currency: {
+      symbol: "ES",
+      name: "eraswap",
+      decimals: "18",
+      contractAddress: "",
+      balance: "",
+    },
+  },
 ];
