@@ -270,7 +270,7 @@ class App extends React.Component<{}> {
         if (error) {
           throw error;
         }
-
+        console.log("SESSION_REQUEST", payload.params);
         const { peerMeta } = payload.params[0];
         this.setState({ peerMeta });
       });
