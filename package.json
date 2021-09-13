@@ -26,6 +26,7 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
+    "@types/eth-sig-util": "^2.1.1",
     "@walletconnect/client": "^1.6.5",
     "@walletconnect/utils": "^1.6.5",
     "axios": "^0.21.1",
