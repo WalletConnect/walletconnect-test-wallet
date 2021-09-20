@@ -9,7 +9,7 @@
     "crypto"
   ],
   "author": "WalletConnect <walletconnect.org>",
-  "homepage": "https://walletconnect.org",
+  "homepage": "http://localhost:3000/testwallet",
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
@@ -26,13 +26,14 @@
     "url": "https://github.com/walletconnect/walletconnect-test-wallet/issues"
   },
   "dependencies": {
+    "@types/eth-sig-util": "^2.1.1",
     "@walletconnect/client": "^1.6.5",
     "@walletconnect/utils": "^1.6.5",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.3",
-    "eth-sig-util": "^2.5.3",
+    "eth-sig-util": "^3.0.1",
     "ethers": "^5.0.17",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",

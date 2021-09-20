@@ -7,4 +7,5 @@ export const MAINNET_CHAIN_ID = 1;
 export const ROPSTEN_CHAIN_ID = 3;
 export const RINKEBY_CHAIN_ID = 4;
 export const GOERLI_CHAIN_ID = 5;
-export const DEFAULT_CHAIN_ID = RINKEBY_CHAIN_ID;
+export const KOVAN_CHAIN_ID = 42;
+export const DEFAULT_CHAIN_ID = KOVAN_CHAIN_ID;
