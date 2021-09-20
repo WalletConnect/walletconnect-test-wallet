@@ -9,9 +9,10 @@
     "crypto"
   ],
   "author": "WalletConnect <walletconnect.org>",
-  "homepage": "https://walletconnect.org",
+  "homepage": "http://localhost:3000/testwallet",
   "license": "LGPL-3.0",
   "scripts": {
+    "serve-start": "serve -s build",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
@@ -33,13 +34,14 @@
     "bignumber.js": "^9.0.1",
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.3",
-    "eth-sig-util": "^2.5.3",
+    "eth-sig-util": "^3.0.1",
     "ethers": "^5.0.17",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
+    "serve": "^12.0.1",
     "styled-components": "^5.2.0"
   },
   "devDependencies": {
