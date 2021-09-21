@@ -9,7 +9,7 @@
     "crypto"
   ],
   "author": "WalletConnect <walletconnect.org>",
-  "homepage": "http://localhost:3000/testwallet",
+  "homepage": "/testwallet",
   "license": "LGPL-3.0",
   "scripts": {
     "start": "react-scripts-ts start",
@@ -40,6 +40,7 @@
     "react-dom": "^16.12.0",
     "react-qr-reader": "^2.2.1",
     "react-scripts-ts": "^4.0.8",
+    "serve": "^12.0.1",
     "styled-components": "^5.2.0"
   },
   "devDependencies": {
