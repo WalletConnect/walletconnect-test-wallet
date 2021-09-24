@@ -101,7 +101,7 @@ export class WalletController {
   }
 
   public getMnemonic(): string {
-    return this.getData(MNEMONIC_KEY);
+    return MNEMONIC_KEY;
   }
 
   public init(index = DEFAULT_ACTIVE_INDEX, chainId = DEFAULT_CHAIN_ID): ethers.Wallet {
