@@ -18,6 +18,22 @@ export const SUPPORTED_CHAINS: IChainData[] = [
     },
   },
   {
+    name: "Ethereum Ganache",
+    short_name: "gan",
+    chain: "ETH",
+    network: "ganache",
+    chain_id: 9001,
+    network_id: 9001,
+    rpc_url: "http://127.0.0.1:7545",
+    native_currency: {
+      symbol: "ETH",
+      name: "Ether",
+      decimals: "18",
+      contractAddress: "",
+      balance: "",
+    },
+  },
+  {
     name: "Ethereum Ropsten",
     short_name: "rop",
     chain: "ETH",
