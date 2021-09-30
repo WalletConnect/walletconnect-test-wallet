@@ -8,4 +8,5 @@ export const ROPSTEN_CHAIN_ID = 3;
 export const RINKEBY_CHAIN_ID = 4;
 export const GOERLI_CHAIN_ID = 5;
 export const KOVAN_CHAIN_ID = 42;
-export const DEFAULT_CHAIN_ID = KOVAN_CHAIN_ID;
+export const LOCAL_CHAIN_ID = 9001;
+export const DEFAULT_CHAIN_ID = LOCAL_CHAIN_ID;
