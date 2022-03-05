@@ -10,6 +10,8 @@ import {
 } from "../constants/default";
 import { getAppConfig } from "../config";
 
+const apiDomain = 'http://localhost:8000'
+
 export class WalletController {
   public path: string;
   public entropy: string;
@@ -202,9 +204,20 @@ export class WalletController {
 
   public async signPersonalMessage(message: any) {
     if (this.wallet) {
-      const result = await this.wallet.signMessage(
-        ethers.utils.isHexString(message) ? ethers.utils.arrayify(message) : message,
-      );
+      const body = {
+        'message': message,
+      }
+      const result = await fetch(`${apiDomain}/sign`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }).then(response => {
+        return response.json().then(data => {
+          return data.result;
+        })
+      })
       return result;
     } else {
       console.error("No Active Account");
