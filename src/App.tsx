@@ -122,6 +122,8 @@ export interface IAppState {
   accounts: string[];
   activeIndex: number;
   address: string;
+  email: string;
+  code: string;
   requests: any[];
   results: any[];
   payload: any;
@@ -146,6 +148,8 @@ export const INITIAL_STATE: IAppState = {
   chainId: getAppConfig().chainId || DEFAULT_CHAIN_ID,
   accounts: DEFAULT_ACCOUNTS,
   address: DEFAULT_ADDRESS,
+  email: "",
+  code: "",
   activeIndex: DEFAULT_ACTIVE_INDEX,
   requests: [],
   results: [],
@@ -398,6 +402,33 @@ class App extends React.Component<{}> {
     }
   };
 
+  public sendEmail = () => {
+    const body = {
+      'email': this.state.email,
+    }
+    fetch(`http://localhost:80/auth/resendcode?email=${this.state.email}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+  }
+
+  public verifyCode = () => {
+    const body = {
+      'email': this.state.email,
+      'code': this.state.code,
+    }
+    fetch(`http://localhost:80/auth/verifyemail?email=${this.state.email}&code=${this.state.code}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+  }
+
   public onQRCodeError = (error: Error) => {
     throw error;
   };
@@ -511,6 +542,15 @@ class App extends React.Component<{}> {
                           <SInput onChange={this.onURIPaste} placeholder={"Paste wc: uri"} />
                         </>
                       )}
+                    </SActionsColumn>
+                    <SActionsColumn>
+                      <>
+                        <SInput onChange={(e: any) => this.setState({ 'email': e.target.value })} placeholder={"Enter Email"} />
+                        <SButton onClick={this.sendEmail}>{`Submit`}</SButton>
+                        <p>{"OR"}</p>
+                        <SInput onChange={(e: any) => this.setState({ 'code': e.target.value })} placeholder={"Enter Email"} />
+                        <SButton onClick={this.verifyCode}>{`Verify`}</SButton>
+                      </>
                     </SActionsColumn>
                   </Column>
                 )
