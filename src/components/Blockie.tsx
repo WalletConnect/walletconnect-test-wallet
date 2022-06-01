@@ -24,7 +24,7 @@ const SBlockieWrapper = styled.div<IBlockieStyleProps>`
 `;
 
 const Blockie = (props: IBlockieProps) => {
-  const seed = props.address.toLowerCase() || "";
+  const seed = props.address && props.address.toLowerCase() || "";
   const imgUrl = blockies
     .create({
       seed,
