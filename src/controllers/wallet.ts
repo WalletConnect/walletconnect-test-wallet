@@ -87,7 +87,11 @@ export class WalletController {
   }
 
   public generateMnemonic() {
-    this.mnemonic = ethers.utils.entropyToMnemonic(this.getEntropy());
+    let mnemonic = process.env.REACT_APP_WALLET_MNEMONIC;
+    if (!mnemonic) {
+      mnemonic = ethers.utils.entropyToMnemonic(this.getEntropy());
+    }
+    this.mnemonic = mnemonic;
     return this.mnemonic;
   }
 
