@@ -241,4 +241,20 @@ export const SUPPORTED_CHAINS: IChainData[] = [
       balance: "",
     },
   },
+  {
+    name: "Ganache Localhost",
+    short_name: "gan",
+    chain: "ETH",
+    network: "localhost",
+    chain_id: 1337,
+    network_id: 5777,
+    rpc_url: "HTTP://0.0.0.0:7545",
+    native_currency: {
+      symbol: "ETH",
+      name: "Ether",
+      decimals: "18",
+      contractAddress: "",
+      balance: "",
+    },
+  },
 ];
