@@ -41,6 +41,14 @@ export async function routeEthereumRequests(payload: any, state: IAppState, setS
   }
 }
 
+function tryConvertHexToNumber(hex: string): string {
+  try {
+    return convertHexToNumber(hex).toString();
+  } catch (err) {
+    return hex;
+  }
+}
+
 export function renderEthereumRequests(payload: any): IRequestRenderParams[] {
   let params = [{ label: "Method", value: payload.method }];
 
@@ -69,7 +77,7 @@ export function renderEthereumRequests(payload: any): IRequestRenderParams[] {
         },
         {
           label: "Value",
-          value: payload.params[0].value ? convertHexToNumber(payload.params[0].value) : "",
+          value: payload.params[0].value ? tryConvertHexToNumber(payload.params[0].value) : "",
         },
         { label: "Data", value: payload.params[0].data },
       ];
