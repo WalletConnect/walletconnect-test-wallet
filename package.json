@@ -28,7 +28,7 @@
   "dependencies": {
     "@walletconnect/client": "^1.7.8",
     "@walletconnect/utils": "^1.7.8",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bignumber.js": "^9.0.1",
     "blockies-ts": "^1.0.0",
     "bn.js": "^5.1.3",
